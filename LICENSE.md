@@ -1,2 +1,2 @@
 
-Copyright (C) 2018 Deni Rohimat
+Copyright (C) 2018 Astronaut Technology Indonesia

@@ -17,4 +17,10 @@ public interface ApiService {
                                                 @Field("device") String device,
                                                 @Field("version") int version);
 
+    @FormUrlEncoded
+    @POST("register")
+    Observable<InterviewResultApiDao> registerUser(@Field("interviewCode") String interviewCode,
+                                                   @Field("full_name") String full_name,
+                                                   @Field("version") int version);
+
 }

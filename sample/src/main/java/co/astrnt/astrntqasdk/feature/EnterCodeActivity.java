@@ -1,24 +1,23 @@
-package co.astrnt.astrntqasdk;
+package co.astrnt.astrntqasdk.feature;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import co.astrnt.astrntqasdk.R;
+import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.qasdk.core.InterviewObserver;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.repository.InterviewRepository;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class EnterCodeActivity extends BaseActivity {
 
     private InterviewRepository mInterviewRepository;
-    private Context mContext;
     private EditText inpCode;
     private Button btnSubmit;
 
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         inpCode = findViewById(R.id.inp_code);
         btnSubmit = findViewById(R.id.btn_submit);
 
-        mInterviewRepository = new InterviewRepository(AstronautApp.getApi());
+        mInterviewRepository = new InterviewRepository(getApi());
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onNeedToRegister(InterviewApiDao interview) {
                         Toast.makeText(mContext, "Need Register", Toast.LENGTH_SHORT).show();
+                        RegisterActivity.start(mContext, interview);
                     }
 
                     @Override

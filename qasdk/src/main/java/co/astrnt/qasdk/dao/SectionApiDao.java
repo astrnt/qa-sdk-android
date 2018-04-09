@@ -1,10 +1,24 @@
 package co.astrnt.qasdk.dao;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by deni rohimat on 06/04/18.
  */
-public class SectionApiDao extends BaseApiDao {
-    private String id;
+public class SectionApiDao implements Parcelable {
+    public static final Creator<SectionApiDao> CREATOR = new Creator<SectionApiDao>() {
+        @Override
+        public SectionApiDao createFromParcel(Parcel source) {
+            return new SectionApiDao(source);
+        }
+
+        @Override
+        public SectionApiDao[] newArray(int size) {
+            return new SectionApiDao[size];
+        }
+    };
+    private long id;
     private String title;
     private String instruction;
     private String type; //SectionType
@@ -14,11 +28,26 @@ public class SectionApiDao extends BaseApiDao {
     private String image;
     private String parent_id;
 
-    public String getId() {
+    public SectionApiDao() {
+    }
+
+    protected SectionApiDao(Parcel in) {
+        this.id = in.readLong();
+        this.title = in.readString();
+        this.instruction = in.readString();
+        this.type = in.readString();
+        this.duration = in.readInt();
+        this.preparation_time = in.readInt();
+        this.randomize = in.readByte() != 0;
+        this.image = in.readString();
+        this.parent_id = in.readString();
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -84,5 +113,23 @@ public class SectionApiDao extends BaseApiDao {
 
     public void setParent_id(String parent_id) {
         this.parent_id = parent_id;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.title);
+        dest.writeString(this.instruction);
+        dest.writeString(this.type);
+        dest.writeInt(this.duration);
+        dest.writeInt(this.preparation_time);
+        dest.writeByte(this.randomize ? (byte) 1 : (byte) 0);
+        dest.writeString(this.image);
+        dest.writeString(this.parent_id);
     }
 }

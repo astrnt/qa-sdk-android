@@ -1,20 +1,13 @@
 package co.astrnt.qasdk.dao;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by deni rohimat on 06/04/18.
  */
-public class JobApiDao {
-    /**
-     * id : 1946
-     * title : Section Beta - English
-     * required : 0
-     * description : about job
-     * location : Bandung, Indonesia
-     * requirement : requirements
-     * responsibility : responsibilities
-     */
-
-    private int id;
+public class JobApiDao implements Parcelable {
+    private long id;
     private String title;
     private int required;
     private String description;
@@ -22,11 +15,11 @@ public class JobApiDao {
     private String requirement;
     private String responsibility;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -77,4 +70,45 @@ public class JobApiDao {
     public void setResponsibility(String responsibility) {
         this.responsibility = responsibility;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
+        dest.writeString(this.title);
+        dest.writeInt(this.required);
+        dest.writeString(this.description);
+        dest.writeString(this.location);
+        dest.writeString(this.requirement);
+        dest.writeString(this.responsibility);
+    }
+
+    public JobApiDao() {
+    }
+
+    protected JobApiDao(Parcel in) {
+        this.id = in.readLong();
+        this.title = in.readString();
+        this.required = in.readInt();
+        this.description = in.readString();
+        this.location = in.readString();
+        this.requirement = in.readString();
+        this.responsibility = in.readString();
+    }
+
+    public static final Creator<JobApiDao> CREATOR = new Creator<JobApiDao>() {
+        @Override
+        public JobApiDao createFromParcel(Parcel source) {
+            return new JobApiDao(source);
+        }
+
+        @Override
+        public JobApiDao[] newArray(int size) {
+            return new JobApiDao[size];
+        }
+    };
 }

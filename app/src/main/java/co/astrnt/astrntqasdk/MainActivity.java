@@ -3,17 +3,24 @@ package co.astrnt.astrntqasdk;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import co.astrnt.qasdk.core.MyObserver;
+import co.astrnt.qasdk.core.InterviewObserver;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.repository.InterviewRepository;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
     private InterviewRepository mInterviewRepository;
     private Context mContext;
+    private EditText inpCode;
+    private Button btnSubmit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,24 +28,55 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mContext = this;
+
+        inpCode = findViewById(R.id.inp_code);
+        btnSubmit = findViewById(R.id.btn_submit);
+
         mInterviewRepository = new InterviewRepository(AstronautApp.getApi());
 
-        mInterviewRepository.enterCode("mimpi")
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String code = inpCode.getText().toString();
+                if (TextUtils.isEmpty(code)) {
+                    inpCode.setError("Code still empty");
+                    inpCode.setFocusable(true);
+                    return;
+                }
+                enterCode(code);
+            }
+        });
+    }
+
+    private void enterCode(String code) {
+        mInterviewRepository.enterCode(code, 98)
                 .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io())
-                .subscribe(new MyObserver<InterviewApiDao>() {
-                    @Override
-                    public void onApiResultCompleted() {
-                    }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new InterviewObserver() {
 
                     @Override
                     public void onApiResultError(String message, String code) {
-                        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onApiResultOk(InterviewApiDao interviewApiDao) {
-                        Toast.makeText(mContext, "success", Toast.LENGTH_LONG).show();
+                    public void onNeedToRegister(InterviewApiDao interview) {
+                        Toast.makeText(mContext, "Need Register", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onInterviewType(InterviewApiDao interview) {
+                        Toast.makeText(mContext, "Interview", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onTestType(InterviewApiDao interview) {
+                        Toast.makeText(mContext, "Test MCQ", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onSectionType(InterviewApiDao interview) {
+                        Toast.makeText(mContext, "Section", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

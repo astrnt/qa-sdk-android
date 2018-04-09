@@ -18,7 +18,6 @@ public class AstronautApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
     }
 
 }

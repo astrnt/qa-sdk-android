@@ -25,7 +25,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
             try {
                 ResponseBody body = ((retrofit2.HttpException) e).response().errorBody();
                 BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
-                onApiResultError(apiDao.getMessage(), apiDao.getStatus());
+                onApiResultError("", apiDao.getStatus());
             } catch (Exception e2) {
                 e2.printStackTrace();
                 onApiResultError("Terjadi kesalahan, silakan hubungi customer service", "exception");
@@ -45,7 +45,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     @Override
     public final void onNext(T t) {
         if (t.getStatus() != null && t.getStatus().contains("error")) {
-            onApiResultError(t.getMessage(), "error");
+            onApiResultError("", "error");
         } else {
             onApiResultOk(t);
         }

@@ -8,30 +8,44 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 /**
  * Created by deni rohimat on 06/04/18.
  */
 public class AstronautApi {
 
-    ApiService mApiService;
+    private ApiService mApiService;
 
-    public AstronautApi(String baseUrl) {
+    public AstronautApi(String baseUrl, boolean isDebugable) {
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new ApiInterceptor())
-                .readTimeout(30, TimeUnit.SECONDS)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .addNetworkInterceptor(new MyInterceptor())
-                .build();
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
+
+        if (isDebugable) {
+            Timber.plant(new Timber.DebugTree());
+
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+                @Override
+                public void log(String message) {
+                    Timber.d("API Request : %s", message);
+                }
+            });
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            httpClientBuilder.addInterceptor(loggingInterceptor);
+            httpClientBuilder.addInterceptor(new MyInterceptor());
+        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
+                .client(httpClientBuilder.build())
                 .baseUrl(baseUrl)
                 .build();
 
@@ -54,8 +68,7 @@ public class AstronautApi {
 
             Response response = chain.proceed(request);
 
-            //TODO disable if published
-            System.out.println("CALL API: " + request.url());
+            Timber.d("API Request : %s", request.url());
 
             return response;
         }

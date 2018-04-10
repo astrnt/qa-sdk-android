@@ -10,7 +10,7 @@ public class AstronautApp extends Application {
 
     public static AstronautApi getApi() {
         if (mAstronautApi == null) {
-            mAstronautApi = new AstronautApi(BuildConfig.API_URL);
+            mAstronautApi = new AstronautApi(BuildConfig.API_URL, BuildConfig.DEBUG);
         }
         return mAstronautApi;
     }

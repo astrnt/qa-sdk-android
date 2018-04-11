@@ -2,7 +2,7 @@ package co.astrnt.qasdk.repository;
 
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * Created by deni rohimat on 06/04/18.

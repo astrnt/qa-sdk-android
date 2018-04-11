@@ -12,8 +12,8 @@ import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.qasdk.core.InterviewObserver;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.repository.InterviewRepository;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class EnterCodeActivity extends BaseActivity {
 

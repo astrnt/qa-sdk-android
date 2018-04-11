@@ -6,8 +6,9 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import co.astrnt.qasdk.dao.BaseApiDao;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
-import rx.Observer;
 
 /**
  * Created by deni rohimat on 06/04/18.
@@ -15,7 +16,12 @@ import rx.Observer;
 public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
     @Override
-    public final void onCompleted() {
+    public void onSubscribe(Disposable d) {
+
+    }
+
+    @Override
+    public final void onComplete() {
         onApiResultCompleted();
     }
 
@@ -30,7 +36,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 e2.printStackTrace();
                 onApiResultError("Terjadi kesalahan, silakan hubungi customer service", "exception");
             }
-            onApiResultCompleted();
+            onComplete();
         } else if (e instanceof UnknownHostException) {
             onApiResultError("Koneksi terputus, silahkan coba lagi", "exception");
         } else if (e instanceof SocketTimeoutException) {

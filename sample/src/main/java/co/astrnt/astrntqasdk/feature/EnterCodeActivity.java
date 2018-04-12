@@ -24,7 +24,7 @@ public class EnterCodeActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_enter_code);
 
         mContext = this;
 
@@ -47,7 +47,7 @@ public class EnterCodeActivity extends BaseActivity {
         });
     }
 
-    private void enterCode(String code) {
+    private void enterCode(final String code) {
         mInterviewRepository.enterCode(code, 98)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -66,22 +66,27 @@ public class EnterCodeActivity extends BaseActivity {
                     @Override
                     public void onNeedToRegister(InterviewApiDao interview) {
                         Toast.makeText(mContext, "Need Register", Toast.LENGTH_SHORT).show();
+                        interview.setInvite_id(code);
                         RegisterActivity.start(mContext, interview);
+                        finish();
                     }
 
                     @Override
                     public void onInterviewType(InterviewApiDao interview) {
                         Toast.makeText(mContext, "Interview", Toast.LENGTH_SHORT).show();
+                        interview.setInvite_id(code);
                     }
 
                     @Override
                     public void onTestType(InterviewApiDao interview) {
                         Toast.makeText(mContext, "Test MCQ", Toast.LENGTH_SHORT).show();
+                        interview.setInvite_id(code);
                     }
 
                     @Override
                     public void onSectionType(InterviewApiDao interview) {
                         Toast.makeText(mContext, "Section", Toast.LENGTH_SHORT).show();
+                        interview.setInvite_id(code);
                     }
                 });
     }

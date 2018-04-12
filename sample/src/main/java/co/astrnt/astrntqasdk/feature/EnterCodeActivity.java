@@ -54,6 +54,11 @@ public class EnterCodeActivity extends BaseActivity {
                 .subscribe(new InterviewObserver() {
 
                     @Override
+                    public void onApiResultCompleted() {
+
+                    }
+
+                    @Override
                     public void onApiResultError(String message, String code) {
                         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
                     }

@@ -14,11 +14,6 @@ import static co.astrnt.qasdk.type.InterviewType.OPEN;
 public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao> {
 
     @Override
-    public void onApiResultCompleted() {
-
-    }
-
-    @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
         if (resultApiDao.getInterview().getType().contains(OPEN)) {
             onNeedToRegister(resultApiDao.getInterview());

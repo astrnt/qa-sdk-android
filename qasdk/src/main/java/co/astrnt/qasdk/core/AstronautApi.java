@@ -1,13 +1,9 @@
 package co.astrnt.qasdk.core;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.ApiService;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -30,16 +26,10 @@ public class AstronautApi {
         if (isDebugable) {
             Timber.plant(new Timber.DebugTree());
 
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-                @Override
-                public void log(String message) {
-                    Timber.d("API Request : %s", message);
-                }
-            });
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             httpClientBuilder.addInterceptor(loggingInterceptor);
-            httpClientBuilder.addInterceptor(new MyInterceptor());
         }
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -56,21 +46,4 @@ public class AstronautApi {
         return mApiService;
     }
 
-    private class MyInterceptor implements Interceptor {
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request().newBuilder()
-                    //TODO customize if need authorization like secret key
-//                    .addHeader("timestamp", ts)
-//                    .addHeader("deviceid", deviceId)
-                    .build();
-
-            Response response = chain.proceed(request);
-
-            Timber.d("API Request : %s", request.url());
-
-            return response;
-        }
-    }
 }

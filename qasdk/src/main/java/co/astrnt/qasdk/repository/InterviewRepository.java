@@ -8,7 +8,7 @@ import io.reactivex.Observable;
  * Created by deni rohimat on 06/04/18.
  */
 public class InterviewRepository extends BaseRepository {
-    AstronautApi mAstronautApi;
+    private final AstronautApi mAstronautApi;
 
     public InterviewRepository(AstronautApi astronautApi) {
         mAstronautApi = astronautApi;

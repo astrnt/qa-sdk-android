@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -49,7 +50,7 @@ public class RegisterActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        mContext = this;
+        context = this;
         interviewApiDao = getIntent().getParcelableExtra(InterviewApiDao.class.getName());
         mInterviewRepository = new InterviewRepository(getApi());
 
@@ -71,9 +72,7 @@ public class RegisterActivity extends BaseActivity {
             inpPhone.setText(q + "");
         }
 
-        if (interviewApiDao.getCustom_fields() != null) {
-            generateCustomField();
-        }
+        generateCustomField();
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,7 +140,7 @@ public class RegisterActivity extends BaseActivity {
             CustomFieldApiDao customFieldField = editText.getFieldApiDao();
             if (customFieldField.getIs_mandatory() == 1 && input.isEmpty()) {
                 editText.requestFocus();
-                editText.setError(String.format(mContext.getString(R.string.field_is_required), customFieldField.getLabel()));
+                editText.setError(String.format(context.getString(R.string.field_is_required), customFieldField.getLabel()));
                 return;
             }
 
@@ -174,38 +173,46 @@ public class RegisterActivity extends BaseActivity {
 
                     @Override
                     public void onApiResultCompleted() {
-                        Toast.makeText(mContext, "Register User Success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Register User Success", Toast.LENGTH_SHORT).show();
                         finish();
                     }
 
                     @Override
                     public void onApiResultError(String message, String code) {
-                        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onInterviewType(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Interview", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Interview", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onTestType(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Test MCQ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Test MCQ", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onSectionType(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Section", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Section", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void generateCustomField() {
+        if (interviewApiDao.getCustom_fields() == null) {
+            return;
+        }
+
+        inpPhone.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+
         customFieldList = interviewApiDao.getCustom_fields().getFields();
         customFieldEditTextList = new ArrayList<>();
-        LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
 
-        for (CustomFieldApiDao f : customFieldList) {
+        for (int i = 0; i < customFieldList.size(); i++) {
+            CustomFieldApiDao f = customFieldList.get(i);
+
             String value = f.getLabel();
             long id = f.getId();
             LinearLayout container = (LinearLayout) layoutInflater.inflate(R.layout.view_register_custom_field, null);
@@ -215,6 +222,9 @@ public class RegisterActivity extends BaseActivity {
             editText.setFieldApiDao(f);
 
             editText.setFieldId(id);
+            if (i == (customFieldList.size() - 1)) {
+                editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            }
             lyCustomField.addView(container);
             customFieldEditTextList.add(editText);
         }

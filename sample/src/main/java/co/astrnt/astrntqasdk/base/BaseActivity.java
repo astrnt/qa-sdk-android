@@ -7,7 +7,7 @@ import co.astrnt.astrntqasdk.AstronautApp;
 import co.astrnt.qasdk.core.AstronautApi;
 
 public class BaseActivity extends AppCompatActivity {
-    protected Context mContext = this;
+    protected Context context = this;
 
     public static AstronautApi getApi() {
         return AstronautApp.getApi();

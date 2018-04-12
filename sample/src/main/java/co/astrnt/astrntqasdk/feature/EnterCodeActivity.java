@@ -26,7 +26,7 @@ public class EnterCodeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter_code);
 
-        mContext = this;
+        context = this;
 
         inpCode = findViewById(R.id.inp_code);
         btnSubmit = findViewById(R.id.btn_submit);
@@ -60,32 +60,32 @@ public class EnterCodeActivity extends BaseActivity {
 
                     @Override
                     public void onApiResultError(String message, String code) {
-                        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onNeedToRegister(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Need Register", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Need Register", Toast.LENGTH_SHORT).show();
                         interview.setInvite_id(code);
-                        RegisterActivity.start(mContext, interview);
+                        RegisterActivity.start(context, interview);
                         finish();
                     }
 
                     @Override
                     public void onInterviewType(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Interview", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Interview", Toast.LENGTH_SHORT).show();
                         interview.setInvite_id(code);
                     }
 
                     @Override
                     public void onTestType(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Test MCQ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Test MCQ", Toast.LENGTH_SHORT).show();
                         interview.setInvite_id(code);
                     }
 
                     @Override
                     public void onSectionType(InterviewApiDao interview) {
-                        Toast.makeText(mContext, "Section", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Section", Toast.LENGTH_SHORT).show();
                         interview.setInvite_id(code);
                     }
                 });

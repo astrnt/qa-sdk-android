@@ -36,8 +36,8 @@ public class RegisterActivity extends BaseActivity {
     private LinearLayout lyCustomField;
     private Button btnSubmit;
     private InterviewApiDao interviewApiDao;
-    private List<CustomFieldApiDao> customFieldList;
-    private List<CustomFieldEditText> customFieldEditTextList;
+    private List<CustomFieldApiDao> customFieldList = new ArrayList<>();
+    private List<CustomFieldEditText> customFieldEditTextList = new ArrayList<>();
 
     public static void start(Context context, InterviewApiDao interviewApiDao) {
         Intent intent = new Intent(context, RegisterActivity.class);

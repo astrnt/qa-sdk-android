@@ -23,6 +23,7 @@ public class CompanyApiDao implements Parcelable {
     private String logo;
     private String requirement;
     private String nda;
+    private String title;
 
     public CompanyApiDao() {
     }
@@ -33,6 +34,7 @@ public class CompanyApiDao implements Parcelable {
         this.logo = in.readString();
         this.requirement = in.readString();
         this.nda = in.readString();
+        this.title = in.readString();
     }
 
     public String getCoverPicture() {
@@ -75,6 +77,14 @@ public class CompanyApiDao implements Parcelable {
         this.nda = nda;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -87,5 +97,6 @@ public class CompanyApiDao implements Parcelable {
         dest.writeString(this.logo);
         dest.writeString(this.requirement);
         dest.writeString(this.nda);
+        dest.writeString(this.title);
     }
 }

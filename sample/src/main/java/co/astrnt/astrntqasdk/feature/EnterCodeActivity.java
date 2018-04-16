@@ -1,5 +1,6 @@
 package co.astrnt.astrntqasdk.feature;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -20,6 +21,7 @@ public class EnterCodeActivity extends BaseActivity {
     private InterviewRepository mInterviewRepository;
     private EditText inpCode;
     private Button btnSubmit;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,11 @@ public class EnterCodeActivity extends BaseActivity {
     }
 
     private void enterCode(final String code) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
         mInterviewRepository.enterCode(code, 98)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -55,7 +62,7 @@ public class EnterCodeActivity extends BaseActivity {
 
                     @Override
                     public void onApiResultCompleted() {
-
+                        progressDialog.dismiss();
                     }
 
                     @Override

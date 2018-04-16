@@ -1,5 +1,6 @@
 package co.astrnt.astrntqasdk.feature;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -32,12 +34,14 @@ import io.reactivex.schedulers.Schedulers;
 public class RegisterActivity extends BaseActivity {
 
     private InterviewRepository mInterviewRepository;
+    private TextView txtTitle, txtDetail;
     private EditText inpFullName, inpPreferredName, inpEmail, inpConfirmEmail, inpPhone;
     private LinearLayout lyCustomField;
     private Button btnSubmit;
     private InterviewApiDao interviewApiDao;
     private List<CustomFieldApiDao> customFieldList = new ArrayList<>();
     private List<CustomFieldEditText> customFieldEditTextList = new ArrayList<>();
+    private ProgressDialog progressDialog;
 
     public static void start(Context context, InterviewApiDao interviewApiDao) {
         Intent intent = new Intent(context, RegisterActivity.class);
@@ -54,6 +58,8 @@ public class RegisterActivity extends BaseActivity {
         interviewApiDao = getIntent().getParcelableExtra(InterviewApiDao.class.getName());
         mInterviewRepository = new InterviewRepository(getApi());
 
+        txtTitle = findViewById(R.id.txt_title);
+        txtDetail = findViewById(R.id.txt_detail);
         lyCustomField = findViewById(R.id.ly_custom_field);
         inpFullName = findViewById(R.id.inp_full_name);
         inpPreferredName = findViewById(R.id.inp_preferred_name);
@@ -72,6 +78,7 @@ public class RegisterActivity extends BaseActivity {
             inpPhone.setText(q + "");
         }
 
+        showInfo();
         generateCustomField();
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +87,11 @@ public class RegisterActivity extends BaseActivity {
                 validateInput();
             }
         });
+    }
+
+    private void showInfo() {
+        txtTitle.setText(interviewApiDao.getJob().getTitle());
+        txtDetail.setText(interviewApiDao.getJob().getDescription());
     }
 
     private void validateInput() {
@@ -166,6 +178,11 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void registerUser(RegisterPost param) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
         mInterviewRepository.registerUser(param)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -173,6 +190,7 @@ public class RegisterActivity extends BaseActivity {
 
                     @Override
                     public void onApiResultCompleted() {
+                        progressDialog.dismiss();
                         Toast.makeText(context, "Register User Success", Toast.LENGTH_SHORT).show();
                         finish();
                     }

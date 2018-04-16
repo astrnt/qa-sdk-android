@@ -18,13 +18,13 @@ android {
             applicationIdSuffix ".beta"
             buildConfigField "boolean", "BETA", "true"
             buildConfigField("String", "API_URL", "\"${BetaApiUrl}\"")
-            resValue "string", "app_name", "BETA Astrnt Q&A SDK Sample"
+            resValue "string", "app_name", "BETA Q&A SDK Sample"
         }
         live {
             dimension "mode"
             buildConfigField "boolean", "BETA", "false"
             buildConfigField("String", "API_URL", "\"${LiveApiUrl}\"")
-            resValue "string", "app_name", "Astrnt Q&A SDK Sample"
+            resValue "string", "app_name", "Q&A SDK Sample"
         }
     }
 

@@ -7,13 +7,37 @@ import android.os.Parcelable;
  * Created by deni rohimat on 06/04/18.
  */
 public class JobApiDao implements Parcelable {
+    public static final Creator<JobApiDao> CREATOR = new Creator<JobApiDao>() {
+        @Override
+        public JobApiDao createFromParcel(Parcel source) {
+            return new JobApiDao(source);
+        }
+
+        @Override
+        public JobApiDao[] newArray(int size) {
+            return new JobApiDao[size];
+        }
+    };
     private long id;
     private String title;
-    private int required;
+    private int requiredCv;
     private String description;
     private String location;
     private String requirement;
     private String responsibility;
+
+    public JobApiDao() {
+    }
+
+    protected JobApiDao(Parcel in) {
+        this.id = in.readLong();
+        this.title = in.readString();
+        this.requiredCv = in.readInt();
+        this.description = in.readString();
+        this.location = in.readString();
+        this.requirement = in.readString();
+        this.responsibility = in.readString();
+    }
 
     public long getId() {
         return id;
@@ -31,12 +55,12 @@ public class JobApiDao implements Parcelable {
         this.title = title;
     }
 
-    public int getRequired() {
-        return required;
+    public boolean isRequiredCv() {
+        return requiredCv != 0;
     }
 
-    public void setRequired(int required) {
-        this.required = required;
+    public void setRequiredCv(int requiredCv) {
+        this.requiredCv = requiredCv;
     }
 
     public String getDescription() {
@@ -80,35 +104,10 @@ public class JobApiDao implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
         dest.writeString(this.title);
-        dest.writeInt(this.required);
+        dest.writeInt(this.requiredCv);
         dest.writeString(this.description);
         dest.writeString(this.location);
         dest.writeString(this.requirement);
         dest.writeString(this.responsibility);
     }
-
-    public JobApiDao() {
-    }
-
-    protected JobApiDao(Parcel in) {
-        this.id = in.readLong();
-        this.title = in.readString();
-        this.required = in.readInt();
-        this.description = in.readString();
-        this.location = in.readString();
-        this.requirement = in.readString();
-        this.responsibility = in.readString();
-    }
-
-    public static final Creator<JobApiDao> CREATOR = new Creator<JobApiDao>() {
-        @Override
-        public JobApiDao createFromParcel(Parcel source) {
-            return new JobApiDao(source);
-        }
-
-        @Override
-        public JobApiDao[] newArray(int size) {
-            return new JobApiDao[size];
-        }
-    };
 }

@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import co.astrnt.astrntqasdk.BuildConfig;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.qasdk.core.InterviewObserver;
@@ -34,6 +35,10 @@ public class EnterCodeActivity extends BaseActivity {
         btnSubmit = findViewById(R.id.btn_submit);
 
         mInterviewRepository = new InterviewRepository(getApi());
+
+        if (BuildConfig.DEBUG) {
+            inpCode.setText("mKUmaP5D");
+        }
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override

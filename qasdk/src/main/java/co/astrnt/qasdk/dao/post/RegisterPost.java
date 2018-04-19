@@ -4,37 +4,37 @@ import java.util.List;
 
 public class RegisterPost {
 
-    private long jobId;
-    private long companyId;
-    private String interviewTempCode;
+    private long job_id;
+    private long company_id;
+    private String interview_code;
     private String fullname;
-    private String preferredName;
+    private String preferred_name;
     private String email;
     private String phone;
     private List<CustomFieldsPost> custom_fields;
 
-    public long getJobId() {
-        return jobId;
+    public long getJob_id() {
+        return job_id;
     }
 
-    public void setJobId(long jobId) {
-        this.jobId = jobId;
+    public void setJob_id(long job_id) {
+        this.job_id = job_id;
     }
 
-    public long getCompanyId() {
-        return companyId;
+    public long getCompany_id() {
+        return company_id;
     }
 
-    public void setCompanyId(long companyId) {
-        this.companyId = companyId;
+    public void setCompany_id(long company_id) {
+        this.company_id = company_id;
     }
 
     public String getInterviewTempCode() {
-        return interviewTempCode;
+        return interview_code;
     }
 
     public void setInterviewTempCode(String interviewTempCode) {
-        this.interviewTempCode = interviewTempCode;
+        this.interview_code = interviewTempCode;
     }
 
     public String getFullname() {
@@ -45,12 +45,12 @@ public class RegisterPost {
         this.fullname = fullname;
     }
 
-    public String getPreferredName() {
-        return preferredName;
+    public String getPreferred_name() {
+        return preferred_name;
     }
 
-    public void setPreferredName(String preferredName) {
-        this.preferredName = preferredName;
+    public void setPreferred_name(String preferred_name) {
+        this.preferred_name = preferred_name;
     }
 
     public String getEmail() {

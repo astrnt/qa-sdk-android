@@ -15,7 +15,7 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("interview")
-    Observable<InterviewResultApiDao> enterCode(@Field("interviewCode") String interviewCode,
+    Observable<InterviewResultApiDao> enterCode(@Field("interview_code") String interviewCode,
                                                 @Field("device") String device,
                                                 @Field("version") int version);
 

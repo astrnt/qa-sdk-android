@@ -23,14 +23,15 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
     };
     private String type;
     private String invite_id;
-    private boolean is_allowed_preview;
-    private boolean first_time;
+    private int is_allowed_preview;
+    private String first_time;
     private int duration_left;
     private JobApiDao job;
     private CompanyApiDao company;
     private CandidateApiDao candidate;
     private CustomFieldResultApiDao custom_fields;
     private List<SectionApiDao> sections;
+    private List<QuestionApiDao> questions;
     private String lang;
 
     public InterviewApiDao() {
@@ -39,15 +40,24 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
     protected InterviewApiDao(Parcel in) {
         this.type = in.readString();
         this.invite_id = in.readString();
-        this.is_allowed_preview = in.readByte() != 0;
-        this.first_time = in.readByte() != 0;
+        this.is_allowed_preview = in.readInt();
+        this.first_time = in.readString();
         this.duration_left = in.readInt();
         this.job = in.readParcelable(JobApiDao.class.getClassLoader());
         this.company = in.readParcelable(CompanyApiDao.class.getClassLoader());
         this.candidate = in.readParcelable(CandidateApiDao.class.getClassLoader());
         this.custom_fields = in.readParcelable(CustomFieldResultApiDao.class.getClassLoader());
         this.sections = in.createTypedArrayList(SectionApiDao.CREATOR);
+        this.questions = in.createTypedArrayList(QuestionApiDao.CREATOR);
         this.lang = in.readString();
+    }
+
+    public List<QuestionApiDao> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<QuestionApiDao> questions) {
+        this.questions = questions;
     }
 
     public String getType() {
@@ -66,19 +76,19 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
         this.invite_id = invite_id;
     }
 
-    public boolean isIs_allowed_preview() {
-        return is_allowed_preview;
+    public boolean getIs_allowed_preview() {
+        return is_allowed_preview != 0;
     }
 
-    public void setIs_allowed_preview(boolean is_allowed_preview) {
+    public void setIs_allowed_preview(int is_allowed_preview) {
         this.is_allowed_preview = is_allowed_preview;
     }
 
-    public boolean isFirst_time() {
-        return first_time;
+    public boolean getFirst_time() {
+        return first_time.equals("yes");
     }
 
-    public void setFirst_time(boolean first_time) {
+    public void setFirst_time(String first_time) {
         this.first_time = first_time;
     }
 
@@ -147,14 +157,15 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.type);
         dest.writeString(this.invite_id);
-        dest.writeByte(this.is_allowed_preview ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.first_time ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.is_allowed_preview);
+        dest.writeString(this.first_time);
         dest.writeInt(this.duration_left);
         dest.writeParcelable(this.job, flags);
         dest.writeParcelable(this.company, flags);
         dest.writeParcelable(this.candidate, flags);
         dest.writeParcelable(this.custom_fields, flags);
         dest.writeTypedList(this.sections);
+        dest.writeTypedList(this.questions);
         dest.writeString(this.lang);
     }
 }

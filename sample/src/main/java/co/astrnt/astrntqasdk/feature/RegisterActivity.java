@@ -162,11 +162,11 @@ public class RegisterActivity extends BaseActivity {
             customFieldsPosts.add(item);
         }
 
-        registerPost.setCompanyId(interviewApiDao.getCompany().getId());
-        registerPost.setJobId(interviewApiDao.getJob().getId());
+        registerPost.setCompany_id(interviewApiDao.getCompany().getId());
+        registerPost.setJob_id(interviewApiDao.getJob().getId());
         registerPost.setInterviewTempCode(interviewApiDao.getInvite_id());
         registerPost.setFullname(fullName);
-        registerPost.setPreferredName(preferredName);
+        registerPost.setPreferred_name(preferredName);
         registerPost.setEmail(email);
         registerPost.setPhone(phone);
 
@@ -191,8 +191,6 @@ public class RegisterActivity extends BaseActivity {
                     @Override
                     public void onApiResultCompleted() {
                         progressDialog.dismiss();
-                        Toast.makeText(context, "Register User Success", Toast.LENGTH_SHORT).show();
-                        finish();
                     }
 
                     @Override

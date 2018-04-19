@@ -25,6 +25,7 @@ public class JobApiDao implements Parcelable {
     private String location;
     private String requirement;
     private String responsibility;
+    private String type;
 
     public JobApiDao() {
     }
@@ -93,6 +94,14 @@ public class JobApiDao implements Parcelable {
 
     public void setResponsibility(String responsibility) {
         this.responsibility = responsibility;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override

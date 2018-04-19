@@ -150,7 +150,7 @@ public class RegisterActivity extends BaseActivity {
             String input = editText.getText().toString();
 
             CustomFieldApiDao customFieldField = editText.getFieldApiDao();
-            if (customFieldField.getIs_mandatory() == 1 && input.isEmpty()) {
+            if (customFieldField.isMandatory() && input.isEmpty()) {
                 editText.requestFocus();
                 editText.setError(String.format(context.getString(R.string.field_is_required), customFieldField.getLabel()));
                 return;
@@ -164,11 +164,12 @@ public class RegisterActivity extends BaseActivity {
 
         registerPost.setCompany_id(interviewApiDao.getCompany().getId());
         registerPost.setJob_id(interviewApiDao.getJob().getId());
-        registerPost.setInterviewTempCode(interviewApiDao.getInvite_id());
+        registerPost.setInterviewCode(interviewApiDao.getInvite_id());
         registerPost.setFullname(fullName);
         registerPost.setPreferred_name(preferredName);
         registerPost.setEmail(email);
         registerPost.setPhone(phone);
+        registerPost.setVersion(98);
 
         if (!customFieldList.isEmpty()) {
             registerPost.setCustom_fields(customFieldsPosts);

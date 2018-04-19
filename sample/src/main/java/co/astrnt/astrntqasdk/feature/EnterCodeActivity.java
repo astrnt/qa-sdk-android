@@ -37,7 +37,7 @@ public class EnterCodeActivity extends BaseActivity {
         mInterviewRepository = new InterviewRepository(getApi());
 
         if (BuildConfig.DEBUG) {
-            inpCode.setText("mKUmaP5D");
+            inpCode.setText("SDKvideo");
         }
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {

@@ -20,6 +20,7 @@ public class InterviewRepository extends BaseRepository {
     }
 
     public Observable<InterviewResultApiDao> registerUser(RegisterPost param) {
+        param.setDevice("android");
         return mAstronautApi.getApiService().registerUser(param);
     }
 

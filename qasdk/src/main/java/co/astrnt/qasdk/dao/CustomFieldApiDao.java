@@ -47,8 +47,8 @@ public class CustomFieldApiDao implements Parcelable {
         this.label = label;
     }
 
-    public int getIs_mandatory() {
-        return is_mandatory;
+    public boolean isMandatory() {
+        return is_mandatory != 0;
     }
 
     public void setIs_mandatory(int is_mandatory) {

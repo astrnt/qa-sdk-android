@@ -11,6 +11,8 @@ public class RegisterPost {
     private String preferred_name;
     private String email;
     private String phone;
+    private String device;
+    private int version;
     private List<CustomFieldsPost> custom_fields;
 
     public long getJob_id() {
@@ -29,11 +31,11 @@ public class RegisterPost {
         this.company_id = company_id;
     }
 
-    public String getInterviewTempCode() {
+    public String getInterviewCode() {
         return interview_code;
     }
 
-    public void setInterviewTempCode(String interviewTempCode) {
+    public void setInterviewCode(String interviewTempCode) {
         this.interview_code = interviewTempCode;
     }
 
@@ -67,6 +69,22 @@ public class RegisterPost {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getDevice() {
+        return device;
+    }
+
+    public void setDevice(String device) {
+        this.device = device;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public List<CustomFieldsPost> getCustom_fields() {

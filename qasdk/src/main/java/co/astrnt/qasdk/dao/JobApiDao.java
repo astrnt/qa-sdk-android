@@ -38,6 +38,7 @@ public class JobApiDao implements Parcelable {
         this.location = in.readString();
         this.requirement = in.readString();
         this.responsibility = in.readString();
+        this.type = in.readString();
     }
 
     public long getId() {
@@ -118,5 +119,6 @@ public class JobApiDao implements Parcelable {
         dest.writeString(this.location);
         dest.writeString(this.requirement);
         dest.writeString(this.responsibility);
+        dest.writeString(this.type);
     }
 }

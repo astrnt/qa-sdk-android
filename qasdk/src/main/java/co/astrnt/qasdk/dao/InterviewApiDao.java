@@ -84,7 +84,7 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
         this.is_allowed_preview = is_allowed_preview;
     }
 
-    public boolean getFirst_time() {
+    public boolean isFirst_time() {
         return first_time.equals("yes");
     }
 
@@ -146,6 +146,27 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
 
     public void setLang(String lang) {
         this.lang = lang;
+    }
+
+    public int getTotalQuestion() {
+        return getQuestions().size();
+    }
+
+    public int getTotalAttempt() {
+        int totalAttempt = 0;
+
+        for (QuestionApiDao item : getQuestions()) {
+            totalAttempt += item.getTakesCount();
+        }
+        return totalAttempt;
+    }
+
+    public int getTotalUpload() {
+        return getTotalQuestion() * 5;
+    }
+
+    public int getEstimatedTime() {
+        return getTotalAttempt() * getTotalQuestion() * 2;
     }
 
     @Override

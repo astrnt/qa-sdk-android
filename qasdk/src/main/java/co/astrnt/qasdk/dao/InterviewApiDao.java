@@ -166,7 +166,7 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
     }
 
     public int getEstimatedTime() {
-        return getTotalAttempt() * getTotalQuestion() * 2;
+        return getTotalAttempt() * 2;
     }
 
     @Override

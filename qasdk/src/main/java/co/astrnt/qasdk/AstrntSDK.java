@@ -82,6 +82,16 @@ public class AstrntSDK {
         }
     }
 
+    public static int getQuestionAttempt() {
+        if (getQuestionInfo() != null) {
+            return getQuestionInfo().getAttempt();
+        } else {
+            InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
+            assert information != null;
+            return information.getInterviewAttempt();
+        }
+    }
+
     public static QuestionApiDao getCurrentQuestion() {
         InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findAll().last();
         assert interviewApiDao != null;

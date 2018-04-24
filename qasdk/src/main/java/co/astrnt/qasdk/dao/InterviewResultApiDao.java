@@ -20,6 +20,7 @@ public class InterviewResultApiDao extends BaseApiDao implements Parcelable {
         }
     };
     private String token;
+    private String interview_code;
     private InterviewApiDao interview;
     private InformationApiDao information;
     private InvitationVideoApiDao invitation_video;
@@ -29,6 +30,7 @@ public class InterviewResultApiDao extends BaseApiDao implements Parcelable {
 
     protected InterviewResultApiDao(Parcel in) {
         this.token = in.readString();
+        this.interview_code = in.readString();
         this.interview = in.readParcelable(InterviewApiDao.class.getClassLoader());
         this.information = in.readParcelable(InformationApiDao.class.getClassLoader());
         this.invitation_video = in.readParcelable(InvitationVideoApiDao.class.getClassLoader());
@@ -40,6 +42,14 @@ public class InterviewResultApiDao extends BaseApiDao implements Parcelable {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getInterview_code() {
+        return interview_code;
+    }
+
+    public void setInterview_code(String interview_code) {
+        this.interview_code = interview_code;
     }
 
     public InterviewApiDao getInterview() {
@@ -74,6 +84,7 @@ public class InterviewResultApiDao extends BaseApiDao implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.token);
+        dest.writeString(this.interview_code);
         dest.writeParcelable(this.interview, flags);
         dest.writeParcelable(this.information, flags);
         dest.writeParcelable(this.invitation_video, flags);

@@ -30,6 +30,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
         if (e instanceof retrofit2.HttpException) {
             try {
                 ResponseBody body = ((retrofit2.HttpException) e).response().errorBody();
+                assert body != null;
                 BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
                 onApiResultError(apiDao.getMessage(), apiDao.getStatus());
             } catch (Exception e2) {

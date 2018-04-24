@@ -1,41 +1,20 @@
 package co.astrnt.qasdk.dao;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by deni rohimat on 06/04/18.
  */
-public class CompanyApiDao implements Parcelable {
-    public static final Creator<CompanyApiDao> CREATOR = new Creator<CompanyApiDao>() {
-        @Override
-        public CompanyApiDao createFromParcel(Parcel source) {
-            return new CompanyApiDao(source);
-        }
+public class CompanyApiDao extends RealmObject {
 
-        @Override
-        public CompanyApiDao[] newArray(int size) {
-            return new CompanyApiDao[size];
-        }
-    };
-    private String coverPicture;
+    @PrimaryKey
     private long id;
+    private String coverPicture;
     private String logo;
     private String requirement;
     private String nda;
     private String title;
-
-    public CompanyApiDao() {
-    }
-
-    protected CompanyApiDao(Parcel in) {
-        this.coverPicture = in.readString();
-        this.id = in.readLong();
-        this.logo = in.readString();
-        this.requirement = in.readString();
-        this.nda = in.readString();
-        this.title = in.readString();
-    }
 
     public String getCoverPicture() {
         return coverPicture;
@@ -83,20 +62,5 @@ public class CompanyApiDao implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.coverPicture);
-        dest.writeLong(this.id);
-        dest.writeString(this.logo);
-        dest.writeString(this.requirement);
-        dest.writeString(this.nda);
-        dest.writeString(this.title);
     }
 }

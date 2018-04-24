@@ -1,25 +1,15 @@
 package co.astrnt.qasdk.dao;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by deni rohimat on 19/04/18.
  */
-public class QuestionApiDao implements Parcelable {
+public class QuestionApiDao extends RealmObject {
 
-    public static final Creator<QuestionApiDao> CREATOR = new Creator<QuestionApiDao>() {
-        @Override
-        public QuestionApiDao createFromParcel(Parcel source) {
-            return new QuestionApiDao(source);
-        }
-
-        @Override
-        public QuestionApiDao[] newArray(int size) {
-            return new QuestionApiDao[size];
-        }
-    };
-    private int id;
+    @PrimaryKey
+    private long id;
     private String title;
     private String tags;
     private int qType;
@@ -36,32 +26,11 @@ public class QuestionApiDao implements Parcelable {
     //    private List<?> multiple_answers;
     private String type_parent;
 
-    public QuestionApiDao() {
-    }
-
-    protected QuestionApiDao(Parcel in) {
-        this.id = in.readInt();
-        this.title = in.readString();
-        this.tags = in.readString();
-        this.qType = in.readInt();
-        this.takesCount = in.readInt();
-        this.prepTime = in.readString();
-        this.maxTime = in.readString();
-        this.job_id = in.readInt();
-        this.created_at = in.readString();
-        this.updated_at = in.readString();
-        this.deleted_at = in.readString();
-        this.image_id = in.readInt();
-        this.image_url = in.readString();
-        this.type_child = in.readString();
-        this.type_parent = in.readString();
-    }
-
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -175,29 +144,5 @@ public class QuestionApiDao implements Parcelable {
 
     public void setType_parent(String type_parent) {
         this.type_parent = type_parent;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.id);
-        dest.writeString(this.title);
-        dest.writeString(this.tags);
-        dest.writeInt(this.qType);
-        dest.writeInt(this.takesCount);
-        dest.writeString(this.prepTime);
-        dest.writeString(this.maxTime);
-        dest.writeInt(this.job_id);
-        dest.writeString(this.created_at);
-        dest.writeString(this.updated_at);
-        dest.writeString(this.deleted_at);
-        dest.writeInt(this.image_id);
-        dest.writeString(this.image_url);
-        dest.writeString(this.type_child);
-        dest.writeString(this.type_parent);
     }
 }

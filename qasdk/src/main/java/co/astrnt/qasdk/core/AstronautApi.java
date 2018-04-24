@@ -8,7 +8,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import timber.log.Timber;
 
 /**
  * Created by deni rohimat on 06/04/18.
@@ -24,8 +23,6 @@ public class AstronautApi {
         httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
 
         if (isDebugable) {
-            Timber.plant(new Timber.DebugTree());
-
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 

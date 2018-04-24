@@ -1,39 +1,27 @@
 package co.astrnt.qasdk.dao;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import io.realm.RealmModel;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by deni rohimat on 06/04/18.
  */
-public class InterviewResultApiDao extends BaseApiDao implements Parcelable {
+public class InterviewResultApiDao extends BaseApiDao implements RealmModel {
 
-    public static final Creator<InterviewResultApiDao> CREATOR = new Creator<InterviewResultApiDao>() {
-        @Override
-        public InterviewResultApiDao createFromParcel(Parcel source) {
-            return new InterviewResultApiDao(source);
-        }
-
-        @Override
-        public InterviewResultApiDao[] newArray(int size) {
-            return new InterviewResultApiDao[size];
-        }
-    };
+    @PrimaryKey
+    private long id;
     private String token;
     private String interview_code;
     private InterviewApiDao interview;
     private InformationApiDao information;
     private InvitationVideoApiDao invitation_video;
 
-    public InterviewResultApiDao() {
+    public long getId() {
+        return id;
     }
 
-    protected InterviewResultApiDao(Parcel in) {
-        this.token = in.readString();
-        this.interview_code = in.readString();
-        this.interview = in.readParcelable(InterviewApiDao.class.getClassLoader());
-        this.information = in.readParcelable(InformationApiDao.class.getClassLoader());
-        this.invitation_video = in.readParcelable(InvitationVideoApiDao.class.getClassLoader());
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getToken() {
@@ -74,19 +62,5 @@ public class InterviewResultApiDao extends BaseApiDao implements Parcelable {
 
     public void setInvitation_video(InvitationVideoApiDao invitation_video) {
         this.invitation_video = invitation_video;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.token);
-        dest.writeString(this.interview_code);
-        dest.writeParcelable(this.interview, flags);
-        dest.writeParcelable(this.information, flags);
-        dest.writeParcelable(this.invitation_video, flags);
     }
 }

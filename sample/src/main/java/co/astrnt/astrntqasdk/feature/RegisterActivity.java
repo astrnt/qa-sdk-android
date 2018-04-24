@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,24 +39,22 @@ public class RegisterActivity extends BaseActivity {
     private EditText inpFullName, inpPreferredName, inpEmail, inpConfirmEmail, inpPhone;
     private LinearLayout lyCustomField;
     private Button btnSubmit;
-    private InterviewApiDao interviewApiDao;
     private List<CustomFieldApiDao> customFieldList = new ArrayList<>();
     private List<CustomFieldEditText> customFieldEditTextList = new ArrayList<>();
     private ProgressDialog progressDialog;
 
-    public static void start(Context context, InterviewApiDao interviewApiDao) {
+    public static void start(Context context, long inviteId) {
         Intent intent = new Intent(context, RegisterActivity.class);
-        intent.putExtra(InterviewApiDao.class.getName(), interviewApiDao);
+        intent.putExtra(InterviewApiDao.class.getName(), inviteId);
         context.startActivity(intent);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_register);
 
-        context = this;
-        interviewApiDao = getIntent().getParcelableExtra(InterviewApiDao.class.getName());
         mInterviewRepository = new InterviewRepository(getApi());
 
         txtTitle = findViewById(R.id.txt_title);
@@ -164,7 +163,7 @@ public class RegisterActivity extends BaseActivity {
 
         registerPost.setCompany_id(interviewApiDao.getCompany().getId());
         registerPost.setJob_id(interviewApiDao.getJob().getId());
-        registerPost.setInterviewCode(interviewApiDao.getInvite_id());
+        registerPost.setInterviewCode(interviewApiDao.getTemp_code());
         registerPost.setFullname(fullName);
         registerPost.setPreferred_name(preferredName);
         registerPost.setEmail(email);

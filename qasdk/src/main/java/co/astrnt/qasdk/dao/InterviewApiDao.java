@@ -1,28 +1,17 @@
 package co.astrnt.qasdk.dao;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import java.util.List;
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by deni rohimat on 06/04/18.
  */
-public class InterviewApiDao extends BaseApiDao implements Parcelable {
+public class InterviewApiDao extends RealmObject {
 
-    public static final Creator<InterviewApiDao> CREATOR = new Creator<InterviewApiDao>() {
-        @Override
-        public InterviewApiDao createFromParcel(Parcel source) {
-            return new InterviewApiDao(source);
-        }
-
-        @Override
-        public InterviewApiDao[] newArray(int size) {
-            return new InterviewApiDao[size];
-        }
-    };
+    @PrimaryKey
+    private long invite_id;
     private String type;
-    private String invite_id;
     private int is_allowed_preview;
     private String first_time;
     private int duration_left;
@@ -30,34 +19,18 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
     private CompanyApiDao company;
     private CandidateApiDao candidate;
     private CustomFieldResultApiDao custom_fields;
-    private List<SectionApiDao> sections;
-    private List<QuestionApiDao> questions;
+    private RealmList<SectionApiDao> sections;
+    private RealmList<QuestionApiDao> questions;
     private String lang;
+    //this temporary for save code
+    private String temp_code;
 
-    public InterviewApiDao() {
+    public long getInvite_id() {
+        return invite_id;
     }
 
-    protected InterviewApiDao(Parcel in) {
-        this.type = in.readString();
-        this.invite_id = in.readString();
-        this.is_allowed_preview = in.readInt();
-        this.first_time = in.readString();
-        this.duration_left = in.readInt();
-        this.job = in.readParcelable(JobApiDao.class.getClassLoader());
-        this.company = in.readParcelable(CompanyApiDao.class.getClassLoader());
-        this.candidate = in.readParcelable(CandidateApiDao.class.getClassLoader());
-        this.custom_fields = in.readParcelable(CustomFieldResultApiDao.class.getClassLoader());
-        this.sections = in.createTypedArrayList(SectionApiDao.CREATOR);
-        this.questions = in.createTypedArrayList(QuestionApiDao.CREATOR);
-        this.lang = in.readString();
-    }
-
-    public List<QuestionApiDao> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<QuestionApiDao> questions) {
-        this.questions = questions;
+    public void setInvite_id(long invite_id) {
+        this.invite_id = invite_id;
     }
 
     public String getType() {
@@ -68,16 +41,8 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
         this.type = type;
     }
 
-    public String getInvite_id() {
-        return invite_id;
-    }
-
-    public void setInvite_id(String invite_id) {
-        this.invite_id = invite_id;
-    }
-
-    public boolean getIs_allowed_preview() {
-        return is_allowed_preview != 0;
+    public int getIs_allowed_preview() {
+        return is_allowed_preview;
     }
 
     public void setIs_allowed_preview(int is_allowed_preview) {
@@ -132,20 +97,28 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
         this.custom_fields = custom_fields;
     }
 
-    public List<SectionApiDao> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<SectionApiDao> sections) {
-        this.sections = sections;
-    }
-
     public String getLang() {
         return lang;
     }
 
     public void setLang(String lang) {
         this.lang = lang;
+    }
+
+    public RealmList<SectionApiDao> getSections() {
+        return sections;
+    }
+
+    public void setSections(RealmList<SectionApiDao> sections) {
+        this.sections = sections;
+    }
+
+    public RealmList<QuestionApiDao> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(RealmList<QuestionApiDao> questions) {
+        this.questions = questions;
     }
 
     public int getTotalQuestion() {
@@ -169,24 +142,11 @@ public class InterviewApiDao extends BaseApiDao implements Parcelable {
         return getTotalAttempt() * 3;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public String getTemp_code() {
+        return temp_code;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.type);
-        dest.writeString(this.invite_id);
-        dest.writeInt(this.is_allowed_preview);
-        dest.writeString(this.first_time);
-        dest.writeInt(this.duration_left);
-        dest.writeParcelable(this.job, flags);
-        dest.writeParcelable(this.company, flags);
-        dest.writeParcelable(this.candidate, flags);
-        dest.writeParcelable(this.custom_fields, flags);
-        dest.writeTypedList(this.sections);
-        dest.writeTypedList(this.questions);
-        dest.writeString(this.lang);
+    public void setTemp_code(String temp_code) {
+        this.temp_code = temp_code;
     }
 }

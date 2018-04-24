@@ -3,10 +3,13 @@ package co.astrnt.qasdk.dao;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by deni rohimat on 19/04/18.
  */
-public class InvitationVideoApiDao implements Parcelable {
+public class InvitationVideoApiDao extends RealmObject implements Parcelable {
 
     public static final Creator<InvitationVideoApiDao> CREATOR = new Creator<InvitationVideoApiDao>() {
         @Override
@@ -19,6 +22,8 @@ public class InvitationVideoApiDao implements Parcelable {
             return new InvitationVideoApiDao[size];
         }
     };
+    @PrimaryKey
+    private long id;
     private String interview_video_url;
     private String interview_video_thumb_url;
     private int width;
@@ -28,10 +33,19 @@ public class InvitationVideoApiDao implements Parcelable {
     }
 
     protected InvitationVideoApiDao(Parcel in) {
+        this.id = in.readLong();
         this.interview_video_url = in.readString();
         this.interview_video_thumb_url = in.readString();
         this.width = in.readInt();
         this.height = in.readInt();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getInterview_video_url() {
@@ -73,6 +87,7 @@ public class InvitationVideoApiDao implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
         dest.writeString(this.interview_video_url);
         dest.writeString(this.interview_video_thumb_url);
         dest.writeInt(this.width);

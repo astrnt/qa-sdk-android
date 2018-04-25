@@ -2,6 +2,11 @@ package co.astrnt.qasdk;
 
 import android.content.Context;
 
+import net.gotev.uploadservice.UploadService;
+import net.gotev.uploadservice.okhttp.OkHttpStack;
+
+import java.util.concurrent.TimeUnit;
+
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -10,6 +15,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
+import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
 public class AstrntSDK {
@@ -19,7 +25,7 @@ public class AstrntSDK {
     private static String mApiUrl;
     private boolean isDebuggable;
 
-    public AstrntSDK(Context context, String apiUrl, boolean debug) {
+    public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
         mApiUrl = apiUrl;
         isDebuggable = debug;
 
@@ -28,16 +34,27 @@ public class AstrntSDK {
         }
         Realm.init(context);
         realm = Realm.getDefaultInstance();
+
+        UploadService.NAMESPACE = appId;
+        UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
+        UploadService.BACKOFF_MULTIPLIER = 2;
+        UploadService.IDLE_TIMEOUT = 10 * 1000;
+        UploadService.KEEP_ALIVE_TIME_IN_SECONDS = 3 * 60 * 1000;
+        UploadService.INITIAL_RETRY_WAIT_TIME = 10 * 1000;
+        UploadService.MAX_RETRY_WAIT_TIME = 10 * 1000;
     }
 
     public static Realm getRealm() {
         return realm;
     }
 
+    public static String getApiUrl() {
+        return mApiUrl;
+    }
+
     public static void saveInterviewResult(InterviewResultApiDao interviewResult) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            realm.copyToRealmOrUpdate(interviewResult.getInterview());
             if (interviewResult.getInformation() != null) {
                 realm.copyToRealmOrUpdate(interviewResult.getInformation());
             }
@@ -45,6 +62,7 @@ public class AstrntSDK {
                 realm.copyToRealmOrUpdate(interviewResult.getInvitation_video());
             }
             realm.commitTransaction();
+            saveInterview(interviewResult.getInterview(), interviewResult.getToken(), interviewResult.getInterview_code());
         }
 
         if (interviewResult.getInterview().getQuestions() != null) {
@@ -52,9 +70,11 @@ public class AstrntSDK {
         }
     }
 
-    public static void saveInterview(InterviewApiDao interview) {
+    public static void saveInterview(InterviewApiDao interview, String token, String interviewCode) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
+            interview.setToken(token);
+            interview.setInterviewCode(interviewCode);
             realm.copyToRealmOrUpdate(interview);
             realm.commitTransaction();
         }
@@ -86,7 +106,6 @@ public class AstrntSDK {
 
     public static int getQuestionAttempt() {
         QuestionInfo questionInfo = getQuestionInfo();
-        QuestionApiDao currentQuestion = getCurrentQuestion();
         if (questionInfo != null) {
             if (questionInfo.getAttempt() > 0) {
                 return questionInfo.getAttempt();
@@ -101,12 +120,21 @@ public class AstrntSDK {
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
             assert information != null;
-            return currentQuestion.getTakesCount() - information.getInterviewAttempt();
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            if (currentQuestion != null) {
+                return currentQuestion.getTakesCount() - information.getInterviewAttempt();
+            } else {
+                return 1;
+            }
         }
     }
 
     public static QuestionApiDao searchQuestionById(long id) {
         return realm.where(QuestionApiDao.class).equalTo("id", id).findFirst();
+    }
+
+    public static InterviewApiDao getCurrentInterview() {
+        return realm.where(InterviewApiDao.class).findFirst();
     }
 
     public static QuestionApiDao getCurrentQuestion() {
@@ -200,6 +228,17 @@ public class AstrntSDK {
             realm.deleteAll();
             realm.commitTransaction();
         }
+    }
+
+    private OkHttpClient getOkHttpClient() {
+        return new OkHttpClient.Builder()
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .retryOnConnectionFailure(true)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .build();
     }
 
     public AstronautApi getApi() {

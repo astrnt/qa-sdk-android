@@ -12,6 +12,7 @@ import java.util.TimerTask;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -86,7 +87,7 @@ public class VideoCompressService extends Service {
             public void onSuccess() {
                 Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
                 AstrntSDK.updateVideoPath(currentQuestion, outputPath);
-                //TODO : start upload service
+                SingleVideoUploadService.start(context, currentQuestion.getId());
                 stopService();
             }
 
@@ -112,12 +113,10 @@ public class VideoCompressService extends Service {
 
         @Override
         public void run() {
-            // run on another thread
-            // display toast
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (currentQuestion.getUploadStatus() != null) {
+                    if (currentQuestion.getUploadStatus() == null) {
                         doCompress();
                     } else {
                         stopService();

@@ -24,6 +24,8 @@ public class InterviewApiDao extends RealmObject {
     private String lang;
     //this temporary for save code
     private String temp_code;
+    private String token;
+    private String interviewCode;
 
     public long getInvite_id() {
         return invite_id;
@@ -148,5 +150,21 @@ public class InterviewApiDao extends RealmObject {
 
     public void setTemp_code(String temp_code) {
         this.temp_code = temp_code;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getInterviewCode() {
+        return interviewCode;
+    }
+
+    public void setInterviewCode(String interviewCode) {
+        this.interviewCode = interviewCode;
     }
 }

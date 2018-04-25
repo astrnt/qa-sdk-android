@@ -15,6 +15,7 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
 
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
+        AstrntSDK.clearDb();
         AstrntSDK.saveInterviewResult(resultApiDao);
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:

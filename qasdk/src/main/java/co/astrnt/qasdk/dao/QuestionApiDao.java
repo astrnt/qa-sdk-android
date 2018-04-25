@@ -26,6 +26,10 @@ public class QuestionApiDao extends RealmObject {
     //    private List<?> multiple_answers;
     private String type_parent;
 
+    //this field below is for file and upload status
+    private String videoPath;
+    private String uploadStatus;
+
     public long getId() {
         return id;
     }
@@ -144,5 +148,21 @@ public class QuestionApiDao extends RealmObject {
 
     public void setType_parent(String type_parent) {
         this.type_parent = type_parent;
+    }
+
+    public String getVideoPath() {
+        return videoPath;
+    }
+
+    public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
+    }
+
+    public String getUploadStatus() {
+        return uploadStatus;
+    }
+
+    public void setUploadStatus(String uploadStatus) {
+        this.uploadStatus = uploadStatus;
     }
 }

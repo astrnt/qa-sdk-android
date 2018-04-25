@@ -26,9 +26,9 @@ SetUp SDK in your Application Class
 ==================
 
 add this code for enable service to your AndroidManifest.xml
-    <service android:name="co.astrnt.qasdk.videocompressor.services.CompressService"/>
+    <service android:name="co.astrnt.qasdk.videocompressor.services.VideoCompressService"/>
 ==================
 
 and call this code for start Compressing your Video
     File file = new File(videoUri.getPath());
-    CompressService.start(context, file.getAbsolutePath());
+    VideoCompressService.start(context, file.getAbsolutePath(), AstrntSDK.getCurrentQuestion().getId());

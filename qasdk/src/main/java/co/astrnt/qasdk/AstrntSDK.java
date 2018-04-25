@@ -7,6 +7,7 @@ import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
 import timber.log.Timber;
@@ -104,6 +105,10 @@ public class AstrntSDK {
         }
     }
 
+    public static QuestionApiDao searchQuestionById(long id) {
+        return realm.where(QuestionApiDao.class).equalTo("id", id).findFirst();
+    }
+
     public static QuestionApiDao getCurrentQuestion() {
         InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findFirst();
         assert interviewApiDao != null;
@@ -161,6 +166,31 @@ public class AstrntSDK {
                 realm.copyToRealmOrUpdate(questionInfo);
                 realm.commitTransaction();
             }
+        }
+    }
+
+    public static void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setVideoPath(videoPath);
+            questionApiDao.setUploadStatus(UploadStatusType.PENDING);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        }
+    }
+
+    public static void markUploaded(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadStatus(UploadStatusType.UPLOADED);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
         }
     }
 

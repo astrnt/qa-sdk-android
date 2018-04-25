@@ -60,7 +60,7 @@ public class AstrntSDK {
     }
 
     public static void saveQuestionInfo() {
-        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getCurrentQuestion());
+        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionAttempt());
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
@@ -73,8 +73,9 @@ public class AstrntSDK {
     }
 
     public static int getQuestionIndex() {
-        if (getQuestionInfo() != null) {
-            return getQuestionInfo().getIndex();
+        QuestionInfo questionInfo = getQuestionInfo();
+        if (questionInfo != null) {
+            return questionInfo.getIndex();
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
             assert information != null;
@@ -83,63 +84,83 @@ public class AstrntSDK {
     }
 
     public static int getQuestionAttempt() {
-        if (getQuestionInfo() != null) {
-            return getQuestionInfo().getAttempt();
+        QuestionInfo questionInfo = getQuestionInfo();
+        QuestionApiDao currentQuestion = getCurrentQuestion();
+        if (questionInfo != null) {
+            if (questionInfo.getAttempt() > 0) {
+                return questionInfo.getAttempt();
+            } else {
+                QuestionApiDao nextQuestion = getNextQuestion();
+                if (nextQuestion != null) {
+                    return getNextQuestion().getTakesCount();
+                } else {
+                    return 3;
+                }
+            }
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
             assert information != null;
-            return information.getInterviewAttempt();
+            return currentQuestion.getTakesCount() - information.getInterviewAttempt();
         }
     }
 
     public static QuestionApiDao getCurrentQuestion() {
-        InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findAll().last();
+        InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findFirst();
         assert interviewApiDao != null;
-        if (getQuestionIndex() < interviewApiDao.getQuestions().size()) {
-            return interviewApiDao.getQuestions().get(getQuestionIndex());
+        int questionIndex = getQuestionIndex();
+        if (questionIndex < interviewApiDao.getQuestions().size()) {
+            return interviewApiDao.getQuestions().get(questionIndex);
         } else {
             return interviewApiDao.getQuestions().last();
         }
     }
 
     public static QuestionApiDao getNextQuestion() {
-        InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findAll().last();
+        InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findFirst();
         assert interviewApiDao != null;
-        if (getQuestionIndex() < interviewApiDao.getQuestions().size()) {
-            return interviewApiDao.getQuestions().get(getQuestionIndex());
+        int questionIndex = getQuestionIndex();
+        if (questionIndex < interviewApiDao.getQuestions().size()) {
+            return interviewApiDao.getQuestions().get(questionIndex);
         } else {
             return interviewApiDao.getQuestions().last();
         }
     }
 
     public static void increaseQuestionIndex() {
-        QuestionInfo questionInfo = getQuestionInfo();
-        questionInfo.setIndex(questionInfo.getIndex() + 1);
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
+
+            QuestionInfo questionInfo = getQuestionInfo();
+            questionInfo.increaseIndex();
+
+            QuestionApiDao nextQuestion = getNextQuestion();
+            if (nextQuestion != null) {
+                questionInfo.setAttempt(nextQuestion.getTakesCount());
+            } else {
+                questionInfo.resetAttempt();
+            }
+
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
         }
     }
 
-    public static void increaseQuestionAttempt() {
-        QuestionInfo questionInfo = getQuestionInfo();
-        int attempt = questionInfo.getAttempt();
-        QuestionApiDao currentQuestion = questionInfo.getCurrentQuestion();
-
-        if (attempt < currentQuestion.getTakesCount()) {
-            questionInfo.setAttempt(questionInfo.getAttempt() - 1);
-        } else {
-            QuestionApiDao nextQuestion = getNextQuestion();
-            questionInfo.setIndex(questionInfo.getIndex() + 1);
-            questionInfo.setAttempt(nextQuestion.getTakesCount());
-            questionInfo.setCurrentQuestion(nextQuestion);
-        }
+    public static void decreaseQuestionAttempt() {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            realm.copyToRealmOrUpdate(questionInfo);
-            realm.commitTransaction();
+
+            QuestionInfo questionInfo = getQuestionInfo();
+            questionInfo.decreaseAttempt();
+            int attempt = questionInfo.getAttempt();
+
+            if (attempt <= 0) {
+                realm.commitTransaction();
+                increaseQuestionIndex();
+            } else {
+                realm.copyToRealmOrUpdate(questionInfo);
+                realm.commitTransaction();
+            }
         }
     }
 

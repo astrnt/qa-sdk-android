@@ -1,6 +1,5 @@
 package co.astrnt.qasdk.utils;
 
-import co.astrnt.qasdk.dao.QuestionApiDao;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -10,15 +9,13 @@ public class QuestionInfo extends RealmObject {
     private long id;
     private int index;
     private int attempt;
-    private QuestionApiDao currentQuestion;
 
     public QuestionInfo() {
     }
 
-    public QuestionInfo(int index, QuestionApiDao currentQuestion) {
+    public QuestionInfo(int index, int attempt) {
         this.index = index;
-        this.attempt = currentQuestion.getTakesCount();
-        this.currentQuestion = currentQuestion;
+        this.attempt = attempt;
     }
 
     public long getId() {
@@ -45,11 +42,15 @@ public class QuestionInfo extends RealmObject {
         this.attempt = attempt;
     }
 
-    public QuestionApiDao getCurrentQuestion() {
-        return currentQuestion;
+    public void increaseIndex() {
+        this.index++;
     }
 
-    public void setCurrentQuestion(QuestionApiDao currentQuestion) {
-        this.currentQuestion = currentQuestion;
+    public void resetAttempt() {
+        this.attempt = 0;
+    }
+
+    public void decreaseAttempt() {
+        this.attempt--;
     }
 }

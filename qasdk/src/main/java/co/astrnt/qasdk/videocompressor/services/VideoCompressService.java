@@ -15,9 +15,9 @@ import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
 
-public class CompressService extends Service {
+public class VideoCompressService extends Service {
 
-    public static final String EXT_PATH = "CompressService.Path";
+    public static final String EXT_PATH = "VideoCompressService.Path";
 
     public static final long NOTIFY_INTERVAL = 60 * 1000;
 
@@ -30,7 +30,7 @@ public class CompressService extends Service {
 
     public static void start(Context context, String inputPath) {
         context.startService(
-                new Intent(context, CompressService.class)
+                new Intent(context, VideoCompressService.class)
                         .putExtra(EXT_PATH, inputPath)
         );
     }
@@ -59,7 +59,7 @@ public class CompressService extends Service {
         } else {
             mTimer = new Timer();
         }
-        mTimer.scheduleAtFixedRate(new CompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
 
     @Nullable

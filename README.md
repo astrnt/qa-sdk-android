@@ -3,6 +3,30 @@ Astronaut Q & A SDK for Android
 minSdkVersion 21
 
 ==================
+add this line in gradle.properties
+
+BetaApiUrl=http://beta.astrnt.co/api/v2/
+LiveApiUrl=http://app.astrnt.co/api/v2/
+
+==================
+add this line in build.gradle
+
+    flavorDimensions "mode"
+    productFlavors {
+        beta {
+            dimension "mode"
+            applicationIdSuffix ".betasdk"
+            buildConfigField "boolean", "BETA", "true"
+            buildConfigField("String", "API_URL", "\"${BetaApiUrl}\"")
+        }
+        live {
+            dimension "mode"
+            buildConfigField "boolean", "BETA", "false"
+            buildConfigField("String", "API_URL", "\"${LiveApiUrl}\"")
+        }
+    }
+
+==================
 SetUp SDK in your Application Class
 
     private static AstrntSDK astrntSDK;

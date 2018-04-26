@@ -116,8 +116,12 @@ public class VideoCompressService extends Service {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (currentQuestion.getUploadStatus() == null) {
-                        doCompress();
+                    if (currentQuestion != null) {
+                        if (currentQuestion.getUploadStatus() == null) {
+                            doCompress();
+                        } else {
+                            stopService();
+                        }
                     } else {
                         stopService();
                     }

@@ -127,8 +127,12 @@ public class SingleVideoUploadService extends Service {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (!currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
-                        doUploadVideo();
+                    if (currentQuestion != null) {
+                        if (!currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+                            doUploadVideo();
+                        } else {
+                            stopService();
+                        }
                     } else {
                         stopService();
                     }

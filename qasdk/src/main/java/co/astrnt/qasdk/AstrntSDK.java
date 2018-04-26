@@ -107,16 +107,7 @@ public class AstrntSDK {
     public static int getQuestionAttempt() {
         QuestionInfo questionInfo = getQuestionInfo();
         if (questionInfo != null) {
-            if (questionInfo.getAttempt() > 0) {
-                return questionInfo.getAttempt();
-            } else {
-                QuestionApiDao nextQuestion = getNextQuestion();
-                if (nextQuestion != null) {
-                    return getNextQuestion().getTakesCount();
-                } else {
-                    return 3;
-                }
-            }
+            return questionInfo.getAttempt();
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
             assert information != null;
@@ -189,12 +180,19 @@ public class AstrntSDK {
 
             if (attempt <= 0) {
                 realm.commitTransaction();
-                increaseQuestionIndex();
             } else {
                 realm.copyToRealmOrUpdate(questionInfo);
                 realm.commitTransaction();
             }
         }
+    }
+
+    public static boolean isLastAttempt() {
+        return getQuestionAttempt() == 0;
+    }
+
+    public static boolean isLastQuestion() {
+        return getQuestionIndex() == getCurrentInterview().getQuestions().size();
     }
 
     public static void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {

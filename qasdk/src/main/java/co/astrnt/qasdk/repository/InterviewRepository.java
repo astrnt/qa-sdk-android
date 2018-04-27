@@ -2,8 +2,11 @@ package co.astrnt.qasdk.repository;
 
 import java.util.HashMap;
 
+import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.core.AstronautApi;
+import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.post.RegisterPost;
 import io.reactivex.Observable;
 
@@ -18,7 +21,12 @@ public class InterviewRepository extends BaseRepository {
     }
 
     public Observable<InterviewResultApiDao> enterCode(String interviewCode, int version) {
-        return mAstronautApi.getApiService().enterCode(interviewCode, "android", version);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewCode);
+        map.put("device", "android");
+        map.put("version", String.valueOf(version));
+
+        return mAstronautApi.getApiService().enterCode(map);
     }
 
     public Observable<InterviewResultApiDao> registerUser(RegisterPost param) {
@@ -47,4 +55,21 @@ public class InterviewRepository extends BaseRepository {
         return mAstronautApi.getApiService().registerUser(map);
     }
 
+    public Observable<InterviewStartApiDao> startInterview() {
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", AstrntSDK.getCurrentInterview().getInterviewCode());
+        map.put("token", AstrntSDK.getCurrentInterview().getToken());
+
+        return mAstronautApi.getApiService().startInterview(map);
+    }
+
+    public Observable<BaseApiDao> finishInterview() {
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", AstrntSDK.getCurrentInterview().getInterviewCode());
+        map.put("token", AstrntSDK.getCurrentInterview().getToken());
+
+        return mAstronautApi.getApiService().finishInterview(map);
+    }
 }

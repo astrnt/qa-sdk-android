@@ -5,6 +5,7 @@ import java.util.HashMap;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.BaseApiDao;
+import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.post.RegisterPost;
@@ -56,19 +57,21 @@ public class InterviewRepository extends BaseRepository {
     }
 
     public Observable<InterviewStartApiDao> startInterview() {
+        InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
 
         HashMap<String, String> map = new HashMap<>();
-        map.put("interview_code", AstrntSDK.getCurrentInterview().getInterviewCode());
-        map.put("token", AstrntSDK.getCurrentInterview().getToken());
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("token", interviewApiDao.getToken());
 
         return mAstronautApi.getApiService().startInterview(map);
     }
 
     public Observable<BaseApiDao> finishInterview() {
+        InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
 
         HashMap<String, String> map = new HashMap<>();
-        map.put("interview_code", AstrntSDK.getCurrentInterview().getInterviewCode());
-        map.put("token", AstrntSDK.getCurrentInterview().getToken());
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("token", interviewApiDao.getToken());
 
         return mAstronautApi.getApiService().finishInterview(map);
     }

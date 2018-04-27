@@ -31,4 +31,12 @@ public interface ApiService {
     @POST("interview/finish")
     Observable<BaseApiDao> finishInterview(@FieldMap HashMap<String, String> data);
 
+    @FormUrlEncoded
+    @POST("question/attempt")
+    Observable<BaseApiDao> addAttempt(@FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("question/finish")
+    Observable<BaseApiDao> finishQuestion(@FieldMap HashMap<String, String> data);
+
 }

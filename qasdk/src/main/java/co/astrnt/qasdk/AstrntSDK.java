@@ -23,6 +23,7 @@ public class AstrntSDK {
     private static Realm realm;
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
+    private static boolean isPractice = false;
     private boolean isDebuggable;
 
     public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
@@ -81,7 +82,7 @@ public class AstrntSDK {
     }
 
     public static void saveQuestionInfo() {
-        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionAttempt());
+        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionAttempt(), false);
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
@@ -90,10 +91,13 @@ public class AstrntSDK {
     }
 
     public static QuestionInfo getQuestionInfo() {
-        return realm.where(QuestionInfo.class).findFirst();
+        return realm.where(QuestionInfo.class).equalTo("isPractice", isPractice()).findFirst();
     }
 
     public static int getQuestionIndex() {
+        if (isPractice()) {
+            return 0;
+        }
         QuestionInfo questionInfo = getQuestionInfo();
         if (questionInfo != null) {
             return questionInfo.getIndex();
@@ -128,8 +132,27 @@ public class AstrntSDK {
         return realm.where(InterviewApiDao.class).findFirst();
     }
 
+    public static int getTotalQuestion() {
+        if (isPractice()) {
+            return 1;
+        }
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        assert interviewApiDao != null;
+        return interviewApiDao.getQuestions().size();
+    }
+
+    public static QuestionApiDao getPracticeQuestion() {
+        QuestionApiDao questionApiDao = new QuestionApiDao();
+        questionApiDao.setTakesCount(3);
+        questionApiDao.setTitle("What are your proudest achievements, and why?");
+        return questionApiDao;
+    }
+
     public static QuestionApiDao getCurrentQuestion() {
-        InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findFirst();
+        if (isPractice()) {
+            return getPracticeQuestion();
+        }
+        InterviewApiDao interviewApiDao = getCurrentInterview();
         assert interviewApiDao != null;
         int questionIndex = getQuestionIndex();
         if (questionIndex < interviewApiDao.getQuestions().size()) {
@@ -140,7 +163,7 @@ public class AstrntSDK {
     }
 
     public static QuestionApiDao getNextQuestion() {
-        InterviewApiDao interviewApiDao = realm.where(InterviewApiDao.class).findFirst();
+        InterviewApiDao interviewApiDao = getCurrentInterview();
         assert interviewApiDao != null;
         int questionIndex = getQuestionIndex();
         if (questionIndex < interviewApiDao.getQuestions().size()) {
@@ -151,6 +174,9 @@ public class AstrntSDK {
     }
 
     public static void increaseQuestionIndex() {
+        if (isPractice()) {
+            return;
+        }
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
@@ -192,7 +218,7 @@ public class AstrntSDK {
     }
 
     public static boolean isLastQuestion() {
-        return getQuestionIndex() == getCurrentInterview().getQuestions().size();
+        return getQuestionIndex() == getTotalQuestion() - 1;
     }
 
     public static void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
@@ -226,6 +252,25 @@ public class AstrntSDK {
             realm.deleteAll();
             realm.commitTransaction();
         }
+    }
+
+    public static boolean isPractice() {
+        return isPractice;
+    }
+
+    public static void setPracticeMode() {
+        isPractice = true;
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            QuestionInfo questionInfo = new QuestionInfo(0, 3, isPractice);
+            questionInfo.setId(20180427);
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+        }
+    }
+
+    public static void finishPracticeMode() {
+        isPractice = false;
     }
 
     private OkHttpClient getOkHttpClient() {

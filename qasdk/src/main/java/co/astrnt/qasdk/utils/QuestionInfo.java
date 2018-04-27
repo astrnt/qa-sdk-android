@@ -9,13 +9,15 @@ public class QuestionInfo extends RealmObject {
     private long id;
     private int index;
     private int attempt;
+    private boolean isPractice;
 
     public QuestionInfo() {
     }
 
-    public QuestionInfo(int index, int attempt) {
+    public QuestionInfo(int index, int attempt, boolean isPractice) {
         this.index = index;
         this.attempt = attempt;
+        this.isPractice = isPractice;
     }
 
     public long getId() {
@@ -40,6 +42,14 @@ public class QuestionInfo extends RealmObject {
 
     public void setAttempt(int attempt) {
         this.attempt = attempt;
+    }
+
+    public boolean isPractice() {
+        return isPractice;
+    }
+
+    public void setPractice(boolean practice) {
+        isPractice = practice;
     }
 
     public void increaseIndex() {

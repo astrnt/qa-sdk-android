@@ -29,7 +29,7 @@ import timber.log.Timber;
 
 public class SingleVideoUploadService extends Service {
 
-    public static final String EXT_QUESTION_ID = "VideoCompressService.QuestionId";
+    public static final String EXT_QUESTION_ID = "SingleVideoUploadService.QuestionId";
 
     public static final long NOTIFY_INTERVAL = 2 * 60 * 1000;
 

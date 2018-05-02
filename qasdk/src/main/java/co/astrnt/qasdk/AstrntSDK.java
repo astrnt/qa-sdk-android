@@ -15,6 +15,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import okhttp3.OkHttpClient;
 import timber.log.Timber;
 
@@ -141,6 +142,13 @@ public class AstrntSDK {
         return interviewApiDao.getQuestions().size();
     }
 
+    public static boolean isAllUploaded() {
+        RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class)
+                .equalTo("uploadStatus", UploadStatusType.UPLOADED)
+                .findAll();
+        return results.size() == getTotalQuestion();
+    }
+
     public static QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setTakesCount(3);
@@ -227,10 +235,24 @@ public class AstrntSDK {
             realm.beginTransaction();
 
             questionApiDao.setVideoPath(videoPath);
-            questionApiDao.setUploadStatus(UploadStatusType.PENDING);
+            questionApiDao.setUploadStatus(UploadStatusType.COMPRESSED);
 
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
+        }
+    }
+
+    public static void updateProgress(QuestionApiDao questionApiDao, double progress) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadProgress(progress);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
         }
     }
 

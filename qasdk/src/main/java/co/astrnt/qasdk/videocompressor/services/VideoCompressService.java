@@ -13,6 +13,7 @@ import java.util.TimerTask;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -117,7 +118,7 @@ public class VideoCompressService extends Service {
                 @Override
                 public void run() {
                     if (currentQuestion != null) {
-                        if (currentQuestion.getUploadStatus() == null) {
+                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.PENDING)) {
                             doCompress();
                         } else {
                             stopService();

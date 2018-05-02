@@ -30,6 +30,7 @@ public class QuestionApiDao extends RealmObject {
     //this field below is for file and upload status
     private String videoPath;
     private String uploadStatus;
+    private double uploadProgress;
 
     public long getId() {
         return id;
@@ -169,5 +170,13 @@ public class QuestionApiDao extends RealmObject {
 
     public void setUploadStatus(String uploadStatus) {
         this.uploadStatus = uploadStatus;
+    }
+
+    public double getUploadProgress() {
+        return uploadProgress;
+    }
+
+    public void setUploadProgress(double uploadProgress) {
+        this.uploadProgress = uploadProgress;
     }
 }

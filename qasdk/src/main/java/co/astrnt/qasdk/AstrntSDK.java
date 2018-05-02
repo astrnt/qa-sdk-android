@@ -256,6 +256,20 @@ public class AstrntSDK {
         }
     }
 
+    public static void markUploading(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadStatus(UploadStatusType.UPLOADING);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
+        }
+    }
+
     public static void markUploaded(QuestionApiDao questionApiDao) {
 
         if (!realm.isInTransaction()) {

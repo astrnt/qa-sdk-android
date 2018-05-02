@@ -243,6 +243,8 @@ public class AstrntSDK {
 
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
         }
     }
 

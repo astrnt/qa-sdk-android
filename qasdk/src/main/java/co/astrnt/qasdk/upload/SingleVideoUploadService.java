@@ -7,6 +7,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
+import com.google.gson.Gson;
+
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
@@ -18,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import co.astrnt.qasdk.AstrntSDK;
+import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
@@ -79,12 +82,13 @@ public class SingleVideoUploadService extends Service {
             notificationConfig.setRingToneEnabled(false);
 
             InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
-            String uploadId = new MultipartUploadRequest(context, AstrntSDK.getApiUrl() + "/video/upload")
+            String uploadId = new MultipartUploadRequest(context, AstrntSDK.getApiUrl() + "video/upload")
+                    .addParameter("token", interviewApiDao.getToken())
                     .addParameter("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()))
                     .addParameter("company_id", String.valueOf(interviewApiDao.getCompany().getId()))
                     .addParameter("question_id", String.valueOf(questionId))
                     .addParameter("job_id", String.valueOf(interviewApiDao.getJob().getId()))
-                    .addParameter("device", "Android")
+                    .addParameter("device", "android")
                     .addParameter("device_type", Build.MODEL)
                     .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
                     .setUtf8Charset()
@@ -92,10 +96,17 @@ public class SingleVideoUploadService extends Service {
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {
+                            if (uploadInfo != null) {
+                                Timber.d("Video Upload Progress : %s", uploadInfo.getProgressPercent());
+                            }
                         }
 
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                            if (serverResponse != null && serverResponse.getBody() != null) {
+                                BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                Timber.e(baseApiDao.getMessage());
+                            }
                         }
 
                         @Override

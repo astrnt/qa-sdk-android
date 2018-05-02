@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.dao;
 
+import co.astrnt.qasdk.type.UploadStatusType;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -159,7 +160,11 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public String getUploadStatus() {
-        return uploadStatus;
+        if (uploadStatus == null) {
+            return UploadStatusType.PENDING;
+        } else {
+            return uploadStatus;
+        }
     }
 
     public void setUploadStatus(String uploadStatus) {

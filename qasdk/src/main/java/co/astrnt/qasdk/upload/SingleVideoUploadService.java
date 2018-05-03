@@ -84,6 +84,7 @@ public class SingleVideoUploadService extends Service {
             InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
             String uploadId = new MultipartUploadRequest(context, AstrntSDK.getApiUrl() + "video/upload")
                     .addParameter("token", interviewApiDao.getToken())
+                    .addParameter("interview_code", interviewApiDao.getInterviewCode())
                     .addParameter("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()))
                     .addParameter("company_id", String.valueOf(interviewApiDao.getCompany().getId()))
                     .addParameter("question_id", String.valueOf(questionId))
@@ -117,6 +118,7 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
+                            Timber.e("Upload Canceled");
                         }
                     }).startUpload();
 

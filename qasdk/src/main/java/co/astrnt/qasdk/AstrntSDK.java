@@ -145,15 +145,18 @@ public class AstrntSDK {
             return 1;
         }
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
+        if (interviewApiDao != null) {
         return interviewApiDao.getQuestions().size();
+        } else {
+            return 0;
+        }
     }
 
     public boolean isAllUploaded() {
         RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class)
                 .equalTo("uploadStatus", UploadStatusType.UPLOADED)
                 .findAll();
-        return results.size() == getTotalQuestion();
+        return results == null || getTotalQuestion() <= 0 || results.size() == getTotalQuestion();
     }
 
     private QuestionApiDao getPracticeQuestion() {

@@ -162,7 +162,11 @@ public class QuestionApiDao extends RealmObject {
 
     public String getUploadStatus() {
         if (uploadStatus == null) {
-            return UploadStatusType.PENDING;
+            if (getVideoPath() != null) {
+                return UploadStatusType.PENDING;
+            } else {
+                return UploadStatusType.NOT_ANSWER;
+            }
         } else {
             return uploadStatus;
         }

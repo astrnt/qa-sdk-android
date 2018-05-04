@@ -34,8 +34,8 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.0'
 
     //    Video Compression
-    implementation 'org.aspectj:aspectjrt:1.9.1'
-    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
+//    implementation 'org.aspectj:aspectjrt:1.9.1'
+//    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
     //    Upload Service
     def uploadServiceVersion = "3.4.2"

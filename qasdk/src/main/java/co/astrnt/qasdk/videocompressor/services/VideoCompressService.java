@@ -12,8 +12,8 @@ import java.util.TimerTask;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.QuestionApiDao;
-import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -33,6 +33,7 @@ public class VideoCompressService extends Service {
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
     private QuestionApiDao currentQuestion;
+    private AstrntSDK astrntSDK;
 
     public static void start(Context context, String inputPath, long questionId) {
         context.startService(
@@ -49,7 +50,7 @@ public class VideoCompressService extends Service {
             questionId = intent.getLongExtra(EXT_QUESTION_ID, 0);
 
             inputFile = new File(inputPath);
-            currentQuestion = AstrntSDK.searchQuestionById(questionId);
+            currentQuestion = astrntSDK.searchQuestionById(questionId);
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -58,8 +59,9 @@ public class VideoCompressService extends Service {
     public void onCreate() {
         super.onCreate();
         context = this;
+        astrntSDK = new AstrntSDK();
 
-        outputFile = new File(context.getFilesDir(), AstrntSDK.getCurrentQuestion().getId() + "_video.mp4");
+        outputFile = new File(context.getFilesDir(), astrntSDK.getCurrentQuestion().getId() + "_video.mp4");
 
         outputPath = outputFile.getAbsolutePath();
 
@@ -87,7 +89,7 @@ public class VideoCompressService extends Service {
             @Override
             public void onSuccess() {
                 Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
-                AstrntSDK.updateVideoPath(currentQuestion, outputPath);
+                astrntSDK.updateVideoPath(currentQuestion, outputPath);
                 SingleVideoUploadService.start(context, currentQuestion.getId());
                 stopService();
             }

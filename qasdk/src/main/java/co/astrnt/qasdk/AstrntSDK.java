@@ -1,6 +1,9 @@
 package co.astrnt.qasdk;
 
 import android.content.Context;
+import android.os.Environment;
+import android.os.StatFs;
+import android.support.annotation.NonNull;
 
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
@@ -21,10 +24,10 @@ import timber.log.Timber;
 
 public class AstrntSDK {
 
-    private static Realm realm;
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
     private static boolean isPractice = false;
+    private Realm realm;
     private boolean isDebuggable;
 
     public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
@@ -46,15 +49,19 @@ public class AstrntSDK {
         UploadService.MAX_RETRY_WAIT_TIME = 10 * 1000;
     }
 
-    public static Realm getRealm() {
+    public AstrntSDK() {
+        this.realm = Realm.getDefaultInstance();
+    }
+
+    public Realm getRealm() {
         return realm;
     }
 
-    public static String getApiUrl() {
+    public String getApiUrl() {
         return mApiUrl;
     }
 
-    public static void saveInterviewResult(InterviewResultApiDao interviewResult) {
+    public void saveInterviewResult(InterviewResultApiDao interviewResult) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             if (interviewResult.getInformation() != null) {
@@ -72,7 +79,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void saveInterview(InterviewApiDao interview, String token, String interviewCode) {
+    public void saveInterview(InterviewApiDao interview, String token, String interviewCode) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             interview.setToken(token);
@@ -82,7 +89,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void saveQuestionInfo() {
+    private void saveQuestionInfo() {
         QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionAttempt(), false);
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -91,11 +98,11 @@ public class AstrntSDK {
         }
     }
 
-    public static QuestionInfo getQuestionInfo() {
+    private QuestionInfo getQuestionInfo() {
         return realm.where(QuestionInfo.class).equalTo("isPractice", isPractice()).findFirst();
     }
 
-    public static int getQuestionIndex() {
+    public int getQuestionIndex() {
         if (isPractice()) {
             return 0;
         }
@@ -109,7 +116,7 @@ public class AstrntSDK {
         }
     }
 
-    public static int getQuestionAttempt() {
+    public int getQuestionAttempt() {
         QuestionInfo questionInfo = getQuestionInfo();
         if (questionInfo != null) {
             return questionInfo.getAttempt();
@@ -125,15 +132,15 @@ public class AstrntSDK {
         }
     }
 
-    public static QuestionApiDao searchQuestionById(long id) {
+    public QuestionApiDao searchQuestionById(long id) {
         return realm.where(QuestionApiDao.class).equalTo("id", id).findFirst();
     }
 
-    public static InterviewApiDao getCurrentInterview() {
+    public InterviewApiDao getCurrentInterview() {
         return realm.where(InterviewApiDao.class).findFirst();
     }
 
-    public static int getTotalQuestion() {
+    public int getTotalQuestion() {
         if (isPractice()) {
             return 1;
         }
@@ -142,21 +149,21 @@ public class AstrntSDK {
         return interviewApiDao.getQuestions().size();
     }
 
-    public static boolean isAllUploaded() {
+    public boolean isAllUploaded() {
         RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class)
                 .equalTo("uploadStatus", UploadStatusType.UPLOADED)
                 .findAll();
         return results.size() == getTotalQuestion();
     }
 
-    public static QuestionApiDao getPracticeQuestion() {
+    private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setTakesCount(3);
         questionApiDao.setTitle("What are your proudest achievements, and why?");
         return questionApiDao;
     }
 
-    public static QuestionApiDao getCurrentQuestion() {
+    public QuestionApiDao getCurrentQuestion() {
         if (isPractice()) {
             return getPracticeQuestion();
         }
@@ -170,7 +177,7 @@ public class AstrntSDK {
         }
     }
 
-    public static QuestionApiDao getNextQuestion() {
+    private QuestionApiDao getNextQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         assert interviewApiDao != null;
         int questionIndex = getQuestionIndex();
@@ -181,7 +188,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void increaseQuestionIndex() {
+    public void increaseQuestionIndex() {
         if (isPractice()) {
             return;
         }
@@ -203,7 +210,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void decreaseQuestionAttempt() {
+    public void decreaseQuestionAttempt() {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -221,15 +228,15 @@ public class AstrntSDK {
         }
     }
 
-    public static boolean isLastAttempt() {
+    public boolean isLastAttempt() {
         return getQuestionAttempt() == 0;
     }
 
-    public static boolean isLastQuestion() {
+    public boolean isLastQuestion() {
         return getQuestionIndex() == getTotalQuestion() - 1;
     }
 
-    public static void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
+    public void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -242,7 +249,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void updateProgress(QuestionApiDao questionApiDao, double progress) {
+    public void updateProgress(QuestionApiDao questionApiDao, double progress) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -256,7 +263,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void markUploading(QuestionApiDao questionApiDao) {
+    public void markUploading(QuestionApiDao questionApiDao) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -270,7 +277,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void markUploaded(QuestionApiDao questionApiDao) {
+    public void markUploaded(QuestionApiDao questionApiDao) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -284,7 +291,7 @@ public class AstrntSDK {
         }
     }
 
-    public static void clearDb() {
+    public void clearDb() {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.deleteAll();
@@ -292,11 +299,11 @@ public class AstrntSDK {
         }
     }
 
-    public static boolean isPractice() {
+    public boolean isPractice() {
         return isPractice;
     }
 
-    public static void setPracticeMode() {
+    public void setPracticeMode() {
         isPractice = true;
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -307,10 +314,19 @@ public class AstrntSDK {
         }
     }
 
-    public static void finishPracticeMode() {
+    public void finishPracticeMode() {
         isPractice = false;
     }
 
+    public long getAvailableMemory() {
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
+        long megAvailable = bytesAvailable / (1024 * 1024);
+        Timber.d("Available MB : %s", megAvailable);
+        return megAvailable;
+    }
+
+    @NonNull
     private OkHttpClient getOkHttpClient() {
         return new OkHttpClient.Builder()
                 .followRedirects(true)

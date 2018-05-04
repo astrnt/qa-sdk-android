@@ -39,6 +39,7 @@ public class SingleVideoUploadService extends Service {
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
     private QuestionApiDao currentQuestion;
+    private AstrntSDK astrntSDK;
 
     public static void start(Context context, long questionId) {
         context.startService(
@@ -52,7 +53,7 @@ public class SingleVideoUploadService extends Service {
         if (intent != null && intent.getExtras() != null) {
             questionId = intent.getLongExtra(EXT_QUESTION_ID, 0);
 
-            currentQuestion = AstrntSDK.searchQuestionById(questionId);
+            currentQuestion = astrntSDK.searchQuestionById(questionId);
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -61,6 +62,8 @@ public class SingleVideoUploadService extends Service {
     public void onCreate() {
         super.onCreate();
         context = this;
+
+        astrntSDK = new AstrntSDK();
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -81,8 +84,8 @@ public class SingleVideoUploadService extends Service {
             UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
             notificationConfig.setRingToneEnabled(false);
 
-            InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
-            String uploadId = new MultipartUploadRequest(context, AstrntSDK.getApiUrl() + "video/upload")
+            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+            String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "video/upload")
                     .addParameter("token", interviewApiDao.getToken())
                     .addParameter("interview_code", interviewApiDao.getInterviewCode())
                     .addParameter("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()))
@@ -112,7 +115,7 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                            AstrntSDK.markUploaded(currentQuestion);
+                            astrntSDK.markUploaded(currentQuestion);
                             stopSelf();
                         }
 

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -14,6 +15,8 @@ import okhttp3.ResponseBody;
  * Created by deni rohimat on 06/04/18.
  */
 public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
+
+    protected AstrntSDK astrntSDK = new AstrntSDK();
 
     @Override
     public void onSubscribe(Disposable d) {

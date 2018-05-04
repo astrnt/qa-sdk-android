@@ -2,7 +2,6 @@ package co.astrnt.qasdk.repository;
 
 import java.util.HashMap;
 
-import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -20,8 +19,8 @@ public class QuestionRepository extends BaseRepository {
     }
 
     public Observable<BaseApiDao> addQuestionAttempt() {
-        InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
-        QuestionApiDao currentQuestion = AstrntSDK.getCurrentQuestion();
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
@@ -35,8 +34,8 @@ public class QuestionRepository extends BaseRepository {
     }
 
     public Observable<BaseApiDao> finishQuestion() {
-        InterviewApiDao interviewApiDao = AstrntSDK.getCurrentInterview();
-        QuestionApiDao currentQuestion = AstrntSDK.getCurrentQuestion();
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());

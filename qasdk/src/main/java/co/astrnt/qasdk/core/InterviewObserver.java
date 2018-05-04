@@ -1,6 +1,5 @@
 package co.astrnt.qasdk.core;
 
-import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 
@@ -16,19 +15,21 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
 
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
-        AstrntSDK.saveInterviewResult(resultApiDao);
+        astrntSDK.saveInterviewResult(resultApiDao);
+        InterviewApiDao data = resultApiDao.getInterview();
         if (resultApiDao.getInterview().getType().contains(OPEN)) {
-            onNeedToRegister(resultApiDao.getInterview());
+            onNeedToRegister(data);
         } else {
-            switch (resultApiDao.getInterview().getType()) {
+            astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
+            switch (data.getType()) {
                 case CLOSE_INTERVIEW:
-                    onInterviewType(resultApiDao.getInterview());
+                    onInterviewType(data);
                     break;
                 case CLOSE_TEST:
-                    onTestType(resultApiDao.getInterview());
+                    onTestType(data);
                     break;
                 case CLOSE_SECTION:
-                    onSectionType(resultApiDao.getInterview());
+                    onSectionType(data);
                     break;
                 default:
                     onApiResultError(resultApiDao.getMessage(), "error");

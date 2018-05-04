@@ -57,7 +57,7 @@ public class Track {
         samplingFrequencyIndexMap.put(8000, 0xb);
     }
 
-    public Track(int id, MediaFormat format, boolean isAudio) throws Exception {
+    public Track(int id, MediaFormat format, boolean isAudio) {
         trackId = id;
         if (!isAudio) {
             sampleDurations.add((long)3015);

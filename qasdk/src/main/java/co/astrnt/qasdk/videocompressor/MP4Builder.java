@@ -195,7 +195,7 @@ public class MP4Builder {
         }
 
         @Override
-        public void parse(DataSource dataSource, ByteBuffer header, long contentSize, BoxParser boxParser) throws IOException {
+        public void parse(DataSource dataSource, ByteBuffer header, long contentSize, BoxParser boxParser) {
 
         }
 

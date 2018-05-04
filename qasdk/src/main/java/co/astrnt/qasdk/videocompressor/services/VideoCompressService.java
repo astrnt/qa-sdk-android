@@ -61,10 +61,6 @@ public class VideoCompressService extends Service {
         context = this;
         astrntSDK = new AstrntSDK();
 
-        outputFile = new File(context.getFilesDir(), astrntSDK.getCurrentQuestion().getId() + "_video.mp4");
-
-        outputPath = outputFile.getAbsolutePath();
-
         if (mTimer != null) {
             mTimer.cancel();
         } else {
@@ -80,6 +76,10 @@ public class VideoCompressService extends Service {
     }
 
     public void doCompress() {
+
+        outputFile = new File(context.getFilesDir(), currentQuestion.getId() + "_video.mp4");
+        outputPath = outputFile.getAbsolutePath();
+
         VideoCompress.compressVideoLow(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), new VideoCompress.CompressListener() {
             @Override
             public void onStart() {

@@ -84,6 +84,14 @@ public class SingleVideoUploadService extends Service {
             UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
             notificationConfig.setRingToneEnabled(false);
 
+            if (currentQuestion.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
+                    currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+                stopService();
+                return;
+            }
+
+            astrntSDK.markUploading(currentQuestion);
+
             InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
             String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "video/upload")
                     .addParameter("token", interviewApiDao.getToken())
@@ -110,18 +118,22 @@ public class SingleVideoUploadService extends Service {
                             if (serverResponse != null && serverResponse.getBody() != null) {
                                 BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
                                 Timber.e(baseApiDao.getMessage());
+                                astrntSDK.markAsPending(currentQuestion);
+                                stopService();
                             }
                         }
 
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                             astrntSDK.markUploaded(currentQuestion);
-                            stopSelf();
+                            stopService();
                         }
 
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
                             Timber.e("Upload Canceled");
+                            astrntSDK.markAsPending(currentQuestion);
+                            stopService();
                         }
                     }).startUpload();
 

@@ -146,7 +146,7 @@ public class AstrntSDK {
         }
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
-        return interviewApiDao.getQuestions().size();
+            return interviewApiDao.getQuestions().size();
         } else {
             return 0;
         }
@@ -291,6 +291,20 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
+        }
+    }
+
+    public void markAsPending(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadStatus(UploadStatusType.PENDING);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s mark as pending", questionApiDao.getId());
         }
     }
 

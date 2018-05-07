@@ -16,7 +16,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -27,24 +27,17 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
     implementation 'com.jakewharton.timber:timber:4.7.0'
-
-    //    Video Compression
-//    implementation 'org.aspectj:aspectjrt:1.9.1'
-//    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
     //    Upload Service
     def uploadServiceVersion = "3.4.2"
     implementation "net.gotev:uploadservice:$uploadServiceVersion"
     implementation "net.gotev:uploadservice-okhttp:$uploadServiceVersion"
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 realm {

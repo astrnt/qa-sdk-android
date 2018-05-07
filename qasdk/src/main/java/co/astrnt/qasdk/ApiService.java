@@ -8,6 +8,7 @@ import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import io.reactivex.Observable;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 /**
@@ -38,5 +39,8 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("question/finish")
     Observable<BaseApiDao> finishQuestion(@FieldMap HashMap<String, String> data);
+
+    @GET("interview/ping")
+    Observable<BaseApiDao> pingNetwork();
 
 }

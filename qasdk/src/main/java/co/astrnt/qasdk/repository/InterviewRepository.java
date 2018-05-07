@@ -74,4 +74,8 @@ public class InterviewRepository extends BaseRepository {
 
         return mAstronautApi.getApiService().finishInterview(map);
     }
+
+    public Observable<BaseApiDao> pingNetwork() {
+        return mAstronautApi.getApiService().pingNetwork();
+    }
 }

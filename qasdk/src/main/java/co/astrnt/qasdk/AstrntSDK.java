@@ -321,9 +321,8 @@ public class AstrntSDK {
     }
 
     public boolean isLastInterviewFinished() {
-        // TODO: check with right param isFinished
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        return interviewApiDao == null || interviewApiDao.isFirst_time();
+        return interviewApiDao == null || !interviewApiDao.isFinished();
     }
 
     public void setPracticeMode() {

@@ -1,6 +1,7 @@
 package co.astrnt.qasdk;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.core.AstronautApi;
@@ -19,7 +21,10 @@ import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 public class AstrntSDK {
@@ -51,6 +56,14 @@ public class AstrntSDK {
 
     public AstrntSDK() {
         this.realm = Realm.getDefaultInstance();
+    }
+
+    private static int getScreenWidth() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    private static int getScreenHeight() {
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
 
     public Realm getRealm() {
@@ -322,7 +335,7 @@ public class AstrntSDK {
 
     public boolean isLastInterviewFinished() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        return interviewApiDao == null || !interviewApiDao.isFinished();
+        return interviewApiDao == null;
     }
 
     public void setPracticeMode() {
@@ -350,14 +363,28 @@ public class AstrntSDK {
 
     @NonNull
     private OkHttpClient getOkHttpClient() {
-        return new OkHttpClient.Builder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .retryOnConnectionFailure(true)
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .build();
+
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.followRedirects(true);
+        httpClientBuilder.followSslRedirects(true);
+        httpClientBuilder.retryOnConnectionFailure(true);
+        httpClientBuilder.writeTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.addInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(@NonNull Chain chain) throws IOException {
+                Request request = chain.request().newBuilder()
+                        .addHeader("device", "android")
+                        .addHeader("os", "value")
+                        .addHeader("browser", "")
+                        .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
+                        .build();
+                return chain.proceed(request);
+            }
+        });
+
+        return httpClientBuilder.build();
     }
 
     public AstronautApi getApi() {

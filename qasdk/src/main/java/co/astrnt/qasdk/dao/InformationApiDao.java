@@ -1,27 +1,13 @@
 package co.astrnt.qasdk.dao;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by deni rohimat on 19/04/18.
  */
-public class InformationApiDao extends RealmObject implements Parcelable {
+public class InformationApiDao extends RealmObject {
 
-    public static final Creator<InformationApiDao> CREATOR = new Creator<InformationApiDao>() {
-        @Override
-        public InformationApiDao createFromParcel(Parcel source) {
-            return new InformationApiDao(source);
-        }
-
-        @Override
-        public InformationApiDao[] newArray(int size) {
-            return new InformationApiDao[size];
-        }
-    };
     @PrimaryKey
     private long id;
     private boolean finished;
@@ -32,15 +18,6 @@ public class InformationApiDao extends RealmObject implements Parcelable {
     private String message;
 
     public InformationApiDao() {
-    }
-
-    protected InformationApiDao(Parcel in) {
-        this.id = in.readLong();
-        this.finished = in.readByte() != 0;
-        this.interviewIndex = in.readInt();
-        this.interviewAttempt = in.readInt();
-        this.status = in.readString();
-        this.message = in.readString();
     }
 
     public long getId() {
@@ -99,18 +76,4 @@ public class InformationApiDao extends RealmObject implements Parcelable {
         this.message = message;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.id);
-        dest.writeByte(this.finished ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.interviewIndex);
-        dest.writeInt(this.interviewAttempt);
-        dest.writeString(this.status);
-        dest.writeString(this.message);
-    }
 }

@@ -1,7 +1,6 @@
 package co.astrnt.qasdk.dao;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -9,19 +8,8 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by deni rohimat on 19/04/18.
  */
-public class InvitationVideoApiDao extends RealmObject implements Parcelable {
+public class InvitationVideoApiDao extends RealmObject {
 
-    public static final Creator<InvitationVideoApiDao> CREATOR = new Creator<InvitationVideoApiDao>() {
-        @Override
-        public InvitationVideoApiDao createFromParcel(Parcel source) {
-            return new InvitationVideoApiDao(source);
-        }
-
-        @Override
-        public InvitationVideoApiDao[] newArray(int size) {
-            return new InvitationVideoApiDao[size];
-        }
-    };
     @PrimaryKey
     private long id;
     private String interview_video_url;
@@ -30,14 +18,6 @@ public class InvitationVideoApiDao extends RealmObject implements Parcelable {
     private int height;
 
     public InvitationVideoApiDao() {
-    }
-
-    protected InvitationVideoApiDao(Parcel in) {
-        this.id = in.readLong();
-        this.interview_video_url = in.readString();
-        this.interview_video_thumb_url = in.readString();
-        this.width = in.readInt();
-        this.height = in.readInt();
     }
 
     public long getId() {
@@ -78,19 +58,5 @@ public class InvitationVideoApiDao extends RealmObject implements Parcelable {
 
     public void setHeight(int height) {
         this.height = height;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.id);
-        dest.writeString(this.interview_video_url);
-        dest.writeString(this.interview_video_thumb_url);
-        dest.writeInt(this.width);
-        dest.writeInt(this.height);
     }
 }

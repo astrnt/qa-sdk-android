@@ -94,7 +94,7 @@ public class SingleVideoUploadService extends Service {
 
             InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
             String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "video/upload")
-                    .addParameter("token", interviewApiDao.getToken())
+                    .addHeader("token", interviewApiDao.getToken())
                     .addParameter("interview_code", interviewApiDao.getInterviewCode())
                     .addParameter("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()))
                     .addParameter("company_id", String.valueOf(interviewApiDao.getCompany().getId()))

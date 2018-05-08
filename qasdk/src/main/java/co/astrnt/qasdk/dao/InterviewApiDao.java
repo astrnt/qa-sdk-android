@@ -22,6 +22,7 @@ public class InterviewApiDao extends RealmObject {
     private RealmList<SectionApiDao> sections;
     private RealmList<QuestionApiDao> questions;
     private String lang;
+    private boolean finished;
     //this temporary for save code
     private String temp_code;
     private String token;
@@ -52,7 +53,7 @@ public class InterviewApiDao extends RealmObject {
     }
 
     public boolean isFirst_time() {
-        return first_time.equals("yes");
+        return first_time == null || first_time.equals("yes");
     }
 
     public void setFirst_time(String first_time) {
@@ -97,6 +98,14 @@ public class InterviewApiDao extends RealmObject {
 
     public void setCustom_fields(CustomFieldResultApiDao custom_fields) {
         this.custom_fields = custom_fields;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
     }
 
     public String getLang() {

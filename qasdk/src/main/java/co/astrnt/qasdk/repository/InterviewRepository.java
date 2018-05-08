@@ -26,7 +26,7 @@ public class InterviewRepository extends BaseRepository {
         map.put("device", "android");
         map.put("version", String.valueOf(version));
 
-        return mAstronautApi.getApiService().enterCode(map);
+        return mAstronautApi.getApiService().enterCode("", map);
     }
 
     public Observable<InterviewResultApiDao> registerUser(RegisterPost param) {
@@ -52,7 +52,7 @@ public class InterviewRepository extends BaseRepository {
             }
         }
 
-        return mAstronautApi.getApiService().registerUser(map);
+        return mAstronautApi.getApiService().registerUser("", map);
     }
 
     public Observable<InterviewStartApiDao> startInterview() {
@@ -60,9 +60,9 @@ public class InterviewRepository extends BaseRepository {
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
-        map.put("token", interviewApiDao.getToken());
+        String token = interviewApiDao.getToken();
 
-        return mAstronautApi.getApiService().startInterview(map);
+        return mAstronautApi.getApiService().startInterview(token, map);
     }
 
     public Observable<BaseApiDao> finishInterview() {
@@ -70,12 +70,12 @@ public class InterviewRepository extends BaseRepository {
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
-        map.put("token", interviewApiDao.getToken());
+        String token = interviewApiDao.getToken();
 
-        return mAstronautApi.getApiService().finishInterview(map);
+        return mAstronautApi.getApiService().finishInterview(token, map);
     }
 
     public Observable<BaseApiDao> pingNetwork() {
-        return mAstronautApi.getApiService().pingNetwork();
+        return mAstronautApi.getApiService().pingNetwork("");
     }
 }

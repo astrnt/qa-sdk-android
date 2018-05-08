@@ -21,31 +21,31 @@ public class QuestionRepository extends BaseRepository {
     public Observable<BaseApiDao> addQuestionAttempt() {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
+        String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
-        map.put("token", interviewApiDao.getToken());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("question_id", String.valueOf(currentQuestion.getId()));
         //        TODO: check section
 //        map.put("section_id", interviewApiDao.getToken());
 
-        return mAstronautApi.getApiService().addAttempt(map);
+        return mAstronautApi.getApiService().addAttempt(token, map);
     }
 
     public Observable<BaseApiDao> finishQuestion() {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
+        String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
-        map.put("token", interviewApiDao.getToken());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("question_id", String.valueOf(currentQuestion.getId()));
         //        TODO: check section
 //        map.put("section_id", mInterviewApiDao.getToken());
 
-        return mAstronautApi.getApiService().finishQuestion(map);
+        return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 
 }

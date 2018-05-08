@@ -9,6 +9,7 @@ import io.reactivex.Observable;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 /**
@@ -18,29 +19,35 @@ public interface ApiService {
 
     @FormUrlEncoded
     @POST("interview")
-    Observable<InterviewResultApiDao> enterCode(@FieldMap HashMap<String, String> data);
+    Observable<InterviewResultApiDao> enterCode(@Header("token") String token,
+                                                @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("user/register")
-    Observable<InterviewResultApiDao> registerUser(@FieldMap HashMap<String, String> data);
+    Observable<InterviewResultApiDao> registerUser(@Header("token") String token,
+                                                   @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("interview/start")
-    Observable<InterviewStartApiDao> startInterview(@FieldMap HashMap<String, String> data);
+    Observable<InterviewStartApiDao> startInterview(@Header("token") String token,
+                                                    @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("interview/finish")
-    Observable<BaseApiDao> finishInterview(@FieldMap HashMap<String, String> data);
+    Observable<BaseApiDao> finishInterview(@Header("token") String token,
+                                           @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("question/attempt")
-    Observable<BaseApiDao> addAttempt(@FieldMap HashMap<String, String> data);
+    Observable<BaseApiDao> addAttempt(@Header("token") String token,
+                                      @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("question/finish")
-    Observable<BaseApiDao> finishQuestion(@FieldMap HashMap<String, String> data);
+    Observable<BaseApiDao> finishQuestion(@Header("token") String token,
+                                          @FieldMap HashMap<String, String> data);
 
     @GET("interview/ping")
-    Observable<BaseApiDao> pingNetwork();
+    Observable<BaseApiDao> pingNetwork(@Header("token") String token);
 
 }

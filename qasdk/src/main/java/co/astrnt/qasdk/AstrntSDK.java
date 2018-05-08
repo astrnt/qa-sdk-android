@@ -320,6 +320,12 @@ public class AstrntSDK {
         return isPractice;
     }
 
+    public boolean isLastInterviewFinished() {
+        // TODO: check with right param isFinished
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        return interviewApiDao == null || interviewApiDao.isFirst_time();
+    }
+
     public void setPracticeMode() {
         isPractice = true;
         if (!realm.isInTransaction()) {

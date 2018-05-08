@@ -11,11 +11,12 @@ public class JobApiDao extends RealmObject {
     @PrimaryKey
     private long id;
     private String title;
-    private int requiredCv;
+    private int requireCv;
     private String description;
     private String location;
     private String requirement;
     private String responsibility;
+    private String documentType;
     private String type;
 
     public long getId() {
@@ -34,12 +35,12 @@ public class JobApiDao extends RealmObject {
         this.title = title;
     }
 
-    public boolean isRequiredCv() {
-        return requiredCv != 0;
+    public boolean isRequireCv() {
+        return requireCv != 0;
     }
 
-    public void setRequiredCv(int requiredCv) {
-        this.requiredCv = requiredCv;
+    public void setRequireCv(int requireCv) {
+        this.requireCv = requireCv;
     }
 
     public String getDescription() {
@@ -72,6 +73,14 @@ public class JobApiDao extends RealmObject {
 
     public void setResponsibility(String responsibility) {
         this.responsibility = responsibility;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
     }
 
     public String getType() {

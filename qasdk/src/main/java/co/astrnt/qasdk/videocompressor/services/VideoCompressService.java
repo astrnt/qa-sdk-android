@@ -90,7 +90,9 @@ public class VideoCompressService extends Service {
             public void onSuccess() {
                 Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
                 astrntSDK.updateVideoPath(currentQuestion, outputPath);
-                SingleVideoUploadService.start(context, currentQuestion.getId());
+                if (astrntSDK.isNotLastQuestion()) {
+                    SingleVideoUploadService.start(context, currentQuestion.getId());
+                }
                 stopService();
             }
 

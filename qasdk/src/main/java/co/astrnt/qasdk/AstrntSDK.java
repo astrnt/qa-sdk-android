@@ -121,6 +121,9 @@ public class AstrntSDK {
         }
         QuestionInfo questionInfo = getQuestionInfo();
         if (questionInfo != null) {
+            if (questionInfo.getAttempt() == 0) {
+                increaseQuestionIndex();
+            }
             return questionInfo.getIndex();
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();

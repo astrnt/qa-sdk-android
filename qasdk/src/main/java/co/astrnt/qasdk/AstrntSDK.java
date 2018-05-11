@@ -20,7 +20,6 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
-import io.realm.RealmResults;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -166,17 +165,12 @@ public class AstrntSDK {
     }
 
     public boolean isAllUploaded() {
-        RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class).findAll();
-        int totalAnswered = 0;
-        for (QuestionApiDao item : results) {
-            if (item.getUploadStatus().equals(UploadStatusType.UPLOADED) ||
-                    item.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
-                    item.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
-                totalAnswered++;
-            }
+        if (getCurrentInterview() == null) {
+            return true;
+        } else {
+            int totalQuestion = getTotalQuestion();
+            return getQuestionIndex() >= totalQuestion && getQuestionAttempt() == 0;
         }
-        int totalQuestion = getTotalQuestion();
-        return totalQuestion <= 0 || totalAnswered == totalQuestion;
     }
 
     private QuestionApiDao getPracticeQuestion() {
@@ -256,7 +250,7 @@ public class AstrntSDK {
     }
 
     public boolean isNotLastQuestion() {
-        return getQuestionIndex() != getTotalQuestion() - 1;
+        return getQuestionIndex() < getTotalQuestion();
     }
 
     public void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {

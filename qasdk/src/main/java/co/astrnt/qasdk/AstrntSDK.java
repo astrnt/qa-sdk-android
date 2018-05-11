@@ -121,9 +121,6 @@ public class AstrntSDK {
         }
         QuestionInfo questionInfo = getQuestionInfo();
         if (questionInfo != null) {
-            if (questionInfo.getAttempt() == 0) {
-                increaseQuestionIndex();
-            }
             return questionInfo.getIndex();
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
@@ -169,15 +166,17 @@ public class AstrntSDK {
     }
 
     public boolean isAllUploaded() {
-        RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class)
-                .equalTo("uploadStatus", UploadStatusType.UPLOADED)
-                .findAll();
-        if (results == null) {
-            return true;
-        } else {
-            int totalQuestion = getTotalQuestion();
-            return totalQuestion <= 0 || (results.size() == totalQuestion && isLastInterviewFinished());
+        RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class).findAll();
+        int totalAnswered = 0;
+        for (QuestionApiDao item : results) {
+            if (item.getUploadStatus().equals(UploadStatusType.UPLOADED) ||
+                    item.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
+                    item.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                totalAnswered++;
+            }
         }
+        int totalQuestion = getTotalQuestion();
+        return totalQuestion <= 0 || totalAnswered == totalQuestion;
     }
 
     private QuestionApiDao getPracticeQuestion() {
@@ -301,6 +300,20 @@ public class AstrntSDK {
         }
     }
 
+    public void markNotAnswer(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadStatus(UploadStatusType.NOT_ANSWER);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
+        }
+    }
+
     public void markUploaded(QuestionApiDao questionApiDao) {
 
         if (!realm.isInTransaction()) {
@@ -312,6 +325,20 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
+        }
+    }
+
+    public void markAsCompressed(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadStatus(UploadStatusType.COMPRESSED);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s mark as pending", questionApiDao.getId());
         }
     }
 

@@ -118,7 +118,7 @@ public class SingleVideoUploadService extends Service {
                             if (serverResponse != null && serverResponse.getBody() != null) {
                                 BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
                                 Timber.e(baseApiDao.getMessage());
-                                astrntSDK.markAsPending(currentQuestion);
+                                astrntSDK.markAsCompressed(currentQuestion);
                                 stopService();
                             }
                         }
@@ -132,7 +132,7 @@ public class SingleVideoUploadService extends Service {
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
                             Timber.e("Upload Canceled");
-                            astrntSDK.markAsPending(currentQuestion);
+                            astrntSDK.markAsCompressed(currentQuestion);
                             stopService();
                         }
                     }).startUpload();
@@ -156,7 +156,7 @@ public class SingleVideoUploadService extends Service {
                 @Override
                 public void run() {
                     if (currentQuestion != null) {
-                        if (!currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
                             doUploadVideo();
                         } else {
                             stopService();

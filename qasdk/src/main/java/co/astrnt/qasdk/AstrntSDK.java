@@ -169,7 +169,12 @@ public class AstrntSDK {
         RealmResults<QuestionApiDao> results = realm.where(QuestionApiDao.class)
                 .equalTo("uploadStatus", UploadStatusType.UPLOADED)
                 .findAll();
-        return results == null || getTotalQuestion() <= 0 || results.size() == getTotalQuestion();
+        if (results == null) {
+            return true;
+        } else {
+            int totalQuestion = getTotalQuestion();
+            return totalQuestion <= 0 || (results.size() == totalQuestion && isLastInterviewFinished());
+        }
     }
 
     private QuestionApiDao getPracticeQuestion() {
@@ -248,8 +253,8 @@ public class AstrntSDK {
         return getQuestionAttempt() == 0;
     }
 
-    public boolean isLastQuestion() {
-        return getQuestionIndex() == getTotalQuestion() - 1;
+    public boolean isNotLastQuestion() {
+        return getQuestionIndex() != getTotalQuestion() - 1;
     }
 
     public void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
@@ -335,7 +340,19 @@ public class AstrntSDK {
 
     public boolean isLastInterviewFinished() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        return interviewApiDao == null;
+        return interviewApiDao == null || interviewApiDao.isFinished();
+    }
+
+    public void setInterviewFinished() {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            InterviewApiDao interviewApiDao = getCurrentInterview();
+            interviewApiDao.setFinished(true);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Interview marked as finished in local");
+        }
     }
 
     public void setPracticeMode() {

@@ -123,8 +123,11 @@ public class AstrntSDK {
             return questionInfo.getIndex();
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
-            assert information != null;
-            return information.getInterviewIndex();
+            if (information == null) {
+                return 0;
+            } else {
+                return information.getInterviewIndex();
+            }
         }
     }
 
@@ -134,12 +137,15 @@ public class AstrntSDK {
             return questionInfo.getAttempt();
         } else {
             InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
-            assert information != null;
-            QuestionApiDao currentQuestion = getCurrentQuestion();
-            if (currentQuestion != null) {
-                return currentQuestion.getTakesCount() - information.getInterviewAttempt();
-            } else {
+            if (information == null) {
                 return 1;
+            } else {
+                QuestionApiDao currentQuestion = getCurrentQuestion();
+                if (currentQuestion != null) {
+                    return currentQuestion.getTakesCount() - information.getInterviewAttempt();
+                } else {
+                    return 1;
+                }
             }
         }
     }
@@ -165,12 +171,22 @@ public class AstrntSDK {
     }
 
     public boolean isAllUploaded() {
-        if (getCurrentInterview() == null) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao == null) {
             return true;
         } else {
-            int totalQuestion = getTotalQuestion();
-            return getQuestionIndex() >= totalQuestion && getQuestionAttempt() == 0;
+            if (interviewApiDao.getQuestions().isEmpty()) {
+                return true;
+            } else {
+                int totalQuestion = getTotalQuestion();
+                return getQuestionIndex() >= totalQuestion && getQuestionAttempt() == 0;
+            }
         }
+    }
+
+    public boolean isCanContinue() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        return interviewApiDao != null && !interviewApiDao.isFinished() && interviewApiDao.getCandidate() != null;
     }
 
     private QuestionApiDao getPracticeQuestion() {

@@ -75,6 +75,19 @@ public class InterviewRepository extends BaseRepository {
         return mAstronautApi.getApiService().finishInterview(token, map);
     }
 
+    public Observable<BaseApiDao> cvStatus() {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("job_id", String.valueOf(interviewApiDao.getJob().getId()));
+        map.put("company_id", String.valueOf(interviewApiDao.getCompany().getId()));
+        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        String token = interviewApiDao.getToken();
+
+        return mAstronautApi.getApiService().cvStatus(token, map);
+    }
+
     public Observable<BaseApiDao> cvStart() {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
 

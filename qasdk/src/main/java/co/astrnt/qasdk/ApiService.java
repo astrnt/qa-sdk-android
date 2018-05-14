@@ -38,6 +38,11 @@ public interface ApiService {
                                            @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
+    @POST("cv/status")
+    Observable<BaseApiDao> cvStatus(@Header("token") String token,
+                                   @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
     @POST("cv/start")
     Observable<BaseApiDao> cvStart(@Header("token") String token,
                                    @FieldMap HashMap<String, String> data);

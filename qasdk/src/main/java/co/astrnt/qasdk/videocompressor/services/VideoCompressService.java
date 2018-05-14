@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
@@ -92,6 +95,8 @@ public class VideoCompressService extends Service {
                 astrntSDK.updateVideoPath(currentQuestion, outputPath);
                 if (astrntSDK.isNotLastQuestion()) {
                     SingleVideoUploadService.start(context, currentQuestion.getId());
+                } else {
+                    EventBus.getDefault().post(new CompressEvent());
                 }
                 stopService();
             }

@@ -186,7 +186,7 @@ public class AstrntSDK {
 
     public boolean isCanContinue() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        return interviewApiDao != null && !interviewApiDao.isFinished() && interviewApiDao.getCandidate() != null;
+        return interviewApiDao != null && !interviewApiDao.isFinished() && interviewApiDao.getCandidate() != null && isNotLastQuestion();
     }
 
     private QuestionApiDao getPracticeQuestion() {
@@ -376,11 +376,6 @@ public class AstrntSDK {
 
     public boolean isPractice() {
         return isPractice;
-    }
-
-    public boolean isLastInterviewFinished() {
-        InterviewApiDao interviewApiDao = getCurrentInterview();
-        return interviewApiDao == null || interviewApiDao.isFinished();
     }
 
     public void setInterviewFinished() {

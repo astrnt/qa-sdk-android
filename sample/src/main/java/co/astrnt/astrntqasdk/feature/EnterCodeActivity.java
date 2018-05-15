@@ -11,7 +11,6 @@ import android.widget.Toast;
 import co.astrnt.astrntqasdk.BuildConfig;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
-import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.core.InterviewObserver;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.repository.InterviewRepository;
@@ -38,7 +37,7 @@ public class EnterCodeActivity extends BaseActivity {
         mInterviewRepository = new InterviewRepository(getApi());
 
         if (BuildConfig.DEBUG) {
-            inpCode.setText("SDKvideo");
+            inpCode.setText("video");
         }
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
@@ -78,32 +77,26 @@ public class EnterCodeActivity extends BaseActivity {
 
                     @Override
                     public void onNeedToRegister(InterviewApiDao interview) {
-                        Toast.makeText(context, "Need Register", Toast.LENGTH_SHORT).show();
                         interview.setTemp_code(code);
-                        AstrntSDK.saveInterview(interview);
-                        RegisterActivity.start(context, interview.getInvite_id());
+                        astrntSDK.saveInterview(interview, "", interview.getTemp_code());
+                        Toast.makeText(context, "Need Register", Toast.LENGTH_SHORT).show();
+                        RegisterActivity.start(context);
                         finish();
                     }
 
                     @Override
                     public void onInterviewType(InterviewApiDao interview) {
                         Toast.makeText(context, "Interview", Toast.LENGTH_SHORT).show();
-                        interview.setTemp_code(code);
-                        AstrntSDK.saveInterview(interview);
                     }
 
                     @Override
                     public void onTestType(InterviewApiDao interview) {
                         Toast.makeText(context, "Test MCQ", Toast.LENGTH_SHORT).show();
-                        interview.setTemp_code(code);
-                        AstrntSDK.saveInterview(interview);
                     }
 
                     @Override
                     public void onSectionType(InterviewApiDao interview) {
                         Toast.makeText(context, "Section", Toast.LENGTH_SHORT).show();
-                        interview.setTemp_code(code);
-                        AstrntSDK.saveInterview(interview);
                     }
                 });
     }

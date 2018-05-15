@@ -43,9 +43,8 @@ public class RegisterActivity extends BaseActivity {
     private List<CustomFieldEditText> customFieldEditTextList = new ArrayList<>();
     private ProgressDialog progressDialog;
 
-    public static void start(Context context, long inviteId) {
+    public static void start(Context context) {
         Intent intent = new Intent(context, RegisterActivity.class);
-        intent.putExtra(InterviewApiDao.class.getName(), inviteId);
         context.startActivity(intent);
     }
 

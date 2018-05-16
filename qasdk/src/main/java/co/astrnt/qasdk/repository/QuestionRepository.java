@@ -18,9 +18,9 @@ public class QuestionRepository extends BaseRepository {
         mAstronautApi = astronautApi;
     }
 
-    public Observable<BaseApiDao> addQuestionAttempt() {
+    public Observable<BaseApiDao> addQuestionAttempt(long questionId) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-        QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
+        QuestionApiDao currentQuestion = astrntSDK.searchQuestionById(questionId);
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
@@ -33,9 +33,9 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().addAttempt(token, map);
     }
 
-    public Observable<BaseApiDao> finishQuestion() {
+    public Observable<BaseApiDao> finishQuestion(long questionId) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-        QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
+        QuestionApiDao currentQuestion = astrntSDK.searchQuestionById(questionId);
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();

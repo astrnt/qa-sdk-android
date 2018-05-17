@@ -16,8 +16,8 @@ public class QuestionApiDao extends RealmObject {
     private String tags;
     private int qType;
     private int takesCount;
-    private String prepTime;
-    private String maxTime;
+    private int prepTime;
+    private int maxTime;
     private int job_id;
     private String created_at;
     private String updated_at;
@@ -73,19 +73,19 @@ public class QuestionApiDao extends RealmObject {
         this.takesCount = takesCount;
     }
 
-    public String getPrepTime() {
+    public int getPrepTime() {
         return prepTime;
     }
 
-    public void setPrepTime(String prepTime) {
+    public void setPrepTime(int prepTime) {
         this.prepTime = prepTime;
     }
 
-    public String getMaxTime() {
+    public int getMaxTime() {
         return maxTime;
     }
 
-    public void setMaxTime(String maxTime) {
+    public void setMaxTime(int maxTime) {
         this.maxTime = maxTime;
     }
 

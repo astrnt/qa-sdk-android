@@ -1,8 +1,7 @@
 package co.astrnt.qasdk.dao;
 
-import java.util.List;
-
 import co.astrnt.qasdk.type.UploadStatusType;
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -26,7 +25,7 @@ public class QuestionApiDao extends RealmObject {
     private int image_id;
     private String image_url;
     private String type_child;
-    private List<MultipleAnswerApiDao> multiple_answers;
+    private RealmList<MultipleAnswerApiDao> multiple_answers;
     private String type_parent;
 
     //this field below is for file and upload status
@@ -146,11 +145,11 @@ public class QuestionApiDao extends RealmObject {
         this.type_child = type_child;
     }
 
-    public List<MultipleAnswerApiDao> getMultiple_answers() {
+    public RealmList<MultipleAnswerApiDao> getMultiple_answers() {
         return multiple_answers;
     }
 
-    public void setMultiple_answers(List<MultipleAnswerApiDao> multiple_answers) {
+    public void setMultiple_answers(RealmList<MultipleAnswerApiDao> multiple_answers) {
         this.multiple_answers = multiple_answers;
     }
 

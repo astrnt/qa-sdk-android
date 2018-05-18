@@ -15,6 +15,9 @@ public class MultipleAnswerApiDao extends RealmObject {
     private int question_id;
     private String image_url;
 
+    //additional field not from API, just for locally checked
+    private boolean selected;
+
     public long getId() {
         return id;
     }
@@ -53,5 +56,13 @@ public class MultipleAnswerApiDao extends RealmObject {
 
     public void setImage_url(String image_url) {
         this.image_url = image_url;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

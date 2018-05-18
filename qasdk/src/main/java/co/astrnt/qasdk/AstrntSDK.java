@@ -16,10 +16,12 @@ import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
+import io.realm.RealmList;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -411,6 +413,40 @@ public class AstrntSDK {
         long megAvailable = bytesAvailable / (1024 * 1024);
         Timber.d("Available MB : %s", megAvailable);
         return megAvailable;
+    }
+
+    public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
+        if (!realm.isInTransaction()) {
+
+            RealmList<MultipleAnswerApiDao> selectedAnswer = questionApiDao.getSelectedAnswer();
+            realm.beginTransaction();
+
+            if (answer.isSelected()) {
+                selectedAnswer.remove(answer);
+            } else {
+                selectedAnswer.add(answer);
+            }
+
+            RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+            for (MultipleAnswerApiDao item : multipleAnswer) {
+                if (questionApiDao.isMultipleChoice()) {
+                    if (item.getId() == answer.getId()) {
+                        item.setSelected(!answer.isSelected());
+                    }
+                } else {
+                    if (item.getId() == answer.getId()) {
+                        item.setSelected(!answer.isSelected());
+                    } else {
+                        item.setSelected(false);
+                    }
+                }
+            }
+
+            questionApiDao.setSelectedAnswer(selectedAnswer);
+            questionApiDao.setMultiple_answers(multipleAnswer);
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        }
     }
 
     @NonNull

@@ -28,10 +28,13 @@ public class QuestionApiDao extends RealmObject {
     private RealmList<MultipleAnswerApiDao> multiple_answers;
     private String type_parent;
 
-    //this field below is for file and upload status
+    //this field below is additional field for Video Interview
     private String videoPath;
     private String uploadStatus;
     private double uploadProgress;
+
+    //this field below is additional field for MCQ
+    private RealmList<MultipleAnswerApiDao> selectedAnswer;
 
     public long getId() {
         return id;
@@ -191,5 +194,23 @@ public class QuestionApiDao extends RealmObject {
 
     public void setUploadProgress(double uploadProgress) {
         this.uploadProgress = uploadProgress;
+    }
+
+    //MCQ method support
+
+    public boolean isMultipleChoice() {
+        return getType_child().equals("multiple_options_for_test");
+    }
+
+    public boolean isAnswered() {
+        return selectedAnswer != null && selectedAnswer.size() > 0;
+    }
+
+    public RealmList<MultipleAnswerApiDao> getSelectedAnswer() {
+        return selectedAnswer;
+    }
+
+    public void setSelectedAnswer(RealmList<MultipleAnswerApiDao> selectedAnswer) {
+        this.selectedAnswer = selectedAnswer;
     }
 }

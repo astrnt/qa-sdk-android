@@ -40,7 +40,7 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("cv/status")
     Observable<BaseApiDao> cvStatus(@Header("token") String token,
-                                   @FieldMap HashMap<String, String> data);
+                                    @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("cv/start")
@@ -51,6 +51,11 @@ public interface ApiService {
     @POST("question/attempt")
     Observable<BaseApiDao> addAttempt(@Header("token") String token,
                                       @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("question/answer")
+    Observable<BaseApiDao> answerQuestion(@Header("token") String token,
+                                          @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("question/finish")

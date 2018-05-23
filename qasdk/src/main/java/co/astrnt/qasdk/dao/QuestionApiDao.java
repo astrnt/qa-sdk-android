@@ -34,6 +34,8 @@ public class QuestionApiDao extends RealmObject {
     private double uploadProgress;
 
     //this field below is additional field for MCQ
+    private int timeLeft;
+    private Boolean isAnswered;
     private RealmList<MultipleAnswerApiDao> selectedAnswer;
 
     public long getId() {
@@ -85,7 +87,11 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public int getMaxTime() {
-        return maxTime;
+        if (getTimeLeft() != 0) {
+            return getTimeLeft();
+        } else {
+            return maxTime;
+        }
     }
 
     public void setMaxTime(int maxTime) {
@@ -198,12 +204,27 @@ public class QuestionApiDao extends RealmObject {
 
     //MCQ method support
 
+    private int getTimeLeft() {
+        return timeLeft;
+    }
+
+    public void setTimeLeft(int timeLeft) {
+        this.timeLeft = timeLeft;
+    }
+
     public boolean isMultipleChoice() {
         return getType_child().equals("multiple_options_for_test");
     }
 
     public boolean isAnswered() {
+        if (isAnswered != null) {
+            return isAnswered;
+        }
         return selectedAnswer != null && selectedAnswer.size() > 0;
+    }
+
+    public void setAnswered(boolean answered) {
+        isAnswered = answered;
     }
 
     public RealmList<MultipleAnswerApiDao> getSelectedAnswer() {

@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.dao;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -14,7 +15,7 @@ public class InformationApiDao extends RealmObject {
     private int interviewIndex;
     private int interviewAttempt;
     private String status;
-    //    private List<?> prevQuestStates;
+    private RealmList<PrevQuestionStateApiDao> prevQuestStates;
     private String message;
 
     public InformationApiDao() {
@@ -48,16 +49,16 @@ public class InformationApiDao extends RealmObject {
         return interviewAttempt;
     }
 
-//    public List<?> getPrevQuestStates() {
-//        return prevQuestStates;
-//    }
-//
-//    public void setPrevQuestStates(List<?> prevQuestStates) {
-//        this.prevQuestStates = prevQuestStates;
-//    }
-
     public void setInterviewAttempt(int interviewAttempt) {
         this.interviewAttempt = interviewAttempt;
+    }
+
+    public RealmList<PrevQuestionStateApiDao> getPrevQuestStates() {
+        return prevQuestStates;
+    }
+
+    public void setPrevQuestStates(RealmList<PrevQuestionStateApiDao> prevQuestStates) {
+        this.prevQuestStates = prevQuestStates;
     }
 
     public String getStatus() {

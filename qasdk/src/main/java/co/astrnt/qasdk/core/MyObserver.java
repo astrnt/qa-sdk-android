@@ -30,6 +30,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
     @Override
     public final void onError(Throwable e) {
+        onComplete();
         if (e instanceof retrofit2.HttpException) {
             try {
                 ResponseBody body = ((retrofit2.HttpException) e).response().errorBody();
@@ -40,7 +41,6 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 e2.printStackTrace();
                 onApiResultError("Terjadi kesalahan, silakan hubungi customer service", "exception");
             }
-            onComplete();
         } else if (e instanceof UnknownHostException) {
             onApiResultError("Koneksi terputus, silahkan coba lagi", "exception");
         } else if (e instanceof SocketTimeoutException) {

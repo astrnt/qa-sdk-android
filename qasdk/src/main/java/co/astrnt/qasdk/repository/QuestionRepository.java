@@ -58,7 +58,8 @@ public class QuestionRepository extends BaseRepository {
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("question_id", String.valueOf(currentQuestion.getId()));
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
-        
+        map.put("type", "0");
+
         if (interviewApiDao.getType().equals(InterviewType.CLOSE_TEST)) {
             map.put("interview_type", "test");
         } else {
@@ -66,7 +67,7 @@ public class QuestionRepository extends BaseRepository {
         }
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = currentQuestion.getSelectedAnswer();
-        
+
         if (selectedAnswer != null) {
             for (int i = 0; i < selectedAnswer.size(); i++) {
                 MultipleAnswerApiDao answerItem = selectedAnswer.get(i);
@@ -76,7 +77,7 @@ public class QuestionRepository extends BaseRepository {
             }
         }
 
-        return mAstronautApi.getApiService().finishQuestion(token, map);
+        return mAstronautApi.getApiService().answerQuestion(token, map);
     }
 
 }

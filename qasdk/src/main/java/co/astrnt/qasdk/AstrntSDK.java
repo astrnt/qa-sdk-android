@@ -17,7 +17,9 @@ import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
+import co.astrnt.qasdk.dao.PrevQuestionStateApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import io.realm.Realm;
@@ -26,6 +28,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 public class AstrntSDK {
@@ -86,6 +89,9 @@ public class AstrntSDK {
             }
             realm.commitTransaction();
             saveInterview(interviewResult.getInterview(), interviewResult.getToken(), interviewResult.getInterview_code());
+            if (interviewResult.getInformation() != null) {
+                updateInterview(getCurrentInterview(), interviewResult.getInformation());
+            }
         }
 
         if (interviewResult.getInterview().getQuestions() != null) {
@@ -103,8 +109,36 @@ public class AstrntSDK {
         }
     }
 
+    public void updateInterview(InterviewApiDao interview, InformationApiDao informationApiDao) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            for (QuestionApiDao question : interview.getQuestions()) {
+                for (PrevQuestionStateApiDao questionState : informationApiDao.getPrevQuestStates()) {
+                    if (question.getId() == questionState.getQuestionId()) {
+                        question.setTimeLeft(questionState.getDurationLeft());
+                    }
+                }
+            }
+
+            realm.copyToRealmOrUpdate(interview);
+            realm.commitTransaction();
+
+            updateQuestionInfo(informationApiDao.getInterviewIndex(), informationApiDao.getInterviewAttempt());
+        }
+    }
+
     private void saveQuestionInfo() {
         QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionAttempt(), false);
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+        }
+    }
+
+    private void updateQuestionInfo(int questionIndex, int questionAttempt) {
+        QuestionInfo questionInfo = new QuestionInfo(questionIndex, questionAttempt, false);
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
@@ -116,6 +150,10 @@ public class AstrntSDK {
         return realm.where(QuestionInfo.class).equalTo("isPractice", isPractice()).findFirst();
     }
 
+    private InformationApiDao getInformation() {
+        return realm.where(InformationApiDao.class).findFirst();
+    }
+
     public int getQuestionIndex() {
         if (isPractice()) {
             return 0;
@@ -124,11 +162,41 @@ public class AstrntSDK {
         if (questionInfo != null) {
             return questionInfo.getIndex();
         } else {
-            InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
+            InformationApiDao information = getInformation();
             if (information == null) {
                 return 0;
             } else {
-                return information.getInterviewIndex();
+                InterviewApiDao interviewApiDao = getCurrentInterview();
+                if (interviewApiDao.getType().equals(InterviewType.OPEN_TEST) ||
+                        interviewApiDao.getType().equals(InterviewType.CLOSE_TEST)) {
+
+                    for (int i = 0; i < information.getPrevQuestStates().size(); i++) {
+                        PrevQuestionStateApiDao prevQuestionState = information.getPrevQuestStates().get(i);
+                        assert prevQuestionState != null;
+                        if (prevQuestionState.getDurationLeft() > 0) {
+                            updateQuestion(interviewApiDao, prevQuestionState);
+                            return i;
+                        }
+                    }
+
+                    return information.getInterviewIndex();
+                } else {
+                    return information.getInterviewIndex();
+                }
+            }
+        }
+    }
+
+    private void updateQuestion(InterviewApiDao interview, PrevQuestionStateApiDao questionState) {
+        for (QuestionApiDao questionApiDao : interview.getQuestions()) {
+            if (questionApiDao.getId() == questionState.getQuestionId()) {
+                if (!realm.isInTransaction()) {
+                    realm.beginTransaction();
+                    questionApiDao.setTimeLeft(questionState.getDurationLeft());
+
+                    realm.copyToRealmOrUpdate(questionApiDao);
+                    realm.commitTransaction();
+                }
             }
         }
     }
@@ -138,7 +206,7 @@ public class AstrntSDK {
         if (questionInfo != null) {
             return questionInfo.getAttempt();
         } else {
-            InformationApiDao information = realm.where(InformationApiDao.class).findFirst();
+            InformationApiDao information = getInformation();
             if (information == null) {
                 return 1;
             } else {
@@ -444,6 +512,11 @@ public class AstrntSDK {
 
             questionApiDao.setSelectedAnswer(selectedAnswer);
             questionApiDao.setMultiple_answers(multipleAnswer);
+            if (selectedAnswer.isEmpty()) {
+                questionApiDao.setAnswered(false);
+            } else {
+                questionApiDao.setAnswered(true);
+            }
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
         }
@@ -459,6 +532,14 @@ public class AstrntSDK {
         httpClientBuilder.writeTimeout(60, TimeUnit.SECONDS);
         httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
         httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
+
+        if (isDebuggable) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            httpClientBuilder.addInterceptor(loggingInterceptor);
+        }
+
         httpClientBuilder.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {

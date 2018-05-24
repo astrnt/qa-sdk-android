@@ -224,7 +224,7 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public void setAnswered(boolean answered) {
-        isAnswered = answered;
+        this.isAnswered = answered;
     }
 
     public RealmList<MultipleAnswerApiDao> getSelectedAnswer() {

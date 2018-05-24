@@ -16,13 +16,13 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
         InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
         astrntSDK.saveInterview(currentInterview, resultApiDao.getToken(), resultApiDao.getInterview_code());
+        currentInterview = astrntSDK.getCurrentInterview();
+        astrntSDK.updateInterview(currentInterview, resultApiDao.getInformation());
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
                 onContinueInterview();
                 break;
             case CLOSE_TEST:
-                currentInterview = astrntSDK.getCurrentInterview();
-                astrntSDK.updateInterview(currentInterview, resultApiDao.getInformation());
                 onContinueInterview();
                 break;
             case CLOSE_SECTION:

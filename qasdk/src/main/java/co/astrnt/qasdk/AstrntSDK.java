@@ -78,7 +78,7 @@ public class AstrntSDK {
         return mApiUrl;
     }
 
-    public void saveInterviewResult(InterviewResultApiDao interviewResult) {
+    public void saveInterviewResult(InterviewResultApiDao interviewResult, InterviewApiDao interviewApiDao) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             if (interviewResult.getInformation() != null) {
@@ -88,7 +88,7 @@ public class AstrntSDK {
                 realm.copyToRealmOrUpdate(interviewResult.getInvitation_video());
             }
             realm.commitTransaction();
-            saveInterview(interviewResult.getInterview(), interviewResult.getToken(), interviewResult.getInterview_code());
+            saveInterview(interviewApiDao, interviewResult.getToken(), interviewResult.getInterview_code());
             if (interviewResult.getInformation() != null) {
                 updateInterview(getCurrentInterview(), interviewResult.getInformation());
             }
@@ -109,7 +109,7 @@ public class AstrntSDK {
         }
     }
 
-    public void updateInterview(InterviewApiDao interview, InformationApiDao informationApiDao) {
+    private void updateInterview(InterviewApiDao interview, InformationApiDao informationApiDao) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
@@ -133,6 +133,25 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             updateQuestionInfo(informationApiDao.getInterviewIndex(), informationApiDao.getInterviewAttempt());
+        }
+    }
+
+    public void updateQuestionTimeLeft(QuestionApiDao currentQuestion, int timeLeft) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            currentQuestion.setTimeLeft(timeLeft);
+            realm.copyToRealmOrUpdate(currentQuestion);
+            realm.commitTransaction();
+        }
+    }
+
+    public void updateInterviewTimeLeft(int timeLeft) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            InterviewApiDao interviewApiDao = getCurrentInterview();
+            interviewApiDao.setDuration_left(timeLeft);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
         }
     }
 
@@ -162,6 +181,11 @@ public class AstrntSDK {
 
     private InformationApiDao getInformation() {
         return realm.where(InformationApiDao.class).findFirst();
+    }
+
+    public boolean isResume() {
+        InformationApiDao informationApiDao = getInformation();
+        return informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty();
     }
 
     public int getQuestionIndex() {

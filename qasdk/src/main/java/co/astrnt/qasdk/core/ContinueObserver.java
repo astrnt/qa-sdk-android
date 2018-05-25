@@ -14,10 +14,9 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
+        astrntSDK.updateInterviewTimeLeft(resultApiDao.getInterview().getDuration_left());
         InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
-        astrntSDK.saveInterview(currentInterview, resultApiDao.getToken(), resultApiDao.getInterview_code());
-        currentInterview = astrntSDK.getCurrentInterview();
-        astrntSDK.updateInterview(currentInterview, resultApiDao.getInformation());
+        astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
                 onContinueInterview();

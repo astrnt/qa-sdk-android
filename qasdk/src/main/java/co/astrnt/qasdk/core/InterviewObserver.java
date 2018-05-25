@@ -15,8 +15,8 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
 
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
-        astrntSDK.saveInterviewResult(resultApiDao);
         InterviewApiDao data = resultApiDao.getInterview();
+        astrntSDK.saveInterviewResult(resultApiDao, data);
         if (resultApiDao.getInterview().getType().contains(OPEN)) {
             onNeedToRegister(data);
         } else {

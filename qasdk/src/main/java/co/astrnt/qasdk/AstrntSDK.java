@@ -78,23 +78,28 @@ public class AstrntSDK {
         return mApiUrl;
     }
 
-    public void saveInterviewResult(InterviewResultApiDao interviewResult, InterviewApiDao interviewApiDao) {
+    public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            if (interviewResult.getInformation() != null) {
-                realm.copyToRealmOrUpdate(interviewResult.getInformation());
+            if (resultApiDao.getInformation() != null) {
+                realm.copyToRealmOrUpdate(resultApiDao.getInformation());
             }
-            if (interviewResult.getInvitation_video() != null) {
-                realm.copyToRealmOrUpdate(interviewResult.getInvitation_video());
+            if (resultApiDao.getInvitation_video() != null) {
+                realm.copyToRealmOrUpdate(resultApiDao.getInvitation_video());
             }
             realm.commitTransaction();
-            saveInterview(interviewApiDao, interviewResult.getToken(), interviewResult.getInterview_code());
-            if (interviewResult.getInformation() != null) {
-                updateInterview(getCurrentInterview(), interviewResult.getInformation());
+            if (interviewApiDao != null) {
+//                TODO: compare interview (video) record with server for pending upload
+                saveInterview(interviewApiDao, resultApiDao.getToken(), resultApiDao.getInterview_code());
+            } else {
+                saveInterview(resultApiDao.getInterview(), resultApiDao.getToken(), resultApiDao.getInterview_code());
+            }
+            if (resultApiDao.getInformation() != null) {
+                updateInterview(getCurrentInterview(), resultApiDao.getInformation());
             }
         }
 
-        if (interviewResult.getInterview().getQuestions() != null) {
+        if (resultApiDao.getInterview().getQuestions() != null) {
             saveQuestionInfo();
         }
     }

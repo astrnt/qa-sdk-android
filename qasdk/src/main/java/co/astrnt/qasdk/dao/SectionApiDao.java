@@ -1,10 +1,11 @@
 package co.astrnt.qasdk.dao;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by deni rohimat on 06/04/18.
+ * Created by deni rohimat on 25/05/18.
  */
 public class SectionApiDao extends RealmObject {
 
@@ -18,6 +19,10 @@ public class SectionApiDao extends RealmObject {
     private boolean randomize;
     private String image;
     private String parent_id;
+    private RealmList<QuestionApiDao> section_questions;
+
+    //additional field
+    private int timeLeft;
 
     public long getId() {
         return id;
@@ -52,7 +57,11 @@ public class SectionApiDao extends RealmObject {
     }
 
     public int getDuration() {
-        return duration;
+        if (getTimeLeft() != 0) {
+            return getTimeLeft();
+        } else {
+            return duration;
+        }
     }
 
     public void setDuration(int duration) {
@@ -91,4 +100,42 @@ public class SectionApiDao extends RealmObject {
         this.parent_id = parent_id;
     }
 
+    public RealmList<QuestionApiDao> getSectionQuestions() {
+        return section_questions;
+    }
+
+    public void setSectionQuestions(RealmList<QuestionApiDao> section_questions) {
+        this.section_questions = section_questions;
+    }
+
+    public int getTotalQuestion() {
+        return getSectionQuestions().size();
+    }
+
+    public int getTotalAttempt() {
+        int totalAttempt = 0;
+
+        for (QuestionApiDao item : getSectionQuestions()) {
+            totalAttempt += item.getTakesCount();
+        }
+        return totalAttempt;
+    }
+
+    public int getTotalUpload() {
+        return getTotalQuestion() * 5;
+    }
+
+    public int getEstimatedTime() {
+        return getTotalAttempt() * 3;
+    }
+
+    // Support Method
+
+    private int getTimeLeft() {
+        return timeLeft;
+    }
+
+    public void setTimeLeft(int timeLeft) {
+        this.timeLeft = timeLeft;
+    }
 }

@@ -16,6 +16,9 @@ public class InformationApiDao extends RealmObject {
     private int interviewAttempt;
     private String status;
     private RealmList<PrevQuestionStateApiDao> prevQuestStates;
+    private int section_index;
+    private int preparation_time;
+    private String section_info;
     private String message;
 
     public InformationApiDao() {
@@ -67,6 +70,30 @@ public class InformationApiDao extends RealmObject {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public int getSectionIndex() {
+        return section_index;
+    }
+
+    public void setSectionIndex(int section_index) {
+        this.section_index = section_index;
+    }
+
+    public int getPreparationTime() {
+        return preparation_time;
+    }
+
+    public void setPreparationTime(int preparation_time) {
+        this.preparation_time = preparation_time;
+    }
+
+    public String getSectionInfo() {
+        return section_info;
+    }
+
+    public void setSectionInfo(String section_info) {
+        this.section_info = section_info;
     }
 
     public String getMessage() {

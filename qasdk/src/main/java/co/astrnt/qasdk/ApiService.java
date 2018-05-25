@@ -65,4 +65,13 @@ public interface ApiService {
     @GET("interview/ping")
     Observable<BaseApiDao> pingNetwork(@Header("token") String token);
 
+    @FormUrlEncoded
+    @POST("section/start")
+    Observable<InterviewStartApiDao> startSection(@Header("token") String token,
+                                                    @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("section/stop")
+    Observable<BaseApiDao> stopSection(@Header("token") String token,
+                                           @FieldMap HashMap<String, String> data);
 }

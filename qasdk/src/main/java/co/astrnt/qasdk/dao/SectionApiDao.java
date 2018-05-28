@@ -23,6 +23,7 @@ public class SectionApiDao extends RealmObject {
 
     //additional field
     private int timeLeft;
+    private boolean isOnGoing;
 
     public long getId() {
         return id;
@@ -137,5 +138,13 @@ public class SectionApiDao extends RealmObject {
 
     public void setTimeLeft(int timeLeft) {
         this.timeLeft = timeLeft;
+    }
+
+    public boolean isOnGoing() {
+        return isOnGoing;
+    }
+
+    public void setOnGoing(boolean onGoing) {
+        isOnGoing = onGoing;
     }
 }

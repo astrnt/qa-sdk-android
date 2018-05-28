@@ -18,8 +18,10 @@ public class InformationApiDao extends RealmObject {
     private RealmList<PrevQuestionStateApiDao> prevQuestStates;
     private int section_index;
     private int preparation_time;
+    private int section_duration_left;
     private String section_info;
     private String message;
+    private QuestionInfoApiDao questions_info;
 
     public InformationApiDao() {
     }
@@ -88,6 +90,14 @@ public class InformationApiDao extends RealmObject {
         this.preparation_time = preparation_time;
     }
 
+    public int getSectionDurationLeft() {
+        return section_duration_left;
+    }
+
+    public void setSectionDurationLeft(int section_duration_left) {
+        this.section_duration_left = section_duration_left;
+    }
+
     public String getSectionInfo() {
         return section_info;
     }
@@ -102,6 +112,18 @@ public class InformationApiDao extends RealmObject {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public QuestionInfoApiDao getQuestionsInfo() {
+        return questions_info;
+    }
+
+    public void setQuestionsInfo(QuestionInfoApiDao questions_info) {
+        this.questions_info = questions_info;
+    }
+
+    public boolean isOnGoing() {
+        return getSectionInfo().equals("ongoing");
     }
 
 }

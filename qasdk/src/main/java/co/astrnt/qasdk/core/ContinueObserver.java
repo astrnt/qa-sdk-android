@@ -14,9 +14,9 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
+        InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
-                InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview().getInterviewCode())) {
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
                 } else {
@@ -29,6 +29,11 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 onContinueInterview();
                 break;
             case CLOSE_SECTION:
+                if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview().getInterviewCode())) {
+                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
+                } else {
+                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
+                }
                 onContinueInterview();
                 break;
             default:

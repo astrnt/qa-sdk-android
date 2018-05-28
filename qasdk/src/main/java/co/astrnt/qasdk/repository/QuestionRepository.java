@@ -7,6 +7,7 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.type.InterviewType;
 import io.reactivex.Observable;
 import io.realm.RealmList;
@@ -29,8 +30,11 @@ public class QuestionRepository extends BaseRepository {
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("question_id", String.valueOf(currentQuestion.getId()));
-        //        TODO: check section
-//        map.put("section_id", interviewApiDao.getToken());
+
+        if (astrntSDK.isSectionInterview()) {
+            SectionApiDao currentSection = astrntSDK.getCurrentSection();
+            map.put("section_id", String.valueOf(currentSection.getId()));
+        }
 
         return mAstronautApi.getApiService().addAttempt(token, map);
     }
@@ -43,8 +47,11 @@ public class QuestionRepository extends BaseRepository {
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("question_id", String.valueOf(currentQuestion.getId()));
-        //        TODO: check section
-//        map.put("section_id", mInterviewApiDao.getToken());
+
+        if (astrntSDK.isSectionInterview()) {
+            SectionApiDao currentSection = astrntSDK.getCurrentSection();
+            map.put("section_id", String.valueOf(currentSection.getId()));
+        }
 
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }

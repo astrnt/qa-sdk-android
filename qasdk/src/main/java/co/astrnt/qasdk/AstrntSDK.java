@@ -598,6 +598,21 @@ public class AstrntSDK {
         }
     }
 
+    public void decreaseQuestionIndex() {
+        if (isPractice()) {
+            return;
+        }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            QuestionInfo questionInfo = getQuestionInfo();
+            questionInfo.decreaseIndex();
+
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+        }
+    }
+
     public void increaseSectionIndex() {
         if (isPractice()) {
             return;

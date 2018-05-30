@@ -56,6 +56,10 @@ public class QuestionInfo extends RealmObject {
         this.index++;
     }
 
+    public void decreaseIndex() {
+        this.index--;
+    }
+
     public void resetAttempt() {
         this.attempt = 0;
     }

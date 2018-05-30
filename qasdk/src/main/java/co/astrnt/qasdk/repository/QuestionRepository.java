@@ -8,7 +8,6 @@ import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
-import co.astrnt.qasdk.type.InterviewType;
 import io.reactivex.Observable;
 import io.realm.RealmList;
 
@@ -67,10 +66,10 @@ public class QuestionRepository extends BaseRepository {
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
         map.put("type", "0");
 
-        if (interviewApiDao.getType().equals(InterviewType.CLOSE_TEST)) {
-            map.put("interview_type", "test");
-        } else {
+        if (astrntSDK.isSectionInterview()) {
             map.put("interview_type", "section");
+        } else {
+            map.put("interview_type", "test");
         }
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = currentQuestion.getSelectedAnswer();

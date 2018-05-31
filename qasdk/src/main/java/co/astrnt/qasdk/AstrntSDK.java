@@ -209,6 +209,15 @@ public class AstrntSDK {
         }
     }
 
+    public void updateSectionPrepTimeLeft(SectionApiDao currentSection, int timeLeft) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            currentSection.setPreparation_time(timeLeft);
+            realm.copyToRealmOrUpdate(currentSection);
+            realm.commitTransaction();
+        }
+    }
+
     public void updateQuestionTimeLeft(QuestionApiDao currentQuestion, int timeLeft) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();

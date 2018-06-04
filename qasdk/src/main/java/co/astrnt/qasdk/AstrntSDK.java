@@ -142,19 +142,18 @@ public class AstrntSDK {
                     QuestionInfoApiDao questionInfoApiDao = informationApiDao.getQuestionsInfo();
                     updateQuestionInfo(questionInfoApiDao.getInterviewIndex(), questionInfoApiDao.getInterviewAttempt());
 
-                    for (PrevQuestionStateApiDao questionState : questionInfoApiDao.getPrevQuestStates()) {
+                    for (int i = 0; i < sections.size(); i++) {
+                        SectionApiDao section = sections.get(i);
 
-                        for (int i = 0; i < sections.size(); i++) {
-                            SectionApiDao section = sections.get(i);
-
-                            if (section != null) {
-                                if (i == informationApiDao.getSectionIndex()) {
-                                    section.setPrepTimeLeft(informationApiDao.getPreparationTime());
-                                    section.setPreparationTime(informationApiDao.getPreparationTime());
-                                    section.setTimeLeft(informationApiDao.getSectionDurationLeft());
-                                    section.setDuration(informationApiDao.getSectionDurationLeft());
-                                    section.setOnGoing(informationApiDao.isOnGoing());
-                                }
+                        if (section != null) {
+                            if (i == informationApiDao.getSectionIndex()) {
+                                section.setPrepTimeLeft(informationApiDao.getPreparationTime());
+                                section.setPreparationTime(informationApiDao.getPreparationTime());
+                                section.setTimeLeft(informationApiDao.getSectionDurationLeft());
+                                section.setDuration(informationApiDao.getSectionDurationLeft());
+                                section.setOnGoing(informationApiDao.isOnGoing());
+                            }
+                            for (PrevQuestionStateApiDao questionState : questionInfoApiDao.getPrevQuestStates()) {
                                 for (QuestionApiDao question : section.getSectionQuestions()) {
                                     if (question.getId() == questionState.getQuestionId()) {
                                         if (questionState.isAnswered()) {

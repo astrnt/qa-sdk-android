@@ -149,8 +149,10 @@ public class AstrntSDK {
 
                             if (section != null) {
                                 if (i == informationApiDao.getSectionIndex()) {
-                                    section.setPreparation_time(informationApiDao.getPreparationTime());
+                                    section.setPrepTimeLeft(informationApiDao.getPreparationTime());
+                                    section.setPreparationTime(informationApiDao.getPreparationTime());
                                     section.setTimeLeft(informationApiDao.getSectionDurationLeft());
+                                    section.setDuration(informationApiDao.getSectionDurationLeft());
                                     section.setOnGoing(informationApiDao.isOnGoing());
                                 }
                                 for (QuestionApiDao question : section.getSectionQuestions()) {
@@ -201,7 +203,7 @@ public class AstrntSDK {
     public void updateSectionTimeLeft(SectionApiDao currentSection, int timeLeft) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            currentSection.setTimeLeft(timeLeft);
+            currentSection.setDuration(timeLeft);
             realm.copyToRealmOrUpdate(currentSection);
             realm.commitTransaction();
         }
@@ -210,7 +212,7 @@ public class AstrntSDK {
     public void updateSectionPrepTimeLeft(SectionApiDao currentSection, int timeLeft) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            currentSection.setPreparation_time(timeLeft);
+            currentSection.setPreparationTime(timeLeft);
             realm.copyToRealmOrUpdate(currentSection);
             realm.commitTransaction();
         }
@@ -288,7 +290,7 @@ public class AstrntSDK {
     public boolean isResume() {
         InformationApiDao informationApiDao = getInformation();
         if (isSectionInterview()) {
-            return informationApiDao.getQuestionsInfo() != null;
+            return informationApiDao.getQuestionsInfo() != null || informationApiDao.getSectionDurationLeft() > 0;
         } else {
             return informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty();
         }

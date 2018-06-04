@@ -130,17 +130,26 @@ public class AstrntSDK {
     }
 
     private void updateInterview(InterviewApiDao interview, InformationApiDao informationApiDao) {
+        if (isSectionInterview()) {
+            updateSectionInfo(informationApiDao.getSectionIndex());
+
+            if (informationApiDao.getQuestionsInfo() != null) {
+                QuestionInfoApiDao questionInfoApiDao = informationApiDao.getQuestionsInfo();
+                updateQuestionInfo(questionInfoApiDao.getInterviewIndex(), questionInfoApiDao.getInterviewAttempt());
+            }
+        } else {
+            updateQuestionInfo(informationApiDao.getInterviewIndex(), informationApiDao.getInterviewAttempt());
+        }
+
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
             if (isSectionInterview()) {
-                updateSectionInfo(informationApiDao.getSectionIndex());
 
                 RealmList<SectionApiDao> sections = interview.getSections();
 
                 if (informationApiDao.getQuestionsInfo() != null) {
                     QuestionInfoApiDao questionInfoApiDao = informationApiDao.getQuestionsInfo();
-                    updateQuestionInfo(questionInfoApiDao.getInterviewIndex(), questionInfoApiDao.getInterviewAttempt());
 
                     for (int i = 0; i < sections.size(); i++) {
                         SectionApiDao section = sections.get(i);
@@ -172,7 +181,6 @@ public class AstrntSDK {
                 interview.setSections(sections);
             } else {
 
-                updateQuestionInfo(informationApiDao.getInterviewIndex(), informationApiDao.getInterviewAttempt());
                 if (interview.getQuestions() != null && informationApiDao.getPrevQuestStates() != null) {
                     RealmList<QuestionApiDao> questions = interview.getQuestions();
                     for (PrevQuestionStateApiDao questionState : informationApiDao.getPrevQuestStates()) {
@@ -289,7 +297,7 @@ public class AstrntSDK {
     public boolean isResume() {
         InformationApiDao informationApiDao = getInformation();
         if (isSectionInterview()) {
-            return informationApiDao.getQuestionsInfo() != null || informationApiDao.getSectionDurationLeft() > 0;
+            return informationApiDao.getQuestionsInfo() != null || informationApiDao.getSectionDurationLeft() > 0 || informationApiDao.getSectionIndex() > 0;
         } else {
             return informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty();
         }

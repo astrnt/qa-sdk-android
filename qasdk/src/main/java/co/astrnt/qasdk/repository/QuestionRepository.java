@@ -3,13 +3,19 @@ package co.astrnt.qasdk.repository;
 import java.util.HashMap;
 
 import co.astrnt.qasdk.core.AstronautApi;
+import co.astrnt.qasdk.core.MyObserver;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
+import co.astrnt.qasdk.type.ElapsedTime;
+import co.astrnt.qasdk.type.ElapsedTimeType;
+import co.astrnt.qasdk.type.InterviewType;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
+import timber.log.Timber;
 
 /**
  * Created by deni rohimat on 27/04/18.
@@ -52,6 +58,10 @@ public class QuestionRepository extends BaseRepository {
             map.put("section_id", String.valueOf(currentSection.getId()));
         }
 
+        if (interviewApiDao.getType().equals(InterviewType.CLOSE_TEST)) {
+            updateElapsedTime(ElapsedTimeType.TEST, currentQuestion.getId());
+        }
+
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 
@@ -86,4 +96,33 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().answerQuestion(token, map);
     }
 
+    private void updateElapsedTime(@ElapsedTime String type, long refId) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("type", type);
+        map.put("ref_id", String.valueOf(refId));
+
+        String token = interviewApiDao.getToken();
+
+        mAstronautApi.getApiService().updateElapsedTime(token, map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new MyObserver<BaseApiDao>() {
+                    @Override
+                    public void onApiResultCompleted() {
+                    }
+
+                    @Override
+                    public void onApiResultError(String message, String code) {
+                        Timber.e(message);
+                    }
+
+                    @Override
+                    public void onApiResultOk(BaseApiDao apiDao) {
+                        Timber.d(apiDao.getMessage());
+                    }
+                });
+    }
 }

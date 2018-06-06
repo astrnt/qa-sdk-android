@@ -68,10 +68,15 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("section/start")
     Observable<InterviewStartApiDao> startSection(@Header("token") String token,
-                                                    @FieldMap HashMap<String, String> data);
+                                                  @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("section/stop")
     Observable<BaseApiDao> stopSection(@Header("token") String token,
-                                           @FieldMap HashMap<String, String> data);
+                                       @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("interview/update/elapsedTime")
+    Observable<BaseApiDao> updateElapsedTime(@Header("token") String token,
+                                             @FieldMap HashMap<String, String> data);
 }

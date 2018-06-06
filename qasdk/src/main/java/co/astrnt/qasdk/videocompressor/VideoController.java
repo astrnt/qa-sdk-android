@@ -277,7 +277,7 @@ public class VideoController {
                 resultWidth = tempWidth;
                 resultHeight = tempHeight;
 
-                bitrate = resultWidth * resultHeight * 3;
+                bitrate = resultWidth * resultHeight * 4;
                 break;
         }
 

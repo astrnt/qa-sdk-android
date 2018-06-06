@@ -2,6 +2,8 @@ package co.astrnt.qasdk.videocompressor;
 
 import android.os.AsyncTask;
 
+import java.io.File;
+
 /**
  * Created by Vincent Woo
  * Date: 2017/8/16
@@ -27,6 +29,16 @@ public class VideoCompress {
         VideoCompressTask task = new VideoCompressTask(listener, VideoController.COMPRESS_QUALITY_LOW);
         task.execute(srcPath, destPath);
         return task;
+    }
+
+    public static VideoCompressTask compressVideo(String srcPath, String destPath, CompressListener listener) {
+        File file = new File(srcPath);
+        int fileSize = Integer.parseInt(String.valueOf(file.length() / 1024)) / 1000;
+        if (fileSize <= 10) {
+            return compressVideoMedium(srcPath, destPath, listener);
+        } else {
+            return compressVideoLow(srcPath, destPath, listener);
+        }
     }
 
     public interface CompressListener {

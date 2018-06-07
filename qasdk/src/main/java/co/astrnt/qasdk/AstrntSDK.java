@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -793,6 +794,20 @@ public class AstrntSDK {
             realm.beginTransaction();
             realm.deleteAll();
             realm.commitTransaction();
+        }
+    }
+
+    public void clearVideoFile(Context context) {
+        File filesDir = context.getFilesDir();
+
+        File[] files = filesDir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().equals("video")) {
+                    file.delete();
+                }
+            }
         }
     }
 

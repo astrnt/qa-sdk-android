@@ -16,6 +16,7 @@ import java.util.TimerTask;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
+import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
@@ -38,6 +39,7 @@ public class VideoCompressService extends Service {
     private Context context;
     private Handler mHandler = new Handler();
     private Timer mTimer = null;
+    private InterviewApiDao currentInterview;
     private QuestionApiDao currentQuestion;
     private AstrntSDK astrntSDK;
 
@@ -60,6 +62,7 @@ public class VideoCompressService extends Service {
             questionId = intent.getLongExtra(EXT_QUESTION_ID, 0);
 
             inputFile = new File(inputPath);
+            currentInterview = astrntSDK.getCurrentInterview();
             currentQuestion = astrntSDK.searchQuestionById(questionId);
         }
         return super.onStartCommand(intent, flags, startId);
@@ -88,7 +91,11 @@ public class VideoCompressService extends Service {
     public void doCompress() {
 
         mNotificationId = (int) currentQuestion.getId();
-        outputFile = new File(context.getFilesDir(), currentQuestion.getId() + "_video.mp4");
+        File directory = new File(context.getFilesDir(), "video");
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
         outputPath = outputFile.getAbsolutePath();
 
         VideoCompress.compressVideo(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), new VideoCompress.CompressListener() {
@@ -106,18 +113,19 @@ public class VideoCompressService extends Service {
             @Override
             public void onSuccess() {
                 Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
+                inputFile.delete();
                 astrntSDK.updateVideoPath(currentQuestion, outputPath);
                 if (astrntSDK.isNotLastQuestion()) {
-                    SingleVideoUploadService.start(context, currentQuestion.getId());
+                    SingleVideoUploadService.start(context, questionId);
                 } else {
                     EventBus.getDefault().post(new CompressEvent());
                 }
                 stopService();
 
                 mBuilder.setContentText("Compress completed")
-                        // Removes the progress bar
-                        .setProgress(0,0,false);
+                        .setProgress(0, 0, false);
                 mNotifyManager.notify(mNotificationId, mBuilder.build());
+                mNotifyManager.cancel(mNotificationId);
             }
 
             @Override

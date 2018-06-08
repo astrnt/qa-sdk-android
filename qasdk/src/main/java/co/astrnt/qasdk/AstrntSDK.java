@@ -466,6 +466,15 @@ public class AstrntSDK {
         }
     }
 
+    public boolean isSectionHasVideo() {
+        for (SectionApiDao item : getCurrentInterview().getSections()) {
+            if (item.getType().equals(InterviewType.INTERVIEW)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isAllUploaded() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao == null) {

@@ -814,12 +814,13 @@ public class AstrntSDK {
         }
     }
 
-    public void markAsPending(QuestionApiDao questionApiDao) {
+    public void markAsPending(QuestionApiDao questionApiDao, String rawFilePath) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
             questionApiDao.setUploadStatus(UploadStatusType.PENDING);
+            questionApiDao.setVideoPath(rawFilePath);
 
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();

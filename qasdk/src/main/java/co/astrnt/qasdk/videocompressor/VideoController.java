@@ -774,7 +774,7 @@ public class VideoController {
                         th.start();
                         th.join();
                     } catch (Exception e) {
-                        Timber.e(e.getMessage());
+                        Timber.e(e);
                     }
                 }
             }).start();

@@ -11,6 +11,8 @@ import android.support.v4.app.NotificationCompat;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -18,6 +20,7 @@ import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
@@ -47,6 +50,10 @@ public class VideoCompressService extends Service {
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
 
+    private int totalQuestion = 0;
+    private int counter = 0;
+    private List<QuestionApiDao> questionList = new ArrayList<>();
+
     public static void start(Context context, String inputPath, long questionId) {
         context.startService(
                 new Intent(context, VideoCompressService.class)
@@ -73,6 +80,16 @@ public class VideoCompressService extends Service {
         super.onCreate();
         context = this;
         astrntSDK = new AstrntSDK();
+
+        if (astrntSDK.isSectionInterview()) {
+            SectionApiDao currentSection = astrntSDK.getCurrentSection();
+            totalQuestion = currentSection.getTotalQuestion();
+            questionList = currentSection.getSectionQuestions();
+        } else {
+            InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
+            totalQuestion = currentInterview.getTotalQuestion();
+            questionList = currentInterview.getQuestions();
+        }
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -113,6 +130,16 @@ public class VideoCompressService extends Service {
             @Override
             public void onSuccess() {
                 Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
+                Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableMemory());
+
+                long fileSizeInBytes = outputFile.length();
+
+                Timber.d("Video Compress compress output File size %d", outputFile.length() / 1000);
+                if (fileSizeInBytes < 2000) {
+                    doCompress();
+                    return;
+                }
+
                 inputFile.delete();
                 astrntSDK.updateVideoPath(currentQuestion, outputPath);
                 if (astrntSDK.isNotLastQuestion()) {
@@ -146,7 +173,20 @@ public class VideoCompressService extends Service {
 
     public void stopService() {
         mTimer.cancel();
-        stopSelf();
+
+        counter++;
+        if (counter == totalQuestion) {
+            stopSelf();
+        } else {
+            QuestionApiDao question = questionList.get(counter);
+            if (question.getUploadStatus().equals(UploadStatusType.PENDING)) {
+                questionId = question.getId();
+                currentQuestion = question;
+                doCompress();
+            } else {
+                stopSelf();
+            }
+        }
     }
 
     class TimeDisplayTimerTask extends TimerTask {

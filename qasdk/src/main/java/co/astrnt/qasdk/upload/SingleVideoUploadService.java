@@ -105,6 +105,7 @@ public class SingleVideoUploadService extends Service {
                     .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
                     .setUtf8Charset()
                     .setNotificationConfig(notificationConfig)
+                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {
@@ -119,8 +120,8 @@ public class SingleVideoUploadService extends Service {
                                 BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
                                 Timber.e(baseApiDao.getMessage());
                                 astrntSDK.markAsCompressed(currentQuestion);
-                                stopService();
                             }
+                            stopService();
                         }
 
                         @Override

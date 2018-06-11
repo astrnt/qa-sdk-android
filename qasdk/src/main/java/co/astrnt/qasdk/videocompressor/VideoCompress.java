@@ -30,13 +30,13 @@ public class VideoCompress {
         return task;
     }
 
-    public static VideoCompressTask compressVideo(String srcPath, String destPath, CompressListener listener) {
+    public static void compressVideo(String srcPath, String destPath, CompressListener listener) {
         File file = new File(srcPath);
         int fileSize = Integer.parseInt(String.valueOf(file.length() / 1024)) / 1000;
         if (fileSize <= 30) {
-            return compressVideoMedium(srcPath, destPath, listener);
+            compressVideoMedium(srcPath, destPath, listener);
         } else {
-            return compressVideoLow(srcPath, destPath, listener);
+            compressVideoLow(srcPath, destPath, listener);
         }
     }
 

@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.dao;
 
+import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -178,7 +179,8 @@ public class QuestionApiDao extends RealmObject {
         this.videoPath = videoPath;
     }
 
-    public String getUploadStatus() {
+    public @UploadStatusState
+    String getUploadStatus() {
         if (uploadStatus == null) {
             if (getVideoPath() != null) {
                 return UploadStatusType.PENDING;
@@ -190,7 +192,7 @@ public class QuestionApiDao extends RealmObject {
         }
     }
 
-    public void setUploadStatus(String uploadStatus) {
+    public void setUploadStatus(@UploadStatusState String uploadStatus) {
         this.uploadStatus = uploadStatus;
     }
 

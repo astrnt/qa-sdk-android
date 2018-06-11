@@ -32,7 +32,6 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 public class AstrntSDK {
@@ -519,7 +518,7 @@ public class AstrntSDK {
         }
     }
 
-    private SectionApiDao getSectionByIndex(int sectionIndex) {
+    public SectionApiDao getSectionByIndex(int sectionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         assert interviewApiDao != null;
         if (sectionIndex < interviewApiDao.getSections().size()) {
@@ -527,6 +526,17 @@ public class AstrntSDK {
         } else {
             return interviewApiDao.getSections().last();
         }
+    }
+
+    public SectionApiDao getSectionById(long sectionId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        assert interviewApiDao != null;
+        for (SectionApiDao item : interviewApiDao.getSections()) {
+            if (item.getId() == sectionId) {
+                return item;
+            }
+        }
+        return null;
     }
 
     private SectionApiDao getNextSection() {
@@ -552,7 +562,7 @@ public class AstrntSDK {
             if (questionIndex < currentSection.getSectionQuestions().size()) {
                 return currentSection.getSectionQuestions().get(questionIndex);
             } else {
-                return interviewApiDao.getQuestions().last();
+                return currentSection.getSectionQuestions().last();
             }
         } else {
             if (questionIndex < interviewApiDao.getQuestions().size()) {
@@ -571,7 +581,7 @@ public class AstrntSDK {
             if (questionIndex < currentSection.getSectionQuestions().size()) {
                 return currentSection.getSectionQuestions().get(questionIndex);
             } else {
-                return interviewApiDao.getQuestions().last();
+                return currentSection.getSectionQuestions().last();
             }
         } else {
             if (questionIndex < interviewApiDao.getQuestions().size()) {
@@ -580,6 +590,26 @@ public class AstrntSDK {
                 return interviewApiDao.getQuestions().last();
             }
         }
+    }
+
+    public QuestionApiDao getQuestionById(long questionId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        assert interviewApiDao != null;
+        if (isSectionInterview()) {
+            SectionApiDao currentSection = getCurrentSection();
+            for (QuestionApiDao question : currentSection.getSectionQuestions()) {
+                if (question.getId() == questionId) {
+                    return question;
+                }
+            }
+        } else {
+            for (QuestionApiDao question : interviewApiDao.getQuestions()) {
+                if (question.getId() == questionId) {
+                    return question;
+                }
+            }
+        }
+        return null;
     }
 
     private QuestionApiDao getNextQuestion() {
@@ -914,12 +944,12 @@ public class AstrntSDK {
         httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
         httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
 
-        if (isDebuggable) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-            httpClientBuilder.addInterceptor(loggingInterceptor);
-        }
+//        if (isDebuggable) {
+//            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+//            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//
+//            httpClientBuilder.addInterceptor(loggingInterceptor);
+//        }
 
         httpClientBuilder.addInterceptor(new Interceptor() {
             @Override

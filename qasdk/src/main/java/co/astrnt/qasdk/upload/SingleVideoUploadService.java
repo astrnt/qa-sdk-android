@@ -105,17 +105,19 @@ public class SingleVideoUploadService extends Service {
                     .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
                     .setUtf8Charset()
                     .setNotificationConfig(notificationConfig)
-                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
+                    .setAutoDeleteFilesAfterSuccessfulUpload(false)
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {
                             if (uploadInfo != null) {
                                 Timber.d("Video Upload Progress : %s", uploadInfo.getProgressPercent());
+                                astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
                             }
                         }
 
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                            Timber.e("Video Upload Error : %s", exception.getMessage());
                             if (serverResponse != null && serverResponse.getBody() != null) {
                                 BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
                                 Timber.e(baseApiDao.getMessage());
@@ -132,7 +134,7 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
-                            Timber.e("Upload Canceled");
+                            Timber.e("Video Upload Canceled");
                             astrntSDK.markAsCompressed(currentQuestion);
                             stopService();
                         }

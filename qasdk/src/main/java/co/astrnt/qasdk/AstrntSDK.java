@@ -720,7 +720,7 @@ public class AstrntSDK {
     }
 
     public boolean isLastAttempt() {
-        return getQuestionAttempt() == 0;
+        return getQuestionAttempt() <= 0;
     }
 
     public boolean isNotLastQuestion() {

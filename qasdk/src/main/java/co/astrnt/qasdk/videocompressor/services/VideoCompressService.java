@@ -179,7 +179,7 @@ public class VideoCompressService extends Service {
             stopSelf();
         } else {
             QuestionApiDao question = questionList.get(counter);
-            if (question.getUploadStatus().equals(UploadStatusType.PENDING)) {
+            if (question.getUploadStatus().equals(UploadStatusType.PENDING) && question.getVideoPath() != null) {
                 questionId = question.getId();
                 currentQuestion = question;
                 doCompress();

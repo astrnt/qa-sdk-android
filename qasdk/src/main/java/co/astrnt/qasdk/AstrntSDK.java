@@ -491,6 +491,12 @@ public class AstrntSDK {
         }
     }
 
+    public boolean isFinished() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        InformationApiDao informationApiDao = getInformation();
+        return interviewApiDao.isFinished() || informationApiDao.isFinished();
+    }
+
     public boolean isCanContinue() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (isSectionInterview()) {

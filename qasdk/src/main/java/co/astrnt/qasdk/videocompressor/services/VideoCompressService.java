@@ -11,8 +11,6 @@ import android.support.v4.app.NotificationCompat;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,7 +18,6 @@ import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
-import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
@@ -50,10 +47,6 @@ public class VideoCompressService extends Service {
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
 
-    private int totalQuestion = 0;
-    private int counter = 0;
-    private List<QuestionApiDao> questionList = new ArrayList<>();
-
     public static void start(Context context, String inputPath, long questionId) {
         context.startService(
                 new Intent(context, VideoCompressService.class)
@@ -80,16 +73,6 @@ public class VideoCompressService extends Service {
         super.onCreate();
         context = this;
         astrntSDK = new AstrntSDK();
-
-        if (astrntSDK.isSectionInterview()) {
-            SectionApiDao currentSection = astrntSDK.getCurrentSection();
-            totalQuestion = currentSection.getTotalQuestion();
-            questionList = currentSection.getSectionQuestions();
-        } else {
-            InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
-            totalQuestion = currentInterview.getTotalQuestion();
-            questionList = currentInterview.getQuestions();
-        }
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -174,19 +157,7 @@ public class VideoCompressService extends Service {
     public void stopService() {
         mTimer.cancel();
 
-        counter++;
-        if (counter == totalQuestion) {
-            stopSelf();
-        } else {
-            QuestionApiDao question = questionList.get(counter);
-            if (question.getUploadStatus().equals(UploadStatusType.PENDING) && question.getVideoPath() != null) {
-                questionId = question.getId();
-                currentQuestion = question;
-                doCompress();
-            } else {
-                stopSelf();
-            }
-        }
+        stopSelf();
     }
 
     class TimeDisplayTimerTask extends TimerTask {

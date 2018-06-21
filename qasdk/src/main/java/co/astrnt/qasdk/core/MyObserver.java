@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.BaseApiDao;
+import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
@@ -55,6 +57,11 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     @Override
     public final void onNext(T t) {
         if (t.getStatus() != null && t.getStatus().contains("error")) {
+            if (t instanceof InterviewResultApiDao) {
+                InterviewResultApiDao data = (InterviewResultApiDao) t;
+                InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+                astrntSDK.saveInterview(interviewApiDao, data.getToken(), data.getInterview_code());
+            }
             onApiResultError(t.getMessage(), t.getStatus());
         } else {
             onApiResultOk(t);

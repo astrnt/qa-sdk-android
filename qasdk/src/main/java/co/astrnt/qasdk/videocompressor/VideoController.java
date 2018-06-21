@@ -217,6 +217,9 @@ public class VideoController {
      * @return
      */
     public boolean convertVideo(final String sourcePath, String destinationPath, int quality, CompressProgressListener listener) {
+        if (sourcePath == null) {
+            return false;
+        }
         this.path = sourcePath;
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();

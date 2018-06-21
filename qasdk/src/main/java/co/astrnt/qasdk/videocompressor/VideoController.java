@@ -223,6 +223,9 @@ public class VideoController {
         this.path = sourcePath;
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        if (retriever == null) {
+            return false;
+        }
         retriever.setDataSource(path);
         String width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         String height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);

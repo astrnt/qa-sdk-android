@@ -29,11 +29,11 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 onContinueInterview();
                 break;
             case CLOSE_SECTION:
-//                if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
-//                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
-//                } else {
-                astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
-//                }
+                if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
+                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
+                } else {
+                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
+                }
                 onContinueInterview();
                 break;
             default:

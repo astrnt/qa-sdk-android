@@ -130,12 +130,12 @@ public class VideoCompressService extends Service {
                 } else {
                     EventBus.getDefault().post(new CompressEvent());
                 }
-                stopService();
 
                 mBuilder.setContentText("Compress completed")
                         .setProgress(0, 0, false);
                 mNotifyManager.notify(mNotificationId, mBuilder.build());
                 mNotifyManager.cancel(mNotificationId);
+                stopService();
             }
 
             @Override

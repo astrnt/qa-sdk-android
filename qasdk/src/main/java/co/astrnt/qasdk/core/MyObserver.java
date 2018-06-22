@@ -41,7 +41,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 onApiResultError(apiDao.getMessage(), apiDao.getStatus());
             } catch (Exception e2) {
                 e2.printStackTrace();
-                onApiResultError("Terjadi kesalahan, silakan hubungi customer service", "exception");
+                onApiResultError("Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
             }
         } else if (e instanceof UnknownHostException) {
             onApiResultError("Koneksi terputus, silahkan coba lagi", "exception");
@@ -50,7 +50,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
         } else {
             System.err.println(e.getMessage());
             e.printStackTrace();
-            onApiResultError("Terjadi kesalahan, silakan hubungi customer service", "exception");
+            onApiResultError("Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
         }
     }
 

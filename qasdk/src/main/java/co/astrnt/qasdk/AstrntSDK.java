@@ -23,10 +23,12 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.QuestionInfoApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.type.InterviewType;
+import co.astrnt.qasdk.type.SectionType;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -50,7 +52,13 @@ public class AstrntSDK {
             Timber.plant(new Timber.DebugTree());
         }
         Realm.init(context);
-        realm = Realm.getDefaultInstance();
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
+                .name("astrntdb")
+                .schemaVersion(1)
+                .deleteRealmIfMigrationNeeded()
+                .build();
+
+        realm = Realm.getInstance(realmConfiguration);
 
         UploadService.NAMESPACE = appId;
         UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
@@ -62,7 +70,13 @@ public class AstrntSDK {
     }
 
     public AstrntSDK() {
-        this.realm = Realm.getDefaultInstance();
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
+                .name("astrntdb")
+                .schemaVersion(1)
+                .deleteRealmIfMigrationNeeded()
+                .build();
+
+        this.realm = Realm.getInstance(realmConfiguration);
     }
 
     private static int getScreenWidth() {
@@ -105,6 +119,65 @@ public class AstrntSDK {
             }
         }
 
+    }
+
+    public InterviewApiDao updateQuestionData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            if (isSectionInterview()) {
+
+                for (SectionApiDao newSection : newInterview.getSections()) {
+
+                    for (SectionApiDao section : currentInterview.getSections()) {
+
+                        if (newSection.getId() == section.getId()) {
+                            RealmList<QuestionApiDao> questionList = new RealmList<>();
+
+                            for (QuestionApiDao newQuestion : newSection.getSectionQuestions()) {
+                                for (QuestionApiDao question : section.getSectionQuestions()) {
+                                    if (newQuestion.getId() == question.getId()) {
+                                        if (newSection.getType().equals(SectionType.INTERVIEW)) {
+                                            newQuestion.setUploadStatus(question.getUploadStatus());
+                                            newQuestion.setVideoPath(question.getVideoPath());
+                                            newQuestion.setUploadProgress(question.getUploadProgress());
+                                        } else {
+                                            newQuestion.setSelectedAnswer(question.getSelectedAnswer());
+                                            newQuestion.setAnswered(question.isAnswered());
+                                        }
+                                    }
+                                }
+                                questionList.add(newQuestion);
+                            }
+                            newSection.setSectionQuestions(questionList);
+                        }
+
+                    }
+                }
+            } else {
+                RealmList<QuestionApiDao> questionList = new RealmList<>();
+                for (QuestionApiDao newQuestion : newInterview.getQuestions()) {
+                    for (QuestionApiDao question : currentInterview.getQuestions()) {
+                        if (newQuestion.getId() == question.getId()) {
+                            if (newInterview.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
+                                newQuestion.setUploadStatus(question.getUploadStatus());
+                                newQuestion.setVideoPath(question.getVideoPath());
+                                newQuestion.setUploadProgress(question.getUploadProgress());
+                            } else {
+                                newQuestion.setSelectedAnswer(question.getSelectedAnswer());
+                                newQuestion.setAnswered(question.isAnswered());
+                            }
+                        }
+                    }
+                    questionList.add(newQuestion);
+                }
+                newInterview.setQuestions(questionList);
+            }
+
+            realm.copyToRealmOrUpdate(newInterview);
+            realm.commitTransaction();
+        }
+        return newInterview;
     }
 
     private void updateSectionOrQuestionInfo(InterviewApiDao interviewApiDao) {

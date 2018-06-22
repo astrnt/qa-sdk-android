@@ -18,6 +18,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
+                    currentInterview = astrntSDK.updateQuestionData(currentInterview, resultApiDao.getInterview());
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
                 } else {
                     astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
@@ -30,6 +31,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 break;
             case CLOSE_SECTION:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
+                    currentInterview = astrntSDK.updateQuestionData(currentInterview, resultApiDao.getInterview());
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
                 } else {
                     astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());

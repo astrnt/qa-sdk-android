@@ -1,6 +1,7 @@
 package co.astrnt.qasdk.core;
 
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class AstronautApi {
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Request request = chain.request().newBuilder()
                         .addHeader("device", "android")
-                        .addHeader("os", "value")
+                        .addHeader("os", Build.VERSION.RELEASE)
                         .addHeader("browser", "")
                         .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
                         .build();

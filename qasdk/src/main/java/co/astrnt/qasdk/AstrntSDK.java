@@ -127,6 +127,7 @@ public class AstrntSDK {
             realm.beginTransaction();
             if (isSectionInterview()) {
 
+                RealmList<SectionApiDao> sectionList = new RealmList<>();
                 for (SectionApiDao newSection : newInterview.getSections()) {
 
                     for (SectionApiDao section : currentInterview.getSections()) {
@@ -151,9 +152,10 @@ public class AstrntSDK {
                             }
                             newSection.setSectionQuestions(questionList);
                         }
-
+                        sectionList.add(newSection);
                     }
                 }
+                newInterview.setSections(sectionList);
             } else {
                 RealmList<QuestionApiDao> questionList = new RealmList<>();
                 for (QuestionApiDao newQuestion : newInterview.getQuestions()) {

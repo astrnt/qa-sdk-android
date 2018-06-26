@@ -777,14 +777,14 @@ public class AstrntSDK {
 
     public void decreaseQuestionAttempt() {
 
+        QuestionInfo questionInfo = getQuestionInfo();
+        if (questionInfo == null) {
+            updateQuestionInfo(0, 0);
+            questionInfo = getQuestionInfo();
+        }
+
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-
-            QuestionInfo questionInfo = getQuestionInfo();
-            if (questionInfo == null) {
-                updateQuestionInfo(0, 0);
-                questionInfo = getQuestionInfo();
-            }
 
             questionInfo.decreaseAttempt();
             int attempt = questionInfo.getAttempt();

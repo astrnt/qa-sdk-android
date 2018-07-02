@@ -8,4 +8,15 @@
     <string name="requirement">Requirement</string>
     <string name="responsibility">Responsibility</string>
     <string name="not_available">Not Available</string>
+
+    <!--Video Instruction-->
+    <string name="continues">Continue</string>
+    <string name="please_note">Please Note</string>
+    <string name="video_instruction_detail">If you close the app after seeing the question, you will lose 1 attempt to answer.</string>
+    <string name="i_understand">I understand</string>
+    <string name="attempts">Attempts</string>
+    <string name="seconds">Seconds</string>
+    <string name="index_question_of">Question %1d of %2d</string>
+    <string name="default_interview_video">45</string>
+    <string name="instructions_continue_info">You have already used 2 attempts.</string>
 </resources>

@@ -18,4 +18,10 @@
         <item quantity="one">You have 1 more attempt for this question.</item>
         <item quantity="other">You have %d more attempts for this question.</item>
     </plurals>
+    <plurals
+        name="instruction_continue_info">
+        <item quantity="zero">Attempt still not taken.</item>
+        <item quantity="one">You have already used 1 attempt.</item>
+        <item quantity="other">You have already used %d attempts.</item>
+    </plurals>
 </resources>

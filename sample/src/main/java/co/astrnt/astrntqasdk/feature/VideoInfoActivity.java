@@ -108,7 +108,6 @@ public class VideoInfoActivity extends BaseActivity {
     }
 
     private void moveToNext() {
-        //TODO: show video instruction
-//        VideoInstructionActivity.start(context);
+        VideoInstructionActivity.start(context);
     }
 }

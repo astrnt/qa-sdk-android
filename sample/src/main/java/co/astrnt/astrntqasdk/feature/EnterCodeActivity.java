@@ -1,6 +1,8 @@
 package co.astrnt.astrntqasdk.feature;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -24,6 +26,11 @@ public class EnterCodeActivity extends BaseActivity {
     private Button btnSubmit;
     private ProgressDialog progressDialog;
 
+    public static void start(Context context) {
+        Intent intent = new Intent(context, EnterCodeActivity.class);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +43,7 @@ public class EnterCodeActivity extends BaseActivity {
 
         mInterviewRepository = new InterviewRepository(getApi());
 
+        astrntSDK.clearDb();
         if (BuildConfig.DEBUG) {
             inpCode.setText("video");
         }
@@ -60,7 +68,7 @@ public class EnterCodeActivity extends BaseActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        mInterviewRepository.enterCode(code, 98)
+        mInterviewRepository.enterCode(code, BuildConfig.SDK_VERSION)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new InterviewObserver() {

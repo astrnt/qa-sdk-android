@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txt_company_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/spaces_double"
+        android:layout_marginRight="@dimen/spaces_double"
+        android:layout_marginTop="@dimen/spaces_triple"
+        android:textAllCaps="true"
+        tools:text="Company Name"/>
+
+    <TextView
+        android:id="@+id/txt_job_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spaces_normal"
+        android:layout_marginLeft="@dimen/spaces_double"
+        android:layout_marginRight="@dimen/spaces_double"
+        android:textSize="@dimen/text_big"
+        android:textStyle="bold"
+        tools:text="Job Title"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/spaces_double"
+        android:layout_marginRight="@dimen/spaces_double"
+        android:layout_marginTop="@dimen/spaces_double"
+        android:background="@drawable/card_background"
+        android:orientation="vertical"
+        android:padding="@dimen/spaces_double">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textAllCaps="true"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/txt_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spaces_normal"
+            android:gravity="center_vertical"
+            android:text="-"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/spaces_double"
+        android:layout_marginRight="@dimen/spaces_double"
+        android:layout_marginTop="@dimen/spaces_double"
+        android:background="@drawable/card_background"
+        android:orientation="vertical"
+        android:padding="@dimen/spaces_double">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/responsibility"
+            android:textAllCaps="true"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/txt_responsibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spaces_normal"
+            android:gravity="center_vertical"
+            android:text="-"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/spaces_double"
+        android:layout_marginRight="@dimen/spaces_double"
+        android:layout_marginTop="@dimen/spaces_double"
+        android:background="@drawable/card_background"
+        android:orientation="vertical"
+        android:padding="@dimen/spaces_double">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/requirement"
+            android:textAllCaps="true"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/txt_requirement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spaces_normal"
+            android:gravity="center_vertical"
+            android:text="-"/>
+
+    </LinearLayout>
+
+</LinearLayout>

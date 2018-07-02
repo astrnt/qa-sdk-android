@@ -2,4 +2,10 @@
     <!--<string name="app_name">Astrnt QA SDK</string>-->
 
     <string name="field_is_required" formatted="false">%s is required</string>
+
+    <!--Job Description-->
+    <string name="description">Description</string>
+    <string name="requirement">Requirement</string>
+    <string name="responsibility">Responsibility</string>
+    <string name="not_available">Not Available</string>
 </resources>

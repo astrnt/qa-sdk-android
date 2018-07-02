@@ -6,7 +6,7 @@ android {
         applicationId "co.astrnt.astrntqasdk"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 1
+        versionCode 101
         versionName "1.0"
     }
 
@@ -17,12 +17,14 @@ android {
             applicationIdSuffix ".beta"
             buildConfigField "boolean", "BETA", "true"
             buildConfigField("String", "API_URL", "\"${BetaApiUrl}\"")
+            buildConfigField ("int", "SDK_VERSION", "100")
             resValue "string", "app_name", "BETA Q&A SDK Sample"
         }
         live {
             dimension "mode"
             buildConfigField "boolean", "BETA", "false"
             buildConfigField("String", "API_URL", "\"${LiveApiUrl}\"")
+            buildConfigField ("int", "SDK_VERSION", "100")
             resValue "string", "app_name", "Q&A SDK Sample"
         }
     }
@@ -37,9 +39,9 @@ android {
 
 dependencies {
     implementation project(':qasdk')
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 }

@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -35,7 +38,7 @@ import io.reactivex.schedulers.Schedulers;
 public class RegisterActivity extends BaseActivity {
 
     private InterviewRepository mInterviewRepository;
-    private TextView txtTitle, txtDetail;
+    private TextView txtJobTitle, txtCompany;
     private EditText inpFullName, inpPreferredName, inpEmail, inpConfirmEmail, inpPhone;
     private LinearLayout lyCustomField;
     private Button btnSubmit;
@@ -56,8 +59,8 @@ public class RegisterActivity extends BaseActivity {
 
         mInterviewRepository = new InterviewRepository(getApi());
 
-        txtTitle = findViewById(R.id.txt_title);
-        txtDetail = findViewById(R.id.txt_detail);
+        txtJobTitle = findViewById(R.id.txt_job_title);
+        txtCompany = findViewById(R.id.txt_company_name);
         lyCustomField = findViewById(R.id.ly_custom_field);
         inpFullName = findViewById(R.id.inp_full_name);
         inpPreferredName = findViewById(R.id.inp_preferred_name);
@@ -88,8 +91,8 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void showInfo() {
-        txtTitle.setText(interviewApiDao.getJob().getTitle());
-        txtDetail.setText(interviewApiDao.getJob().getDescription());
+        txtJobTitle.setText(interviewApiDao.getJob().getTitle());
+        txtCompany.setText(interviewApiDao.getCompany().getTitle());
     }
 
     private void validateInput() {
@@ -167,7 +170,7 @@ public class RegisterActivity extends BaseActivity {
         registerPost.setPreferred_name(preferredName);
         registerPost.setEmail(email);
         registerPost.setPhone(phone);
-        registerPost.setVersion(98);
+        registerPost.setVersion(BuildConfig.SDK_VERSION);
 
         if (!customFieldList.isEmpty()) {
             registerPost.setCustom_fields(customFieldsPosts);
@@ -242,6 +245,28 @@ public class RegisterActivity extends BaseActivity {
             }
             lyCustomField.addView(container);
             customFieldEditTextList.add(editText);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_info, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_job_desc:
+                JobDescriptionActivity.start(context);
+                return true;
+            case R.id.action_exit:
+                EnterCodeActivity.start(context);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

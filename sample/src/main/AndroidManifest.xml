@@ -27,6 +27,10 @@
             android:name=".feature.RegisterActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
+        <activity
+            android:name=".feature.JobDescriptionActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"/>
     </application>
 
 </manifest>

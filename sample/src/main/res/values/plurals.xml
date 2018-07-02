@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals
+        name="attempt">
+        <item quantity="zero">attempt</item>
+        <item quantity="one">attempt</item>
+        <item quantity="other">attempts</item>
+    </plurals>
+    <plurals
+        name="video_question">
+        <item quantity="zero">Video Question</item>
+        <item quantity="one">Video Question</item>
+        <item quantity="other">Video Questions</item>
+    </plurals>
+    <plurals
+        name="you_have_more_attempt">
+        <item quantity="zero">You have no more attempt for this question.</item>
+        <item quantity="one">You have 1 more attempt for this question.</item>
+        <item quantity="other">You have %d more attempts for this question.</item>
+    </plurals>
+</resources>

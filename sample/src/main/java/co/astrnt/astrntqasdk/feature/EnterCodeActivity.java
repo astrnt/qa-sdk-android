@@ -95,6 +95,8 @@ public class EnterCodeActivity extends BaseActivity {
                     @Override
                     public void onInterviewType(InterviewApiDao interview) {
                         Toast.makeText(context, "Interview", Toast.LENGTH_SHORT).show();
+                        VideoInfoActivity.start(context);
+                        finish();
                     }
 
                     @Override

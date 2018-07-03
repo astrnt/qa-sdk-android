@@ -45,7 +45,7 @@ public class EnterCodeActivity extends BaseActivity {
 
         astrntSDK.clearDb();
         if (BuildConfig.DEBUG) {
-            inpCode.setText("video");
+            inpCode.setText("idvideo");
         }
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {

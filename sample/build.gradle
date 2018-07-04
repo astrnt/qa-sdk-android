@@ -44,4 +44,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+
+//    Camera View
+    implementation 'com.github.derohimat:CameraView:1.5.1'
+
+    //RxPermission for easy runtime permission management
+    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
+
 }

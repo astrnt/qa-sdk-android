@@ -136,7 +136,6 @@ public class VideoInstructionActivity extends BaseActivity {
                     @Override
                     public void onApiResultOk(InterviewStartApiDao apiDao) {
                         if (apiDao.isFinished()) {
-//                            TODO: finish view or show dialog that interview already finished
                             Toast.makeText(context, apiDao.getMessage(), Toast.LENGTH_LONG).show();
                             EnterCodeActivity.start(context);
                             finish();
@@ -148,7 +147,7 @@ public class VideoInstructionActivity extends BaseActivity {
     }
 
     private void moveToNext() {
-        //TODO: show video record
-//        VideoRecordActivity.start(context);
+        VideoRecordActivity.start(context);
+        finish();
     }
 }

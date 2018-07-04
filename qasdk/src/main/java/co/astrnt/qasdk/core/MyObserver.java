@@ -60,8 +60,10 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
             if (t instanceof InterviewResultApiDao) {
                 InterviewResultApiDao data = (InterviewResultApiDao) t;
                 InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-                if (data.getToken() != null && !data.getToken().isEmpty()) {
-                    astrntSDK.saveInterview(interviewApiDao, data.getToken(), data.getInterview_code());
+                if (interviewApiDao != null) {
+                    if (data.getToken() != null && !data.getToken().isEmpty()) {
+                        astrntSDK.saveInterview(interviewApiDao, data.getToken(), data.getInterview_code());
+                    }
                 }
             }
             onApiResultError(t.getMessage(), t.getStatus());

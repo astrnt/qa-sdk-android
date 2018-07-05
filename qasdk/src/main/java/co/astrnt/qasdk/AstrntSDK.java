@@ -106,7 +106,6 @@ public class AstrntSDK {
             }
             realm.commitTransaction();
             if (interviewApiDao != null) {
-//                TODO: compare interview (video) record with server for pending upload
                 saveInterview(interviewApiDao, resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(interviewApiDao);
             } else {
@@ -114,8 +113,9 @@ public class AstrntSDK {
                 saveInterview(resultApiDao.getInterview(), resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(resultApiDao.getInterview());
             }
-            if (resultApiDao.getInformation() != null) {
-                updateInterview(getCurrentInterview(), resultApiDao.getInformation());
+            InterviewApiDao currentInterview = getCurrentInterview();
+            if (resultApiDao.getInformation() != null && currentInterview != null) {
+                updateInterview(currentInterview, resultApiDao.getInformation());
             }
         }
 
@@ -508,7 +508,12 @@ public class AstrntSDK {
     }
 
     public InterviewApiDao getCurrentInterview() {
-        return realm.where(InterviewApiDao.class).findFirst();
+        InterviewApiDao currentInterview = realm.where(InterviewApiDao.class).findFirst();
+        if (currentInterview != null) {
+            return currentInterview;
+        } else {
+            return null;
+        }
     }
 
     public int getTotalQuestion() {

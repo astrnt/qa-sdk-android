@@ -926,10 +926,20 @@ public class AstrntSDK {
         if (files != null) {
             for (File file : files) {
                 if (file.getName().equals("video")) {
-                    file.delete();
+                    deleteRecursive(file);
+                }
                 }
             }
         }
+
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            for (File child : fileOrDirectory.listFiles()) {
+                deleteRecursive(child);
+            }
+        }
+
+        fileOrDirectory.delete();
     }
 
     public boolean isPractice() {

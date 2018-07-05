@@ -2,6 +2,7 @@ package co.astrnt.qasdk;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
@@ -933,9 +934,9 @@ public class AstrntSDK {
                 if (file.getName().equals("video")) {
                     deleteRecursive(file);
                 }
-                }
             }
         }
+    }
 
     private void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
@@ -1053,7 +1054,7 @@ public class AstrntSDK {
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Request request = chain.request().newBuilder()
                         .addHeader("device", "android")
-                        .addHeader("os", "value")
+                        .addHeader("os", Build.VERSION.RELEASE)
                         .addHeader("browser", "")
                         .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
                         .build();

@@ -117,7 +117,10 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-                            Timber.e("Video Upload Error : %s", exception.getMessage());
+                            Timber.e("Video Upload Error : ");
+                            if (exception != null) {
+                                Timber.e("Video Upload Error : %s", exception.getMessage());
+                            }
                             if (serverResponse != null && serverResponse.getBody() != null) {
                                 BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
                                 Timber.e(baseApiDao.getMessage());

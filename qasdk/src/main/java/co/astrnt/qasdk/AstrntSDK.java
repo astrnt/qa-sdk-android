@@ -153,10 +153,12 @@ public class AstrntSDK {
                             }
                             newSection.setSectionQuestions(questionList);
                         }
-                        sectionList.add(newSection);
                     }
+                    sectionList.add(newSection);
                 }
-                newInterview.setSections(sectionList);
+                if (!sectionList.isEmpty()) {
+                    newInterview.setSections(sectionList);
+                }
             } else {
                 RealmList<QuestionApiDao> questionList = new RealmList<>();
                 for (QuestionApiDao newQuestion : newInterview.getQuestions()) {
@@ -222,13 +224,13 @@ public class AstrntSDK {
 
             if (isSectionInterview()) {
 
-                RealmList<SectionApiDao> sections = interview.getSections();
+                RealmList<SectionApiDao> sectionList = new RealmList<>();
 
                 if (informationApiDao.getQuestionsInfo() != null) {
                     QuestionInfoApiDao questionInfoApiDao = informationApiDao.getQuestionsInfo();
 
-                    for (int i = 0; i < sections.size(); i++) {
-                        SectionApiDao section = sections.get(i);
+                    for (int i = 0; i < interview.getSections().size(); i++) {
+                        SectionApiDao section = interview.getSections().get(i);
 
                         if (section != null) {
                             if (i == informationApiDao.getSectionIndex()) {
@@ -250,11 +252,14 @@ public class AstrntSDK {
                                     }
                                 }
                             }
+                            sectionList.add(section);
                         }
                     }
                 }
 
-                interview.setSections(sections);
+                if (!sectionList.isEmpty()) {
+                    interview.setSections(sectionList);
+                }
             } else {
 
                 if (interview.getQuestions() != null && informationApiDao.getPrevQuestStates() != null) {

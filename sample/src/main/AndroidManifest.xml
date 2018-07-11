@@ -32,22 +32,32 @@
         </activity>
         <activity
             android:name=".feature.RegisterActivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".feature.JobDescriptionActivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".feature.VideoInfoActivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".feature.VideoInstructionActivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".feature.VideoRecordActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"/>
+        <activity
+            android:name=".feature.VideoPreviewActivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
     </application>

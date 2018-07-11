@@ -19,4 +19,5 @@
     <string name="index_question_of">Question %1d of %2d</string>
     <string name="default_interview_video">45</string>
     <string name="instructions_continue_info">You have already used 2 attempts.</string>
+    <string name="attempt_left_s">Attempt Left %s</string>
 </resources>

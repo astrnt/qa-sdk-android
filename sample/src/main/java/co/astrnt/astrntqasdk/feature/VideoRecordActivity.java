@@ -3,17 +3,16 @@ package co.astrnt.astrntqasdk.feature;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
 
@@ -86,16 +85,6 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
 
     private void setUpCamera() {
         cameraView.addCameraListener(new CameraListener() {
-
-            @Override
-            public void onCameraClosed() {
-                moveToPreview();
-            }
-
-            @Override
-            public void onCameraError(@NonNull CameraException error) {
-                moveToPreview();
-            }
 
             @Override
             public void onVideoTaken(File video) {
@@ -292,7 +281,9 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
     }
 
     private void moveToPreview() {
-//        TODO: Move to video preview
-        finish();
+        if (recordFile != null) {
+            VideoPreviewActivity.start(context, Uri.fromFile(recordFile));
+            finish();
+        }
     }
 }

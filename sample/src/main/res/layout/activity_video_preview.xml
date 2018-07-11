@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_color"
+        android:orientation="vertical"
+        android:padding="@dimen/spaces_normal">
+
+        <TextView
+            android:id="@+id/txt_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Instruction"
+            android:textAllCaps="true"/>
+
+        <TextView
+            android:id="@+id/txt_question"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spaces_half"
+            android:text="Record Instruction"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#cc333333"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/spaces_normal">
+
+        <TextView
+            android:id="@+id/txt_attempt_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/attempt_left_s"
+            android:textColor="#FFF"
+            android:textSize="@dimen/text_small"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_retake"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="Retake"/>
+
+            <Button
+                android:id="@+id/btn_next"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:text="Next Question"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

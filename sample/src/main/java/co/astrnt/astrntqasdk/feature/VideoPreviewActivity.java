@@ -39,6 +39,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
     private TextView txtQuestion;
     private VideoView videoView;
     private TextView txtAttemptInfo;
+    private TextView txtTimer;
     private Button btnRetake;
     private Button btnNext;
 
@@ -65,6 +66,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
         txtTitle = findViewById(R.id.txt_title);
         txtQuestion = findViewById(R.id.txt_question);
         videoView = findViewById(R.id.video_view);
+        txtTimer = findViewById(R.id.txt_timer);
         txtAttemptInfo = findViewById(R.id.txt_attempt_info);
         btnRetake = findViewById(R.id.btn_retake);
         btnNext = findViewById(R.id.btn_next);
@@ -88,10 +90,19 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
         questionAttempt = astrntSDK.getQuestionAttempt();
         currentQuestion = astrntSDK.getCurrentQuestion();
 
-        String attemptInfo = context.getResources().getQuantityString(R.plurals.you_have_more_attempt, questionAttempt, questionAttempt);
-        txtAttemptInfo.setText(attemptInfo);
         txtQuestion.setText(currentQuestion.getTitle());
         txtTitle.setText("Preview");
+
+        if (astrntSDK.isLastAttempt()) {
+            btnRetake.setEnabled(false);
+            txtAttemptInfo.setVisibility(View.GONE);
+            finishQuestion(currentQuestion);
+        } else {
+            String attemptInfo = context.getResources().getQuantityString(R.plurals.you_have_more_attempt, questionAttempt, questionAttempt);
+            txtAttemptInfo.setText(attemptInfo);
+            btnRetake.setEnabled(true);
+            txtAttemptInfo.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -108,9 +119,9 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
                 float viewWidth = videoView.getWidth();
                 lp.height = (int) (viewWidth * (videoHeight / videoWidth));
                 videoView.setLayoutParams(lp);
+                onVideoPlay();
             }
         });
-        onVideoPlay();
     }
 
     private void playVideo() {
@@ -130,14 +141,16 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
     @Override
     public void onVideoPlay() {
         playVideo();
-        long duration = videoDuration * 1000;
-        countDownTimer = new CountDownTimer(duration, 1000) {
+        countDownTimer = new CountDownTimer(videoDuration, 1000) {
 
             public void onTick(long millisUntilFinished) {
+                txtTimer.setVisibility(View.VISIBLE);
                 long currentProgress = millisUntilFinished / 1000;
+                txtTimer.setText(String.valueOf(currentProgress + 1));
             }
 
             public void onFinish() {
+                txtTimer.setVisibility(View.GONE);
                 onVideoFinished();
             }
         }.start();
@@ -159,7 +172,9 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
 
     @Override
     public void onVideoDone() {
-        astrntSDK.increaseQuestionIndex();
+        if (astrntSDK.isNotLastQuestion()) {
+            astrntSDK.increaseQuestionIndex();
+        }
         showNextQuestion();
         compressVideo();
     }
@@ -188,6 +203,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
                     @Override
                     public void onApiResultOk(BaseApiDao baseApiDao) {
                         Toast.makeText(context, baseApiDao.getMessage(), Toast.LENGTH_SHORT).show();
+                        onVideoDone();
                     }
                 });
     }
@@ -196,12 +212,10 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_retake:
-                astrntSDK.decreaseQuestionAttempt();
                 onVideoRetake();
                 break;
             case R.id.btn_next:
                 finishQuestion(currentQuestion);
-                onVideoDone();
                 break;
         }
     }
@@ -219,10 +233,10 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
     private void showNextQuestion() {
         if (astrntSDK.isNotLastQuestion()) {
             VideoInstructionActivity.start(context);
-            finish();
         } else {
 //            TODO: video upload
-            finish();
+            Toast.makeText(context, "Interview Already Finished", Toast.LENGTH_SHORT).show();
         }
+        finish();
     }
 }

@@ -60,6 +60,10 @@
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"/>
+
+        <service android:name="co.astrnt.qasdk.videocompressor.services.VideoCompressService"/>
+        <service android:name="co.astrnt.qasdk.upload.SingleVideoUploadService"/>
+
     </application>
 
 </manifest>

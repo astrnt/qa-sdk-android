@@ -3,12 +3,6 @@ Astronaut Q & A SDK for Android
 minSdkVersion 21
 
 ==================
-add this line in gradle.properties
-
-BetaApiUrl=http://beta.astrnt.co/api/v2/
-LiveApiUrl=http://app.astrnt.co/api/v2/
-
-==================
 add this line in build.gradle
 
     flavorDimensions "mode"
@@ -17,12 +11,14 @@ add this line in build.gradle
             dimension "mode"
             applicationIdSuffix ".betasdk"
             buildConfigField "boolean", "BETA", "true"
-            buildConfigField("String", "API_URL", "\"${BetaApiUrl}\"")
+            buildConfigField("String", "API_URL", '"http://beta.astrnt.co/api/v2/"')
+            buildConfigField ("int", "SDK_VERSION", "100")
         }
         live {
             dimension "mode"
             buildConfigField "boolean", "BETA", "false"
-            buildConfigField("String", "API_URL", "\"${LiveApiUrl}\"")
+            buildConfigField("String", "API_URL", '"http://app.astrnt.co/api/v2/"')
+            buildConfigField ("int", "SDK_VERSION", "100")
         }
     }
 
@@ -58,4 +54,4 @@ and call this code for start Compressing your Video
     File file = new File(videoUri.getPath());
     VideoCompressService.start(context, file.getAbsolutePath(), AstrntSDK.getCurrentQuestion().getId());
 
-after video compress success, that will be triggered SingleVideoUploadService
+after video compress success, that will be triggered SingleVideoUploadService for automatically upload to Astronaut Server

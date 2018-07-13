@@ -202,19 +202,19 @@ public class RegisterActivity extends BaseActivity {
 
                     @Override
                     public void onInterviewType(InterviewApiDao interview) {
-                        Toast.makeText(context, "Interview", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Video Interview", Toast.LENGTH_SHORT).show();
                         VideoInfoActivity.start(context);
                         finish();
                     }
 
                     @Override
                     public void onTestType(InterviewApiDao interview) {
-                        Toast.makeText(context, "Test MCQ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Test MCQ can't use for now", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onSectionType(InterviewApiDao interview) {
-                        Toast.makeText(context, "Section", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Section can't use for now", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

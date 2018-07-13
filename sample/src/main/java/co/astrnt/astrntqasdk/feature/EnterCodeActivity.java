@@ -56,7 +56,7 @@ public class EnterCodeActivity extends BaseActivity {
 
         mInterviewRepository = new InterviewRepository(getApi());
 
-        astrntSDK.clearDb();
+        videoSDK.clearDb();
         if (BuildConfig.DEBUG) {
             inpCode.setText("idvideo");
         }
@@ -141,7 +141,7 @@ public class EnterCodeActivity extends BaseActivity {
     }
 
     private void checkingAvailableStorage() {
-        isMemoryOk = astrntSDK.getAvailableMemory() > 100 + (astrntSDK.getTotalQuestion() * 5);
+        isMemoryOk = videoSDK.getAvailableMemory() > 100 + (videoSDK.getTotalQuestion() * 5);
     }
 
     private void enterCode(final String code) {

@@ -76,30 +76,30 @@ public class VideoInstructionActivity extends BaseActivity {
 
     private void showInfo() {
 
-        int questionAttempt = astrntSDK.getQuestionAttempt();
+        int questionAttempt = videoSDK.getQuestionAttempt();
         if (questionAttempt == 0) {
-            if (astrntSDK.isNotLastQuestion()) {
-                astrntSDK.increaseQuestionIndex();
-                questionAttempt = astrntSDK.getQuestionAttempt();
+            if (videoSDK.isNotLastQuestion()) {
+                videoSDK.increaseQuestionIndex();
+                questionAttempt = videoSDK.getQuestionAttempt();
             } else {
                 moveToNext();
                 return;
             }
         } else {
-            if (!astrntSDK.isNotLastQuestion()) {
+            if (!videoSDK.isNotLastQuestion()) {
                 moveToNext();
                 return;
             }
         }
 
-        QuestionApiDao currentQuestion = astrntSDK.getCurrentQuestion();
-        int questionIndex = astrntSDK.getQuestionIndex();
+        QuestionApiDao currentQuestion = videoSDK.getCurrentQuestion();
+        int questionIndex = videoSDK.getQuestionIndex();
 
-        if (!astrntSDK.isPractice() && questionIndex == 0) {
+        if (questionIndex == 0) {
             startInterview();
         }
 
-        txtIndexOfSize.setText(getString(R.string.index_question_of, questionIndex + 1, astrntSDK.getTotalQuestion()));
+        txtIndexOfSize.setText(getString(R.string.index_question_of, questionIndex + 1, videoSDK.getTotalQuestion()));
         txtTotalAttempt.setText(String.valueOf(questionAttempt));
         txtAttemptInfo.setText(context.getResources().getQuantityString(R.plurals.attempt, questionAttempt));
         if (questionAttempt == currentQuestion.getTakesCount()) {

@@ -71,7 +71,7 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
 
         mQuestionRepository = new QuestionRepository(getApi());
 
-        currentQuestion = astrntSDK.getCurrentQuestion();
+        currentQuestion = videoSDK.getCurrentQuestion();
 
         btnControl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,9 +196,9 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
         txtTitle.setText("Question");
         decreaseAttempt();
         txtQuestion.setText(currentQuestion.getTitle());
-        astrntSDK.decreaseQuestionAttempt();
-        if (astrntSDK.isLastAttempt()) {
-            astrntSDK.markNotAnswer(currentQuestion);
+        videoSDK.decreaseQuestionAttempt();
+        if (videoSDK.isLastAttempt()) {
+            videoSDK.markNotAnswer(currentQuestion);
         }
         txtCountDown.setVisibility(View.VISIBLE);
         countDownTimer = new CountDownTimer(10 * 1000, 1000) {

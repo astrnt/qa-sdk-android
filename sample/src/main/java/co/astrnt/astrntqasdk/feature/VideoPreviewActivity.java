@@ -73,7 +73,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
 
         mQuestionRepository = new QuestionRepository(getApi());
 
-        currentQuestion = astrntSDK.getCurrentQuestion();
+        currentQuestion = videoSDK.getCurrentQuestion();
 
         videoUri = getIntent().getParcelableExtra(EXT_VIDEO_URI);
         videoView.setVideoURI(videoUri);
@@ -87,13 +87,13 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
 
     private void showInfo() {
 
-        questionAttempt = astrntSDK.getQuestionAttempt();
-        currentQuestion = astrntSDK.getCurrentQuestion();
+        questionAttempt = videoSDK.getQuestionAttempt();
+        currentQuestion = videoSDK.getCurrentQuestion();
 
         txtQuestion.setText(currentQuestion.getTitle());
         txtTitle.setText("Preview");
 
-        if (astrntSDK.isLastAttempt()) {
+        if (videoSDK.isLastAttempt()) {
             btnRetake.setEnabled(false);
             txtAttemptInfo.setVisibility(View.GONE);
             finishQuestion(currentQuestion);
@@ -172,8 +172,8 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
 
     @Override
     public void onVideoDone() {
-        if (astrntSDK.isNotLastQuestion()) {
-            astrntSDK.increaseQuestionIndex();
+        if (videoSDK.isNotLastQuestion()) {
+            videoSDK.increaseQuestionIndex();
         }
         showNextQuestion();
         compressVideo();
@@ -222,7 +222,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
 
     private void compressVideo() {
         File file = new File(videoUri.getPath());
-        astrntSDK.markAsPending(currentQuestion, videoUri.getPath());
+        videoSDK.markAsPending(currentQuestion, videoUri.getPath());
         if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
             VideoCompressService.start(context, file.getAbsolutePath(), currentQuestion.getId());
         } else {
@@ -231,7 +231,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
     }
 
     private void showNextQuestion() {
-        if (astrntSDK.isNotLastQuestion()) {
+        if (videoSDK.isNotLastQuestion()) {
             VideoInstructionActivity.start(context);
         } else {
 //            TODO: video upload

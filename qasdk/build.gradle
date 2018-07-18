@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'realm-android'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.astrnt'
 
 android {
     compileSdkVersion 27
@@ -9,9 +12,6 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {

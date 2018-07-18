@@ -1,10 +1,25 @@
-Astronaut Q & A SDK for Android
+### Astronaut Q & A SDK for Android
 
-minSdkVersion 21
+**minSdkVersion 21**
+1. Add the JitPack repository to your build file
+Add it in your root **build.gradle** at the end of repositories:
+```
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+2. Add the dependency
+```
+	dependencies {
+	        implementation 'com.github.astrnt:qa-sdk-android:1.0.0'
+	}
+```
 
-==================
-add this line in build.gradle
-
+3. Add this line in **app/build.gradle**
+```
     flavorDimensions "mode"
     productFlavors {
         beta {
@@ -21,10 +36,10 @@ add this line in build.gradle
             buildConfigField ("int", "SDK_VERSION", "100")
         }
     }
+```
 
-==================
-SetUp SDK in your Application Class
-
+4. SetUp SDK in your **Application Class**
+```
     private static AstrntSDK astrntSDK;
 
     public static AstronautApi getApi() {
@@ -43,15 +58,20 @@ SetUp SDK in your Application Class
 
         setUpSDK();
     }
-==================
+```
 
-add this code for enable service compress and upload to your AndroidManifest.xml
+5. Add this code for enable service compress and upload to your **AndroidManifest.xml**
+```
     <service android:name="co.astrnt.qasdk.videocompressor.services.VideoCompressService"/>
     <service android:name="co.astrnt.qasdk.upload.SingleVideoUploadService"/>
-==================
+```
 
-and call this code for start Compressing your Video
+4. And call this code for start Compressing your Video
+```
     File file = new File(videoUri.getPath());
     VideoCompressService.start(context, file.getAbsolutePath(), AstrntSDK.getCurrentQuestion().getId());
+```
 
-after video compress success, that will be triggered SingleVideoUploadService for automatically upload to Astronaut Server
+After Video Compress success, that will be triggered **SingleVideoUploadService** for automatically upload to **Astronaut Server**
+
+###### For more detail you can see our sample.

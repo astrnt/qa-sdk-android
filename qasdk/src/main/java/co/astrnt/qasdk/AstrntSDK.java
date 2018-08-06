@@ -595,6 +595,7 @@ public class AstrntSDK {
     private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setTakesCount(3);
+        questionApiDao.setMaxTime(45);
         questionApiDao.setTitle("What are your proudest achievements, and why?");
         return questionApiDao;
     }

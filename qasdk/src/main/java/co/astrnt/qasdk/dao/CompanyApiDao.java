@@ -15,6 +15,7 @@ public class CompanyApiDao extends RealmObject {
     private String requirement;
     private String nda;
     private String title;
+    private String finish_page_url;
 
     public String getCoverPicture() {
         return coverPicture;
@@ -62,5 +63,13 @@ public class CompanyApiDao extends RealmObject {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getFinish_page_url() {
+        return finish_page_url;
+    }
+
+    public void setFinish_page_url(String finish_page_url) {
+        this.finish_page_url = finish_page_url;
     }
 }

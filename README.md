@@ -39,13 +39,13 @@ check the version [here](https://github.com/astrnt/qa-sdk-android/releases)
             dimension "mode"
             applicationIdSuffix ".betasdk"
             buildConfigField "boolean", "BETA", "true"
-            buildConfigField("String", "API_URL", '"http://beta.astrnt.co/api/v2/"')
+            buildConfigField("String", "API_URL", '"http://beta.astrnt.co/api/"')
             buildConfigField ("int", "SDK_VERSION", "100")
         }
         live {
             dimension "mode"
             buildConfigField "boolean", "BETA", "false"
-            buildConfigField("String", "API_URL", '"http://app.astrnt.co/api/v2/"')
+            buildConfigField("String", "API_URL", '"http://app.astrnt.co/api/"')
             buildConfigField ("int", "SDK_VERSION", "100")
         }
     }

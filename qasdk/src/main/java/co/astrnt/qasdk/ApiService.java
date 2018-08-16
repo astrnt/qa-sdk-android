@@ -18,47 +18,47 @@ import retrofit2.http.POST;
 public interface ApiService {
 
     @FormUrlEncoded
-    @POST("interview")
+    @POST("v2/interview")
     Observable<InterviewResultApiDao> enterCode(@Header("token") String token,
                                                 @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("user/register")
+    @POST("v2/user/register")
     Observable<InterviewResultApiDao> registerUser(@Header("token") String token,
                                                    @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("interview/start")
+    @POST("v2/interview/start")
     Observable<InterviewStartApiDao> startInterview(@Header("token") String token,
                                                     @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("interview/finish")
+    @POST("v2/interview/finish")
     Observable<BaseApiDao> finishInterview(@Header("token") String token,
                                            @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("cv/status")
+    @POST("v2/cv/status")
     Observable<BaseApiDao> cvStatus(@Header("token") String token,
                                     @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("cv/start")
+    @POST("v2/cv/start")
     Observable<BaseApiDao> cvStart(@Header("token") String token,
                                    @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("question/attempt")
+    @POST("v2/question/attempt")
     Observable<BaseApiDao> addAttempt(@Header("token") String token,
                                       @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("question/answer")
+    @POST("v2/question/answer")
     Observable<BaseApiDao> answerQuestion(@Header("token") String token,
                                           @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("question/finish")
+    @POST("v2/question/finish")
     Observable<BaseApiDao> finishQuestion(@Header("token") String token,
                                           @FieldMap HashMap<String, String> data);
 
@@ -66,17 +66,17 @@ public interface ApiService {
     Observable<BaseApiDao> pingNetwork(@Header("token") String token);
 
     @FormUrlEncoded
-    @POST("section/start")
+    @POST("v2/section/start")
     Observable<InterviewStartApiDao> startSection(@Header("token") String token,
                                                   @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("section/stop")
+    @POST("v2/section/stop")
     Observable<BaseApiDao> stopSection(@Header("token") String token,
                                        @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
-    @POST("interview/update/elapsedTime")
+    @POST("v2/interview/update/elapsedTime")
     Observable<BaseApiDao> updateElapsedTime(@Header("token") String token,
                                              @FieldMap HashMap<String, String> data);
 }

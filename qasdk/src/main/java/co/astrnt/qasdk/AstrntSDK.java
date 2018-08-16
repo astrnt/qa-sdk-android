@@ -797,7 +797,7 @@ public class AstrntSDK {
             questionInfo = getQuestionInfo();
         }
 
-        if (!realm.isInTransaction()) {
+        if (!realm.isInTransaction() && questionInfo != null) {
             realm.beginTransaction();
 
             questionInfo.decreaseAttempt();

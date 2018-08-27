@@ -62,9 +62,6 @@ public interface ApiService {
     Observable<BaseApiDao> finishQuestion(@Header("token") String token,
                                           @FieldMap HashMap<String, String> data);
 
-    @GET("interview/ping")
-    Observable<BaseApiDao> pingNetwork(@Header("token") String token);
-
     @FormUrlEncoded
     @POST("v2/section/start")
     Observable<InterviewStartApiDao> startSection(@Header("token") String token,
@@ -79,4 +76,8 @@ public interface ApiService {
     @POST("v2/interview/update/elapsedTime")
     Observable<BaseApiDao> updateElapsedTime(@Header("token") String token,
                                              @FieldMap HashMap<String, String> data);
+
+    @GET("v2/interview/ping")
+    Observable<BaseApiDao> pingNetwork(@Header("token") String token);
+
 }

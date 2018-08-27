@@ -6,8 +6,8 @@ android {
         applicationId "co.astrnt.astrntqasdk"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 5
-        versionName "1.4"
+        versionCode 6
+        versionName "1.5"
     }
 
     flavorDimensions "mode"
@@ -17,14 +17,14 @@ android {
             applicationIdSuffix ".beta"
             buildConfigField "boolean", "BETA", "true"
             buildConfigField("String", "API_URL", '"http://beta.astrnt.co/api/"')
-            buildConfigField("int", "SDK_VERSION", "106")
+            buildConfigField("int", "SDK_VERSION", "111")
             resValue "string", "app_name", "BETA Q&A SDK Sample"
         }
         live {
             dimension "mode"
             buildConfigField "boolean", "BETA", "false"
             buildConfigField("String", "API_URL", '"http://app.astrnt.co/api/"')
-            buildConfigField("int", "SDK_VERSION", "106")
+            buildConfigField("int", "SDK_VERSION", "111")
             resValue "string", "app_name", "Q&A SDK Sample"
         }
     }
@@ -38,9 +38,9 @@ android {
 }
 
 dependencies {
-//    implementation project(':qasdk')
-    implementation 'com.github.astrnt:qa-sdk-android:1.4'
-//    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation project(':qasdk')
+//    implementation 'com.github.astrnt:qa-sdk-android:1.5'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
 

@@ -58,7 +58,7 @@ public class EnterCodeActivity extends BaseActivity {
 
         videoSDK.clearDb();
         if (BuildConfig.DEBUG) {
-            inpCode.setText("upmVqCsC");
+            inpCode.setText("idvideo");
         }
 
         checkingPermission();

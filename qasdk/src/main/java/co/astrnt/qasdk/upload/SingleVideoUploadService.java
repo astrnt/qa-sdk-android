@@ -122,8 +122,12 @@ public class SingleVideoUploadService extends Service {
                                 Timber.e("Video Upload Error : %s", exception.getMessage());
                             }
                             if (serverResponse != null && serverResponse.getBody() != null) {
-                                BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
-                                Timber.e(baseApiDao.getMessage());
+                                try {
+                                    BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                    Timber.e(baseApiDao.getMessage());
+                                } catch (Exception e) {
+                                    Timber.e("Video Upload Error : %s", exception.getMessage());
+                                }
                                 astrntSDK.markAsCompressed(currentQuestion);
                             }
                             stopService();
@@ -150,7 +154,7 @@ public class SingleVideoUploadService extends Service {
     }
 
     public void stopService() {
-        mTimer.cancel();
+        if (mTimer != null) mTimer.cancel();
         stopSelf();
     }
 

@@ -56,6 +56,10 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
     @Override
     public final void onNext(T t) {
+        if (t == null) {
+            onApiResultError("Terjadi kesalahan, silahkan coba lagi", "error");
+            return;
+        }
         if (t.getStatus() != null && t.getStatus().contains("error")) {
             if (t instanceof InterviewResultApiDao) {
                 InterviewResultApiDao data = (InterviewResultApiDao) t;

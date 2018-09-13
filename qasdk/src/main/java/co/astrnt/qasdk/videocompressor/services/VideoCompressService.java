@@ -21,6 +21,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.utils.ServiceUtils;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -126,7 +127,9 @@ public class VideoCompressService extends Service {
                 inputFile.delete();
                 astrntSDK.updateVideoPath(currentQuestion, outputPath);
                 if (astrntSDK.isNotLastQuestion()) {
-                    SingleVideoUploadService.start(context, questionId);
+                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                        SingleVideoUploadService.start(context, questionId);
+                    }
                 } else {
                     EventBus.getDefault().post(new CompressEvent());
                 }

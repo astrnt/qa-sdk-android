@@ -53,31 +53,28 @@ public class AstrntSDK {
             Timber.plant(new Timber.DebugTree());
         }
         Realm.init(context);
-        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
-                .name("astrntdb")
-                .schemaVersion(1)
-                .deleteRealmIfMigrationNeeded()
-                .build();
 
-        realm = Realm.getInstance(realmConfiguration);
+        realm = Realm.getInstance(getRealmConfig());
 
         UploadService.NAMESPACE = appId;
         UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
-        UploadService.BACKOFF_MULTIPLIER = 2;
-        UploadService.IDLE_TIMEOUT = 10 * 1000;
-        UploadService.KEEP_ALIVE_TIME_IN_SECONDS = 3 * 60 * 1000;
+        UploadService.BACKOFF_MULTIPLIER = 5;
+        UploadService.IDLE_TIMEOUT = 60 * 1000;
+        UploadService.KEEP_ALIVE_TIME_IN_SECONDS = 60 * 60 * 1000;
         UploadService.INITIAL_RETRY_WAIT_TIME = 10 * 1000;
         UploadService.MAX_RETRY_WAIT_TIME = 10 * 1000;
     }
 
     public AstrntSDK() {
-        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
+        this.realm = Realm.getInstance(getRealmConfig());
+    }
+
+    private static RealmConfiguration getRealmConfig() {
+        return new RealmConfiguration.Builder()
                 .name("astrntdb")
-                .schemaVersion(1)
+                .schemaVersion(BuildConfig.VERSION_CODE)
                 .deleteRealmIfMigrationNeeded()
                 .build();
-
-        this.realm = Realm.getInstance(realmConfiguration);
     }
 
     private static int getScreenWidth() {
@@ -847,7 +844,7 @@ public class AstrntSDK {
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
 
-            Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
+            Timber.d("Video with Question Id %s on progress uploading %s / 100", questionApiDao.getId(), progress);
         }
     }
 
@@ -1044,9 +1041,9 @@ public class AstrntSDK {
         httpClientBuilder.followRedirects(true);
         httpClientBuilder.followSslRedirects(true);
         httpClientBuilder.retryOnConnectionFailure(true);
-        httpClientBuilder.writeTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.writeTimeout(5, TimeUnit.MINUTES);
         httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
-        httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.connectTimeout(3, TimeUnit.MINUTES);
 
 //        if (isDebuggable) {
 //            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();

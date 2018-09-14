@@ -128,8 +128,8 @@ public class SingleVideoUploadService extends Service {
                                 } catch (Exception e) {
                                     Timber.e("Video Upload Error : %s", exception.getMessage());
                                 }
-                                astrntSDK.markAsCompressed(currentQuestion);
                             }
+                            astrntSDK.markAsCompressed(currentQuestion);
                             stopService();
                         }
 

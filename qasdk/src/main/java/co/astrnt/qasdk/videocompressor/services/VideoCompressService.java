@@ -144,6 +144,7 @@ public class VideoCompressService extends Service {
             @Override
             public void onFail() {
                 Timber.e("Video Compress compress %s %s %s", inputPath, outputPath, "FAILED");
+                Timber.e("Video Compress compress FAILED Available Storage %d", astrntSDK.getAvailableMemory());
                 stopService();
             }
 

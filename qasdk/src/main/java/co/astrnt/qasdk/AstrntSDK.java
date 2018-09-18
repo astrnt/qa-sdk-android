@@ -404,7 +404,7 @@ public class AstrntSDK {
                         updateQuestionInfo(questionIndex, questionInfoApiDao.getInterviewAttempt());
 
                         for (int i = 0; i < questionInfoApiDao.getPrevQuestStates().size(); i++) {
-                            PrevQuestionStateApiDao prevQuestionState = information.getPrevQuestStates().get(i);
+                            PrevQuestionStateApiDao prevQuestionState = questionInfoApiDao.getPrevQuestStates().get(i);
                             assert prevQuestionState != null;
                             if (prevQuestionState.getDurationLeft() > 0) {
                                 updateQuestion(interviewApiDao, prevQuestionState);

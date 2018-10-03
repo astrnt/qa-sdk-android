@@ -91,71 +91,76 @@ public class VideoCompressService extends Service {
 
     public void doCompress() {
 
-        mNotificationId = (int) currentQuestion.getId();
-        File directory = new File(context.getFilesDir(), "video");
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-        outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
-        outputPath = outputFile.getAbsolutePath();
+        if (currentQuestion != null) {
+            mNotificationId = (int) currentQuestion.getId();
 
-        VideoCompress.compressVideo(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), new VideoCompress.CompressListener() {
-            @Override
-            public void onStart() {
-                mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
-                mBuilder.setContentTitle("Video Compress")
-                        .setContentText("Compress in progress")
-                        .setSmallIcon(R.drawable.ic_autorenew_white_24dp);
-
-                Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
+            File directory = new File(context.getFilesDir(), "video");
+            if (!directory.exists()) {
+                directory.mkdir();
             }
+            outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
+            outputPath = outputFile.getAbsolutePath();
 
-            @Override
-            public void onSuccess() {
-                Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
-                Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableMemory());
+            VideoCompress.compressVideo(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), new VideoCompress.CompressListener() {
+                @Override
+                public void onStart() {
+                    mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
+                    mBuilder.setContentTitle("Video Compress")
+                            .setContentText("Compress in progress")
+                            .setSmallIcon(R.drawable.ic_autorenew_white_24dp);
 
-                long fileSizeInBytes = outputFile.length();
-
-                Timber.d("Video Compress compress output File size %d", outputFile.length() / 1000);
-                if (fileSizeInBytes < 2000) {
-                    doCompress();
-                    return;
+                    Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
                 }
 
-                inputFile.delete();
-                astrntSDK.updateVideoPath(currentQuestion, outputPath);
-                if (astrntSDK.isNotLastQuestion()) {
-                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                        SingleVideoUploadService.start(context, questionId);
+                @Override
+                public void onSuccess() {
+                    Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
+                    Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableMemory());
+
+                    long fileSizeInBytes = outputFile.length();
+
+                    Timber.d("Video Compress compress output File size %d", outputFile.length() / 1000);
+                    if (fileSizeInBytes < 2000) {
+                        doCompress();
+                        return;
                     }
-                } else {
-                    EventBus.getDefault().post(new CompressEvent());
+
+                    inputFile.delete();
+                    astrntSDK.updateVideoPath(currentQuestion, outputPath);
+                    if (astrntSDK.isNotLastQuestion()) {
+                        if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                            SingleVideoUploadService.start(context, questionId);
+                        }
+                    } else {
+                        EventBus.getDefault().post(new CompressEvent());
+                    }
+
+                    mBuilder.setContentText("Compress completed")
+                            .setProgress(0, 0, false);
+                    mNotifyManager.notify(mNotificationId, mBuilder.build());
+                    mNotifyManager.cancel(mNotificationId);
+                    stopService();
                 }
 
-                mBuilder.setContentText("Compress completed")
-                        .setProgress(0, 0, false);
-                mNotifyManager.notify(mNotificationId, mBuilder.build());
-                mNotifyManager.cancel(mNotificationId);
-                stopService();
-            }
+                @Override
+                public void onFail() {
+                    Timber.e("Video Compress compress %s %s %s", inputPath, outputPath, "FAILED");
+                    Timber.e("Video Compress compress FAILED Available Storage %d", astrntSDK.getAvailableMemory());
+                    stopService();
+                }
 
-            @Override
-            public void onFail() {
-                Timber.e("Video Compress compress %s %s %s", inputPath, outputPath, "FAILED");
-                Timber.e("Video Compress compress FAILED Available Storage %d", astrntSDK.getAvailableMemory());
-                stopService();
-            }
-
-            @Override
-            public void onProgress(float percent) {
-                mBuilder.setProgress(100, (int) percent, false);
-                // Displays the progress bar for the first time.
-                mNotifyManager.notify(mNotificationId, mBuilder.build());
-                Timber.e("Video Compress progress %s", percent);
-            }
-        });
+                @Override
+                public void onProgress(float percent) {
+                    mBuilder.setProgress(100, (int) percent, false);
+                    // Displays the progress bar for the first time.
+                    mNotifyManager.notify(mNotificationId, mBuilder.build());
+                    Timber.e("Video Compress progress %s", percent);
+                }
+            });
+        } else {
+            stopService();
+        }
     }
 
     public void stopService() {

@@ -101,7 +101,7 @@ public class VideoCompressService extends Service {
             outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
             outputPath = outputFile.getAbsolutePath();
 
-            VideoCompress.compressVideo(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), new VideoCompress.CompressListener() {
+            VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
                 @Override
                 public void onStart() {
                     mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

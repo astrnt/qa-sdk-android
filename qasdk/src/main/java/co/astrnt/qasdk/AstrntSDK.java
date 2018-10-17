@@ -827,11 +827,6 @@ public class AstrntSDK {
 
     public void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
 
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
-
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
@@ -844,11 +839,6 @@ public class AstrntSDK {
     }
 
     public void updateProgress(QuestionApiDao questionApiDao, double progress) {
-
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -864,11 +854,6 @@ public class AstrntSDK {
 
     public void markUploading(QuestionApiDao questionApiDao) {
 
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
-
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
@@ -878,15 +863,12 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
+        } else {
+            Timber.e("Video with Question Id %s is failed to marked uploading", questionApiDao.getId());
         }
     }
 
     public void markNotAnswer(QuestionApiDao questionApiDao) {
-
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -902,11 +884,6 @@ public class AstrntSDK {
 
     public void markUploaded(QuestionApiDao questionApiDao) {
 
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
-
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
@@ -916,15 +893,12 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
+        } else {
+            Timber.e("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
         }
     }
 
     public void markAsCompressed(QuestionApiDao questionApiDao) {
-
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -939,11 +913,6 @@ public class AstrntSDK {
     }
 
     public void markAsPending(QuestionApiDao questionApiDao, String rawFilePath) {
-
-        QuestionApiDao question = getQuestionById(questionApiDao.getId());
-        if (question == null) {
-            return;
-        }
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();

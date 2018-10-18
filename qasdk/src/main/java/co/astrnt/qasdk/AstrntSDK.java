@@ -278,6 +278,8 @@ public class AstrntSDK {
                 }
             }
 
+            interview.setFinished(informationApiDao.isFinished());
+
             realm.copyToRealmOrUpdate(interview);
             realm.commitTransaction();
 
@@ -563,13 +565,18 @@ public class AstrntSDK {
             return true;
         } else {
             if (isSectionInterview()) {
-                return interviewApiDao.getSections().isEmpty();
-            }
-            if (interviewApiDao.getQuestions().isEmpty()) {
-                return true;
+                if (interviewApiDao.getSections().isEmpty()) {
+                    return true;
+                } else {
+                    return getQuestionIndex() >= getCurrentSection().getTotalQuestion() && getQuestionAttempt() == 0;
+                }
             } else {
-                int totalQuestion = getTotalQuestion();
-                return getQuestionIndex() >= totalQuestion && getQuestionAttempt() == 0;
+                if (interviewApiDao.getQuestions().isEmpty()) {
+                    return true;
+                } else {
+                    int totalQuestion = getTotalQuestion();
+                    return getQuestionIndex() >= totalQuestion && getQuestionAttempt() == 0;
+                }
             }
         }
     }
@@ -585,11 +592,10 @@ public class AstrntSDK {
     }
 
     public boolean isCanContinue() {
-        InterviewApiDao interviewApiDao = getCurrentInterview();
         if (isSectionInterview()) {
-            return interviewApiDao != null && !interviewApiDao.isFinished() && interviewApiDao.getCandidate() != null && isNotLastSection();
+            return isNotLastSection() && isNotLastQuestion() && !isLastAttempt();
         } else {
-            return interviewApiDao != null && !interviewApiDao.isFinished() && interviewApiDao.getCandidate() != null && isNotLastQuestion();
+            return isNotLastQuestion() && !isLastAttempt();
         }
     }
 
@@ -818,7 +824,12 @@ public class AstrntSDK {
     }
 
     public boolean isNotLastQuestion() {
-        return getQuestionIndex() < getTotalQuestion();
+        if (isSectionInterview()) {
+            SectionApiDao sectionApiDao = getSectionByIndex(getSectionIndex());
+            return getQuestionIndex() < sectionApiDao.getTotalQuestion();
+        } else {
+            return getQuestionIndex() < getTotalQuestion();
+        }
     }
 
     public boolean isNotLastSection() {

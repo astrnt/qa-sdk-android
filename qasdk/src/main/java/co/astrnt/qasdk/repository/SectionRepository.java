@@ -8,6 +8,7 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
+import co.astrnt.qasdk.dao.SummarySectionApiDao;
 import co.astrnt.qasdk.type.ElapsedTime;
 import co.astrnt.qasdk.type.ElapsedTimeType;
 import io.reactivex.Observable;
@@ -52,6 +53,17 @@ public class SectionRepository extends BaseRepository {
         return mAstronautApi.getApiService().stopSection(token, map);
     }
 
+    public Observable<SummarySectionApiDao> summarySection() {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        String token = interviewApiDao.getToken();
+
+
+        return mAstronautApi.getApiService().summarySection(token, map);
+    }
+
     private void updateElapsedTime(@ElapsedTime String type, long refId) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
 
@@ -61,7 +73,6 @@ public class SectionRepository extends BaseRepository {
         map.put("ref_id", String.valueOf(refId));
 
         String token = interviewApiDao.getToken();
-
 
         mAstronautApi.getApiService().updateElapsedTime(token, map)
                 .subscribeOn(Schedulers.io())

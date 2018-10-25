@@ -5,6 +5,8 @@ import java.util.HashMap;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
+import co.astrnt.qasdk.dao.SummaryApiDao;
+import co.astrnt.qasdk.dao.SummarySectionApiDao;
 import io.reactivex.Observable;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
@@ -76,6 +78,16 @@ public interface ApiService {
     @POST("v2/interview/update/elapsedTime")
     Observable<BaseApiDao> updateElapsedTime(@Header("token") String token,
                                              @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("v2/get/interview/summary")
+    Observable<SummarySectionApiDao> summarySection(@Header("token") String token,
+                                                    @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("v2/get/interview/summary")
+    Observable<SummaryApiDao> summary(@Header("token") String token,
+                                      @FieldMap HashMap<String, String> data);
 
     @GET("v2/interview/ping")
     Observable<BaseApiDao> pingNetwork(@Header("token") String token);

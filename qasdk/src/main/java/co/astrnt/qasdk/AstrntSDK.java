@@ -846,6 +846,8 @@ public class AstrntSDK {
 
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
+        } else {
+            updateVideoPath(questionApiDao, videoPath);
         }
     }
 
@@ -860,6 +862,8 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s on progress uploading %s / 100", questionApiDao.getId(), progress);
+        } else {
+            updateProgress(questionApiDao, progress);
         }
     }
 
@@ -875,6 +879,7 @@ public class AstrntSDK {
 
             Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
         } else {
+            markUploading(questionApiDao);
             Timber.e("Video with Question Id %s is failed to marked uploading", questionApiDao.getId());
         }
     }
@@ -890,6 +895,8 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
+        } else {
+            markNotAnswer(questionApiDao);
         }
     }
 
@@ -905,6 +912,7 @@ public class AstrntSDK {
 
             Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
         } else {
+            markUploaded(questionApiDao);
             Timber.e("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
         }
     }
@@ -920,6 +928,8 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s mark as pending", questionApiDao.getId());
+        } else {
+            markAsCompressed(questionApiDao);
         }
     }
 
@@ -935,6 +945,8 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Video with Question Id %s mark as pending", questionApiDao.getId());
+        } else {
+            markAsPending(questionApiDao, rawFilePath);
         }
     }
 

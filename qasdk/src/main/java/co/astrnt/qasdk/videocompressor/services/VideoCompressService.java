@@ -103,6 +103,9 @@ public class VideoCompressService extends Service {
             VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
                 @Override
                 public void onStart() {
+
+                    astrntSDK.updateCompressing(currentQuestion);
+
                     mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
                     mBuilder.setContentTitle("Video Compress")

@@ -836,6 +836,20 @@ public class AstrntSDK {
         return getSectionIndex() < getTotalSection();
     }
 
+    public void updateCompressing(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setUploadStatus(UploadStatusType.COMPRESSING);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        } else {
+            updateCompressing(questionApiDao);
+        }
+    }
+
     public void updateVideoPath(QuestionApiDao questionApiDao, String videoPath) {
 
         if (!realm.isInTransaction()) {

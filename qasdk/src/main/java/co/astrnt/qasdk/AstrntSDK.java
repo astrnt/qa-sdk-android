@@ -1014,6 +1014,8 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             Timber.d("Interview marked as finished in local");
+        } else {
+            setInterviewFinished();
         }
     }
 

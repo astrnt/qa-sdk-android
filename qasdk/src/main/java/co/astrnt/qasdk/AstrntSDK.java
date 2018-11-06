@@ -593,9 +593,9 @@ public class AstrntSDK {
 
     public boolean isCanContinue() {
         if (isSectionInterview()) {
-            return isNotLastSection() && isNotLastQuestion() && !isLastAttempt();
+            return isNotLastSection() && isNotLastQuestion();
         } else {
-            return isNotLastQuestion() && !isLastAttempt();
+            return isNotLastQuestion();
         }
     }
 

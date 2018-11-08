@@ -1042,6 +1042,10 @@ public class AstrntSDK {
         return megAvailable;
     }
 
+    public boolean isMemoryEnought() {
+        return getAvailableMemory() > 300 + (getTotalQuestion() * 30);
+    }
+
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
         if (!realm.isInTransaction()) {
 

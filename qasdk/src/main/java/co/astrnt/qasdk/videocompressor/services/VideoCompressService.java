@@ -124,7 +124,8 @@ public class VideoCompressService extends Service {
 
                     Timber.d("Video Compress compress output File size %d", outputFile.length() / 1000);
                     if (fileSizeInBytes < 2000) {
-                        doCompress();
+                        astrntSDK.markNotAnswer(currentQuestion);
+                        stopSelf();
                         return;
                     }
 
@@ -168,7 +169,7 @@ public class VideoCompressService extends Service {
                     mBuilder.setProgress(100, (int) percent, false);
                     // Displays the progress bar for the first time.
                     mNotifyManager.notify(mNotificationId, mBuilder.build());
-                    Timber.e("Video Compress progress %s", percent);
+//                    Timber.w("Video Compress progress %s", percent);
                 }
             });
         } else {

@@ -56,7 +56,7 @@ public class VideoSDK {
     }
 
     public long getAvailableMemory() {
-        return astrntSDK.getAvailableMemory();
+        return astrntSDK.getAvailableStorage();
     }
 
     public void markNotAnswer(QuestionApiDao questionApiDao) {

@@ -118,7 +118,7 @@ public class VideoCompressService extends Service {
                 @Override
                 public void onSuccess() {
                     Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
-                    Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableMemory());
+                    Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
 
                     long fileSizeInBytes = outputFile.length();
 
@@ -154,7 +154,7 @@ public class VideoCompressService extends Service {
 
                 @Override
                 public void onFail() {
-                    String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableMemory());
+                    String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
                     mBuilder.setContentText(errorMsg).setProgress(0, 0, false);
                     mNotifyManager.notify(mNotificationId, mBuilder.build());

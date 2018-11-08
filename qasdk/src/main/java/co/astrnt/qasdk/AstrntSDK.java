@@ -1034,7 +1034,7 @@ public class AstrntSDK {
         isPractice = false;
     }
 
-    public long getAvailableMemory() {
+    public long getAvailableStorage() {
         StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
         long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
         long megAvailable = bytesAvailable / (1024 * 1024);
@@ -1042,8 +1042,8 @@ public class AstrntSDK {
         return megAvailable;
     }
 
-    public boolean isMemoryEnought() {
-        return getAvailableMemory() > 300 + (getTotalQuestion() * 30);
+    public boolean isStorageEnough() {
+        return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
     }
 
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {

@@ -21,9 +21,33 @@ public class InformationApiDao extends RealmObject {
     private int section_duration_left;
     private String section_info;
     private String message;
-    private QuestionInfoApiDao questions_info;
+    private RealmList<QuestionInfoApiDao> questions_info;
 
     public InformationApiDao() {
+    }
+
+    public InformationApiDao(boolean finished, int interviewIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao... prevQuestStates) {
+        this.finished = finished;
+        this.status = status;
+        this.interviewIndex = interviewIndex;
+        this.interviewAttempt = interviewAttempt;
+        this.message = message;
+        if (prevQuestStates != null) {
+            this.prevQuestStates = new RealmList<>(prevQuestStates);
+        }
+    }
+
+    public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoApiDao... questionInfos) {
+        this.finished = finished;
+        this.status = status;
+        this.section_index = section_index;
+        this.preparation_time = preparation_time;
+        this.section_duration_left = section_duration_left;
+        this.section_info = section_info;
+        this.message = message;
+        if (questionInfos != null) {
+            this.questions_info = new RealmList<>(questionInfos);
+        }
     }
 
     public long getId() {
@@ -114,11 +138,11 @@ public class InformationApiDao extends RealmObject {
         this.message = message;
     }
 
-    public QuestionInfoApiDao getQuestionsInfo() {
+    public RealmList<QuestionInfoApiDao> getQuestionsInfo() {
         return questions_info;
     }
 
-    public void setQuestionsInfo(QuestionInfoApiDao questions_info) {
+    public void setQuestions_info(RealmList<QuestionInfoApiDao> questions_info) {
         this.questions_info = questions_info;
     }
 

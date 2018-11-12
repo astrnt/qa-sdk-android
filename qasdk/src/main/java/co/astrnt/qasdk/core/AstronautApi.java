@@ -4,10 +4,15 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.ApiService;
+import co.astrnt.qasdk.dao.InformationApiDao;
+import co.astrnt.qasdk.dao.InformationDeserializer;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -49,9 +54,11 @@ public class AstronautApi {
             httpClientBuilder.addInterceptor(loggingInterceptor);
         }
 
+        Gson gson = new GsonBuilder().registerTypeAdapter(InformationApiDao.class, new InformationDeserializer()).create();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClientBuilder.build())
                 .baseUrl(baseUrl)
                 .build();

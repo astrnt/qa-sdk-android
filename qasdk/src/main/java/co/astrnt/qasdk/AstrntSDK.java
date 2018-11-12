@@ -316,11 +316,13 @@ public class AstrntSDK {
 
     public void updateInterviewTimeLeft(int timeLeft) {
         if (!realm.isInTransaction()) {
-            realm.beginTransaction();
             InterviewApiDao interviewApiDao = getCurrentInterview();
-            interviewApiDao.setDuration_left(timeLeft);
-            realm.copyToRealmOrUpdate(interviewApiDao);
-            realm.commitTransaction();
+            if (interviewApiDao != null) {
+                realm.beginTransaction();
+                interviewApiDao.setDuration_left(timeLeft);
+                realm.copyToRealmOrUpdate(interviewApiDao);
+                realm.commitTransaction();
+            }
         }
     }
 

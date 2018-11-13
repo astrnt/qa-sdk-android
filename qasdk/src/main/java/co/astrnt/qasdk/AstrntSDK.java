@@ -449,16 +449,30 @@ public class AstrntSDK {
                 if (isSectionInterview()) {
                     int questionIndex = 0;
 
-                    for (QuestionInfoApiDao questionInfoApiDao : information.getQuestionsInfo()) {
-                        if (questionInfoApiDao != null) {
-                            questionIndex = questionInfoApiDao.getInterviewIndex();
-                            updateQuestionInfo(questionIndex, questionInfoApiDao.getInterviewAttempt());
+                    SectionApiDao section = getCurrentSection();
+                    if (section.getType().equals(InterviewType.INTERVIEW)) {
 
-                            for (int i = 0; i < questionInfoApiDao.getPrevQuestStates().size(); i++) {
-                                PrevQuestionStateApiDao prevQuestionState = questionInfoApiDao.getPrevQuestStates().get(i);
-                                assert prevQuestionState != null;
-                                if (prevQuestionState.getDurationLeft() > 0) {
-                                    updateQuestion(interviewApiDao, prevQuestionState);
+                        for (QuestionInfoApiDao questionInfoApiDao : information.getQuestionsInfo()) {
+                            if (questionInfoApiDao != null) {
+                                questionIndex = questionInfoApiDao.getInterviewIndex();
+                                updateQuestionInfo(questionIndex, questionInfoApiDao.getInterviewAttempt());
+
+                                for (int i = 0; i < questionInfoApiDao.getPrevQuestStates().size(); i++) {
+                                    PrevQuestionStateApiDao prevQuestionState = questionInfoApiDao.getPrevQuestStates().get(i);
+                                    assert prevQuestionState != null;
+                                    if (prevQuestionState.getDurationLeft() > 0) {
+                                        updateQuestion(interviewApiDao, prevQuestionState);
+                                        return i;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        RealmList<QuestionInfoMcqApiDao> questionsMcqInfo = information.getQuestionsMcqInfo();
+                        for (int i = 0; i < questionsMcqInfo.size(); i++) {
+                            QuestionInfoMcqApiDao questionInfoMcqApiDao = questionsMcqInfo.get(i);
+                            if (questionInfoMcqApiDao != null) {
+                                if (questionInfoMcqApiDao.getAnswer_ids().isEmpty()) {
                                     return i;
                                 }
                             }

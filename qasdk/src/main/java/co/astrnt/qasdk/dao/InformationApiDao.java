@@ -22,6 +22,7 @@ public class InformationApiDao extends RealmObject {
     private String section_info;
     private String message;
     private RealmList<QuestionInfoApiDao> questions_info;
+    private RealmList<QuestionInfoMcqApiDao> questions_mcq_info;
 
     public InformationApiDao() {
     }
@@ -37,6 +38,16 @@ public class InformationApiDao extends RealmObject {
         }
     }
 
+    public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
+        this.finished = finished;
+        this.status = status;
+        this.section_index = section_index;
+        this.preparation_time = preparation_time;
+        this.section_duration_left = section_duration_left;
+        this.section_info = section_info;
+        this.message = message;
+    }
+
     public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoApiDao... questionInfos) {
         this.finished = finished;
         this.status = status;
@@ -47,6 +58,19 @@ public class InformationApiDao extends RealmObject {
         this.message = message;
         if (questionInfos != null) {
             this.questions_info = new RealmList<>(questionInfos);
+        }
+    }
+
+    public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoMcqApiDao... questionInfoMcqApiDaos) {
+        this.finished = finished;
+        this.status = status;
+        this.section_index = section_index;
+        this.preparation_time = preparation_time;
+        this.section_duration_left = section_duration_left;
+        this.section_info = section_info;
+        this.message = message;
+        if (questionInfoMcqApiDaos != null) {
+            this.questions_mcq_info = new RealmList<>(questionInfoMcqApiDaos);
         }
     }
 
@@ -144,6 +168,14 @@ public class InformationApiDao extends RealmObject {
 
     public void setQuestions_info(RealmList<QuestionInfoApiDao> questions_info) {
         this.questions_info = questions_info;
+    }
+
+    public RealmList<QuestionInfoMcqApiDao> getQuestionsMcqInfo() {
+        return questions_mcq_info;
+    }
+
+    public void setQuestions_mcq_info(RealmList<QuestionInfoMcqApiDao> questions_mcq_info) {
+        this.questions_mcq_info = questions_mcq_info;
     }
 
     public boolean isOnGoing() {

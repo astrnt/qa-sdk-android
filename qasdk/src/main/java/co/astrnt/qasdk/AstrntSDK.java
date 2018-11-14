@@ -804,10 +804,10 @@ public class AstrntSDK {
             realm.beginTransaction();
 
             QuestionInfo questionInfo = getQuestionInfo();
-            questionInfo.increaseIndex();
 
             QuestionApiDao nextQuestion = getNextQuestion();
             if (nextQuestion != null) {
+                questionInfo.increaseIndex();
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
             } else {
                 questionInfo.resetAttempt();

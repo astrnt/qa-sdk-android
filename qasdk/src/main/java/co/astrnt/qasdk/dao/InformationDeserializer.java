@@ -57,7 +57,7 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
                     QuestionInfoApiDao questionInfoApiDao = context.deserialize(questionsInfo.getAsJsonObject(), QuestionInfoApiDao.class);
                     return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message, questionInfoApiDao);
                 } else {
-                    throw new JsonParseException("Unsupported type of information.questions_info element");
+                    return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message);
                 }
             } else {
                 return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message);

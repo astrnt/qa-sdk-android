@@ -1178,6 +1178,23 @@ public class AstrntSDK {
         return questionApiDao;
     }
 
+    public void markAnswered(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setAnswered(true);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
+        } else {
+            markAnswered(questionApiDao);
+            Timber.e("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
+        }
+    }
+
     @NonNull
     private OkHttpClient getOkHttpClient() {
 

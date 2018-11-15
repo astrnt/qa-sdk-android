@@ -283,7 +283,10 @@ public class AstrntSDK {
                                     }
                                 }
                             }
-                            section.setSectionQuestions(questionApiDaos);
+
+                            if (!questionApiDaos.isEmpty()) {
+                                section.setSectionQuestions(questionApiDaos);
+                            }
                             sectionList.add(section);
                         }
                     }

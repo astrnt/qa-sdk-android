@@ -165,6 +165,7 @@ public class SingleVideoUploadService extends Service {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    currentQuestion = astrntSDK.searchQuestionById(questionId);
                     if (currentQuestion != null) {
                         if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
                             doUploadVideo();

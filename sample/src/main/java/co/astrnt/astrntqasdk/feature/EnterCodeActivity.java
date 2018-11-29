@@ -151,8 +151,11 @@ public class EnterCodeActivity extends BaseActivity {
         progressDialog.show();
 
         mInterviewRepository.enterCode(code, BuildConfig.SDK_VERSION)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .compose(SchedulerUtils.ioToMain())
+                .doOnError(throwable -> {
+                    getView().showProgress(false);
+                    getView().showError(throwable);
+                })
                 .subscribe(new InterviewObserver() {
 
                     @Override

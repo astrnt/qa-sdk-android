@@ -186,8 +186,11 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
         progressDialog.show();
 
         mQuestionRepository.finishQuestion(currentQuestion)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .compose(SchedulerUtils.ioToMain())
+                .doOnError(throwable -> {
+                    getView().showProgress(false);
+                    getView().showError(throwable);
+                })
                 .subscribe(new MyObserver<BaseApiDao>() {
 
                     @Override

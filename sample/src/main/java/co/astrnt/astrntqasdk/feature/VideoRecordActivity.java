@@ -111,8 +111,11 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
         progressDialog.show();
 
         mQuestionRepository.addQuestionAttempt(currentQuestion)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .compose(SchedulerUtils.ioToMain())
+                .doOnError(throwable -> {
+                    getView().showProgress(false);
+                    getView().showError(throwable);
+                })
                 .subscribe(new MyObserver<BaseApiDao>() {
 
                     @Override

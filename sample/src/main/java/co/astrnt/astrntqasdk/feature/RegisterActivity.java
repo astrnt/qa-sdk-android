@@ -186,8 +186,11 @@ public class RegisterActivity extends BaseActivity {
         progressDialog.show();
 
         mInterviewRepository.registerUser(param)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .compose(SchedulerUtils.ioToMain())
+                .doOnError(throwable -> {
+                    getView().showProgress(false);
+                    getView().showError(throwable);
+                })
                 .subscribe(new RegisterObserver() {
 
                     @Override

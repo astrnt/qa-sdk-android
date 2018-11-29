@@ -1036,6 +1036,8 @@ public class AstrntSDK {
             realm.beginTransaction();
             realm.deleteAll();
             realm.commitTransaction();
+        } else {
+            clearDb();
         }
     }
 

@@ -121,8 +121,11 @@ public class VideoInstructionActivity extends BaseActivity {
         progressDialog.show();
 
         mInterviewRepository.startInterview()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .compose(SchedulerUtils.ioToMain())
+                .doOnError(throwable -> {
+                    getView().showProgress(false);
+                    getView().showError(throwable);
+                })
                 .subscribe(new MyObserver<InterviewStartApiDao>() {
                     @Override
                     public void onApiResultCompleted() {

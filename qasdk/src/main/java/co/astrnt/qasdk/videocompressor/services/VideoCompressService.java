@@ -8,9 +8,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
+import net.ypresto.androidtranscoder.MediaTranscoder;
+import net.ypresto.androidtranscoder.format.MediaFormatStrategyPresets;
+
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -21,7 +25,6 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
-import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
 
@@ -100,23 +103,24 @@ public class VideoCompressService extends Service {
             outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
             outputPath = outputFile.getAbsolutePath();
 
-            VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
+            astrntSDK.updateCompressing(currentQuestion);
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
+            mBuilder.setContentTitle("Video Compress")
+                    .setContentText("Compress in progress")
+                    .setSmallIcon(R.drawable.ic_autorenew_white_24dp);
+
+            Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
+
+            MediaTranscoder.Listener listener = new MediaTranscoder.Listener() {
                 @Override
-                public void onStart() {
-
-                    astrntSDK.updateCompressing(currentQuestion);
-
-                    mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
-                    mBuilder.setContentTitle("Video Compress")
-                            .setContentText("Compress in progress")
-                            .setSmallIcon(R.drawable.ic_autorenew_white_24dp);
-
-                    Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
+                public void onTranscodeProgress(double progress) {
+                    mBuilder.setProgress(100, (int) progress, false);
+                    mNotifyManager.notify(mNotificationId, mBuilder.build());
                 }
 
                 @Override
-                public void onSuccess() {
+                public void onTranscodeCompleted() {
                     Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
                     Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
 
@@ -144,16 +148,22 @@ public class VideoCompressService extends Service {
                             EventBus.getDefault().post(new CompressEvent());
                         }
                     }
+                }
 
-                    mBuilder.setContentText("Compress completed")
-                            .setProgress(0, 0, false);
+                @Override
+                public void onTranscodeCanceled() {
+                    String errorMsg = String.format("Video Compress CANCELED Available Storage %d", astrntSDK.getAvailableStorage());
+
+                    mBuilder.setContentText(errorMsg).setProgress(0, 0, false);
                     mNotifyManager.notify(mNotificationId, mBuilder.build());
-                    mNotifyManager.cancel(mNotificationId);
+
+                    Timber.e("Video Compress %s %s %s", inputPath, outputPath, "CANCELED");
+                    Timber.e(errorMsg);
                     stopService();
                 }
 
                 @Override
-                public void onFail() {
+                public void onTranscodeFailed(Exception exception) {
                     String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
                     mBuilder.setContentText(errorMsg).setProgress(0, 0, false);
@@ -163,15 +173,17 @@ public class VideoCompressService extends Service {
                     Timber.e(errorMsg);
                     stopService();
                 }
+            };
 
-                @Override
-                public void onProgress(float percent) {
-                    mBuilder.setProgress(100, (int) percent, false);
-                    // Displays the progress bar for the first time.
-                    mNotifyManager.notify(mNotificationId, mBuilder.build());
-//                    Timber.w("Video Compress progress %s", percent);
-                }
-            });
+            try {
+                MediaTranscoder.getInstance().transcodeVideo(inputPath, outputPath,
+                        MediaFormatStrategyPresets.createAndroid720pStrategy(), listener);
+            } catch (IOException e) {
+                e.printStackTrace();
+                String errorMsg = e.getMessage();
+                mBuilder.setContentText(errorMsg).setProgress(0, 0, false);
+                stopService();
+            }
         } else {
             stopService();
         }

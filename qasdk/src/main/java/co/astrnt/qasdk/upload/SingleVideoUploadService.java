@@ -82,6 +82,8 @@ public class SingleVideoUploadService extends Service {
     public void doUploadVideo() {
         try {
             UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
+            notificationConfig.setNotificationChannelId("1001");
+            notificationConfig.setClearOnActionForAllStatuses(true);
             notificationConfig.setRingToneEnabled(false);
 
             if (currentQuestion.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
@@ -106,6 +108,7 @@ public class SingleVideoUploadService extends Service {
                     .setUtf8Charset()
                     .setNotificationConfig(notificationConfig)
                     .setAutoDeleteFilesAfterSuccessfulUpload(false)
+                    .setMaxRetries(3)
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {

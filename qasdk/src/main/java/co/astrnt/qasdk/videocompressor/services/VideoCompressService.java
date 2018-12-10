@@ -17,10 +17,12 @@ import java.util.TimerTask;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -106,6 +108,12 @@ public class VideoCompressService extends Service {
 
                     astrntSDK.updateCompressing(currentQuestion);
 
+                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                            new LogDao("Video Compress (Start)",
+                                    "Available storage " + astrntSDK.getAvailableStorage()
+                            )
+                    );
+
                     mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
                     mBuilder.setContentTitle("Video Compress")
@@ -120,10 +128,23 @@ public class VideoCompressService extends Service {
                     Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
                     Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
 
-                    long fileSizeInBytes = outputFile.length();
+                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                            new LogDao("Video Compress (Success)",
+                                    "Success available storage " + astrntSDK.getAvailableStorage()
+                            )
+                    );
 
-                    Timber.d("Video Compress compress output File size %d", outputFile.length() / 1000);
-                    if (fileSizeInBytes < 2000) {
+                    long fileSizeInMb = outputFile.length() / 1000;
+
+                    Timber.d("Video Compress compress output File size %d", outputFile.length());
+                    if (fileSizeInMb < 2) {
+
+                        LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                new LogDao("Video Compress (Fail)",
+                                        "File too small " + fileSizeInMb
+                                )
+                        );
+
                         astrntSDK.markNotAnswer(currentQuestion);
                         stopSelf();
                         return;
@@ -161,6 +182,13 @@ public class VideoCompressService extends Service {
 
                     Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
                     Timber.e(errorMsg);
+
+                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                            new LogDao("Video Compress (Fail)",
+                                    "Fail available storage " + astrntSDK.getAvailableStorage()
+                            )
+                    );
+
                     stopService();
                 }
 

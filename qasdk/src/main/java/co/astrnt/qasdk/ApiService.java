@@ -92,4 +92,9 @@ public interface ApiService {
     @GET("v2/interview/ping")
     Observable<BaseApiDao> pingNetwork(@Header("token") String token);
 
+    @FormUrlEncoded
+    @POST("v2/candidate/logs")
+    Observable<BaseApiDao> sendLog(@Header("token") String token,
+                                   @FieldMap HashMap<String, String> data);
+
 }

@@ -22,8 +22,10 @@ import java.util.TimerTask;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
 
@@ -94,7 +96,7 @@ public class SingleVideoUploadService extends Service {
 
             astrntSDK.markUploading(currentQuestion);
 
-            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+            final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
             String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "video/upload")
                     .addHeader("token", interviewApiDao.getToken())
                     .addParameter("interview_code", interviewApiDao.getInterviewCode())
@@ -125,12 +127,21 @@ public class SingleVideoUploadService extends Service {
                                 Timber.e("Video Upload Error : %s", exception.getMessage());
                             }
                             if (serverResponse != null && serverResponse.getBody() != null) {
+                                String message;
                                 try {
                                     BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                    message = baseApiDao.getMessage();
                                     Timber.e(baseApiDao.getMessage());
                                 } catch (Exception e) {
                                     Timber.e("Video Upload Error : %s", exception.getMessage());
+                                    message = exception.getMessage();
                                 }
+
+                                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                        new LogDao("Single Video Upload Services (Error)",
+                                                "Error " + message
+                                        )
+                                );
                             }
                             astrntSDK.markAsCompressed(currentQuestion);
                             stopService();
@@ -139,6 +150,12 @@ public class SingleVideoUploadService extends Service {
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                             astrntSDK.markUploaded(currentQuestion);
+
+                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                    new LogDao("Single Video Upload Services (Complete)",
+                                            "Success uploaded for question id " + currentQuestion.getId()
+                                    )
+                            );
                             stopService();
                         }
 
@@ -146,6 +163,12 @@ public class SingleVideoUploadService extends Service {
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
                             Timber.e("Video Upload Canceled");
                             astrntSDK.markAsCompressed(currentQuestion);
+
+                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                    new LogDao("Single Video Upload Services (Cancelled)",
+                                            "Cancelled"
+                                    )
+                            );
                             stopService();
                         }
                     }).startUpload();

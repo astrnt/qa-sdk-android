@@ -19,10 +19,9 @@ import timber.log.Timber;
  * Created by deni rohimat on 25/05/18.
  */
 public class SectionRepository extends BaseRepository {
-    private final AstronautApi mAstronautApi;
 
     public SectionRepository(AstronautApi astronautApi) {
-        mAstronautApi = astronautApi;
+        super(astronautApi);
     }
 
     public Observable<InterviewStartApiDao> startSection(SectionApiDao sectionApiDao) {

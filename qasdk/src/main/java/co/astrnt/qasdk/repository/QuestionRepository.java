@@ -21,10 +21,9 @@ import timber.log.Timber;
  * Created by deni rohimat on 27/04/18.
  */
 public class QuestionRepository extends BaseRepository {
-    private final AstronautApi mAstronautApi;
 
     public QuestionRepository(AstronautApi astronautApi) {
-        mAstronautApi = astronautApi;
+        super(astronautApi);
     }
 
     public Observable<BaseApiDao> addQuestionAttempt(QuestionApiDao currentQuestion) {

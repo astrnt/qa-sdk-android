@@ -15,10 +15,9 @@ import io.reactivex.Observable;
  * Created by deni rohimat on 06/04/18.
  */
 public class InterviewRepository extends BaseRepository {
-    private final AstronautApi mAstronautApi;
 
     public InterviewRepository(AstronautApi astronautApi) {
-        mAstronautApi = astronautApi;
+        super(astronautApi);
     }
 
     public Observable<InterviewResultApiDao> enterCode(String interviewCode, int version) {

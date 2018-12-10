@@ -110,7 +110,7 @@ public class VideoCompressService extends Service {
 
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
                             new LogDao("Video Compress (Start)",
-                                    "Available storage " + astrntSDK.getAvailableStorage()
+                                    "Available storage " + astrntSDK.getAvailableStorage() + "Mb"
                             )
                     );
 
@@ -130,7 +130,7 @@ public class VideoCompressService extends Service {
 
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
                             new LogDao("Video Compress (Success)",
-                                    "Success available storage " + astrntSDK.getAvailableStorage()
+                                    "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
                             )
                     );
 
@@ -141,7 +141,7 @@ public class VideoCompressService extends Service {
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),
                                 new LogDao("Video Compress (Fail)",
-                                        "File too small " + fileSizeInMb
+                                        "File too small " + fileSizeInMb + "Mb"
                                 )
                         );
 
@@ -185,7 +185,7 @@ public class VideoCompressService extends Service {
 
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
                             new LogDao("Video Compress (Fail)",
-                                    "Fail available storage " + astrntSDK.getAvailableStorage()
+                                    "Fail available storage " + astrntSDK.getAvailableStorage() + "Mb"
                             )
                     );
 

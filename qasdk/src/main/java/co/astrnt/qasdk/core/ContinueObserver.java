@@ -2,6 +2,8 @@ package co.astrnt.qasdk.core;
 
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.LogDao;
+import co.astrnt.qasdk.utils.LogUtil;
 
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_SECTION;
@@ -40,6 +42,13 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 break;
             default:
                 onApiResultError(resultApiDao.getMessage(), "error");
+                if (currentInterview != null && currentInterview.getInterviewCode() != null) {
+                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                            new LogDao("Continue",
+                                    "Call API Error " + resultApiDao.getMessage()
+                            )
+                    );
+                }
                 break;
         }
     }

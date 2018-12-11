@@ -13,6 +13,7 @@ import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
+import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.LogUtil;
+import co.astrnt.qasdk.utils.UploadNotifConfig;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
 
@@ -83,8 +85,10 @@ public class SingleVideoUploadService extends Service {
 
     public void doUploadVideo() {
         try {
-            UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
-            notificationConfig.setNotificationChannelId("1001");
+            String uploadMessage = "Uploading answer " + currentQuestion.getTitle();
+
+            UploadNotificationConfig notificationConfig = UploadNotifConfig.getSingleNotificationConfig(uploadMessage);
+            notificationConfig.setNotificationChannelId(UploadService.NAMESPACE);
             notificationConfig.setClearOnActionForAllStatuses(true);
             notificationConfig.setRingToneEnabled(false);
 

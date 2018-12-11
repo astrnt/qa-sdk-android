@@ -59,11 +59,11 @@ public class AstrntSDK {
 
         UploadService.NAMESPACE = appId;
         UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
-        UploadService.BACKOFF_MULTIPLIER = 5;
-        UploadService.IDLE_TIMEOUT = 60 * 1000;
-        UploadService.KEEP_ALIVE_TIME_IN_SECONDS = 60 * 60 * 1000;
-        UploadService.INITIAL_RETRY_WAIT_TIME = 10 * 1000;
-        UploadService.MAX_RETRY_WAIT_TIME = 10 * 1000;
+        UploadService.BACKOFF_MULTIPLIER = 2;
+        UploadService.IDLE_TIMEOUT = 30 * 1000;
+        UploadService.UPLOAD_POOL_SIZE = 1;
+        UploadService.EXECUTE_IN_FOREGROUND = false;
+        UploadService.BUFFER_SIZE = 1024;
     }
 
     public AstrntSDK() {

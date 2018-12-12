@@ -75,6 +75,7 @@ public class QuestionRepository extends BaseRepository {
                 )
         );
 
+        sendLog();
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 

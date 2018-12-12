@@ -60,7 +60,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                    new LogDao("Call API",
+                    new LogDao("Hit API",
                             "Response Error : " + message
                     )
             );
@@ -85,7 +85,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
                 if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
                     LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                            new LogDao("Call API",
+                            new LogDao("Hit API",
                                     "Response Error : " + t.getMessage()
                             )
                     );

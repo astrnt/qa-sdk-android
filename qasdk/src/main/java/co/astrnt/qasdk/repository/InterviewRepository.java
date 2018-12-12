@@ -7,8 +7,10 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.SummaryApiDao;
 import co.astrnt.qasdk.dao.post.RegisterPost;
+import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
 
 /**
@@ -62,6 +64,12 @@ public class InterviewRepository extends BaseRepository {
         map.put("interview_code", interviewApiDao.getInterviewCode());
         String token = interviewApiDao.getToken();
 
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Start Interview"
+                )
+        );
+
         return mAstronautApi.getApiService().startInterview(token, map);
     }
 
@@ -71,6 +79,12 @@ public class InterviewRepository extends BaseRepository {
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         String token = interviewApiDao.getToken();
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Finish Interview"
+                )
+        );
 
         return mAstronautApi.getApiService().finishInterview(token, map);
     }
@@ -85,6 +99,12 @@ public class InterviewRepository extends BaseRepository {
         map.put("interview_code", interviewApiDao.getInterviewCode());
         String token = interviewApiDao.getToken();
 
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "CV Status"
+                )
+        );
+
         return mAstronautApi.getApiService().cvStatus(token, map);
     }
 
@@ -97,6 +117,12 @@ public class InterviewRepository extends BaseRepository {
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("interview_code", interviewApiDao.getInterviewCode());
         String token = interviewApiDao.getToken();
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "CV Start"
+                )
+        );
 
         return mAstronautApi.getApiService().cvStart(token, map);
     }
@@ -111,7 +137,6 @@ public class InterviewRepository extends BaseRepository {
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         String token = interviewApiDao.getToken();
-
 
         return mAstronautApi.getApiService().summary(token, map);
     }

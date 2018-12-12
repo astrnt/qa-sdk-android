@@ -45,7 +45,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 if (currentInterview != null && currentInterview.getInterviewCode() != null) {
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
                             new LogDao("Continue",
-                                    "Call API Error " + resultApiDao.getMessage()
+                                    "Hit API Error " + resultApiDao.getMessage()
                             )
                     );
                 }

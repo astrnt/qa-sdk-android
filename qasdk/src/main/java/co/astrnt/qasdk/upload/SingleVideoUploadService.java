@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.google.gson.Gson;
+import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
@@ -113,7 +114,7 @@ public class SingleVideoUploadService extends Service {
                     .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
                     .setUtf8Charset()
                     .setNotificationConfig(notificationConfig)
-                    .setAutoDeleteFilesAfterSuccessfulUpload(false)
+                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
                     .setMaxRetries(3)
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
@@ -126,6 +127,7 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                            Hawk.delete("UploadId");
                             Timber.e("Video Upload Error : ");
                             if (exception != null) {
                                 Timber.e("Video Upload Error : %s", exception.getMessage());
@@ -153,6 +155,7 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                            Hawk.delete("UploadId");
                             astrntSDK.markUploaded(currentQuestion);
 
                             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
@@ -165,6 +168,7 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
+                            Hawk.delete("UploadId");
                             Timber.e("Video Upload Canceled");
                             astrntSDK.markAsCompressed(currentQuestion);
 
@@ -176,6 +180,8 @@ public class SingleVideoUploadService extends Service {
                             stopService();
                         }
                     }).startUpload();
+
+            Hawk.put("UploadId", uploadId);
 
             Timber.d("SingleVideoUploadService %s", uploadId);
         } catch (Exception exc) {

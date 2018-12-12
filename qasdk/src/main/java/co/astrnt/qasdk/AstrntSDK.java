@@ -1214,12 +1214,17 @@ public class AstrntSDK {
 //            httpClientBuilder.addInterceptor(loggingInterceptor);
 //        }
 
+        final String manufacturer = Build.MANUFACTURER;
+        final String model = Build.MODEL;
+        final String device = String.format("%s %s", manufacturer, model);
+        final String os = "Android " + Build.VERSION.RELEASE;
+
         httpClientBuilder.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Request request = chain.request().newBuilder()
-                        .addHeader("device", "android")
-                        .addHeader("os", Build.VERSION.RELEASE)
+                        .addHeader("device", device)
+                        .addHeader("os", os)
                         .addHeader("browser", "")
                         .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
                         .build();

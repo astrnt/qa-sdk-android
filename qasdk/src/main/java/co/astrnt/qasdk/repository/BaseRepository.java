@@ -39,6 +39,7 @@ public class BaseRepository {
         String model = Build.MODEL;
         String version = String.format("%s %s", manufacturer, model);
         String os = "Android " + Build.VERSION.RELEASE;
+        String appVersion = Hawk.get("versionCode") + " / " + Hawk.get("versionName");
 
         //TODO: get imei
         String imei = "-";
@@ -64,6 +65,7 @@ public class BaseRepository {
             map.put("logs[" + i + "][imei]", imei);
             map.put("logs[" + i + "][version]", version);
             map.put("logs[" + i + "][os]", os);
+            map.put("logs[" + i + "][app_version]", appVersion);
         }
 
         if (!map.isEmpty()) {

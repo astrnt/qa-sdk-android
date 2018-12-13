@@ -9,6 +9,8 @@ import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.LogDao;
+import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
@@ -33,11 +35,13 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     @Override
     public final void onError(Throwable e) {
         onComplete();
+        String message = e.getMessage();
         if (e instanceof retrofit2.HttpException) {
             try {
                 ResponseBody body = ((retrofit2.HttpException) e).response().errorBody();
                 assert body != null;
                 BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
+                message = apiDao.getMessage();
                 onApiResultError(apiDao.getMessage(), apiDao.getStatus());
             } catch (Exception e2) {
                 e2.printStackTrace();
@@ -51,6 +55,15 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
             System.err.println(e.getMessage());
             e.printStackTrace();
             onApiResultError("Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
+        }
+
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Hit API",
+                            "Response Error : " + message
+                    )
+            );
         }
     }
 
@@ -69,6 +82,15 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                         astrntSDK.saveInterview(interviewApiDao, data.getToken(), data.getInterview_code());
                     }
                 }
+
+                if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Hit API",
+                                    "Response Error : " + t.getMessage()
+                            )
+                    );
+                }
+
             }
             onApiResultError(t.getMessage(), t.getStatus());
         } else {

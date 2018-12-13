@@ -8,11 +8,13 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.google.gson.Gson;
+import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
+import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
 import java.io.File;
@@ -22,8 +24,11 @@ import java.util.TimerTask;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.utils.LogUtil;
+import co.astrnt.qasdk.utils.UploadNotifConfig;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
 
@@ -81,7 +86,11 @@ public class SingleVideoUploadService extends Service {
 
     public void doUploadVideo() {
         try {
-            UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
+            String uploadMessage = "Uploading answer " + currentQuestion.getTitle();
+
+            UploadNotificationConfig notificationConfig = UploadNotifConfig.getSingleNotificationConfig(uploadMessage);
+            notificationConfig.setNotificationChannelId(UploadService.NAMESPACE);
+            notificationConfig.setClearOnActionForAllStatuses(true);
             notificationConfig.setRingToneEnabled(false);
 
             if (currentQuestion.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
@@ -92,7 +101,7 @@ public class SingleVideoUploadService extends Service {
 
             astrntSDK.markUploading(currentQuestion);
 
-            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+            final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
             String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "video/upload")
                     .addHeader("token", interviewApiDao.getToken())
                     .addParameter("interview_code", interviewApiDao.getInterviewCode())
@@ -105,7 +114,8 @@ public class SingleVideoUploadService extends Service {
                     .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
                     .setUtf8Charset()
                     .setNotificationConfig(notificationConfig)
-                    .setAutoDeleteFilesAfterSuccessfulUpload(false)
+                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
+                    .setMaxRetries(3)
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {
@@ -117,17 +127,27 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                            Hawk.delete("UploadId");
                             Timber.e("Video Upload Error : ");
                             if (exception != null) {
                                 Timber.e("Video Upload Error : %s", exception.getMessage());
                             }
                             if (serverResponse != null && serverResponse.getBody() != null) {
+                                String message;
                                 try {
                                     BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                    message = baseApiDao.getMessage();
                                     Timber.e(baseApiDao.getMessage());
                                 } catch (Exception e) {
                                     Timber.e("Video Upload Error : %s", exception.getMessage());
+                                    message = exception.getMessage();
                                 }
+
+                                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                        new LogDao("Single Video Upload Services (Error)",
+                                                "Error " + message
+                                        )
+                                );
                             }
                             astrntSDK.markAsCompressed(currentQuestion);
                             stopService();
@@ -135,17 +155,33 @@ public class SingleVideoUploadService extends Service {
 
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                            Hawk.delete("UploadId");
                             astrntSDK.markUploaded(currentQuestion);
+
+                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                    new LogDao("Single Video Upload Services (Complete)",
+                                            "Success uploaded for question id " + currentQuestion.getId()
+                                    )
+                            );
                             stopService();
                         }
 
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
+                            Hawk.delete("UploadId");
                             Timber.e("Video Upload Canceled");
                             astrntSDK.markAsCompressed(currentQuestion);
+
+                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                    new LogDao("Single Video Upload Services (Cancelled)",
+                                            "Cancelled"
+                                    )
+                            );
                             stopService();
                         }
                     }).startUpload();
+
+            Hawk.put("UploadId", uploadId);
 
             Timber.d("SingleVideoUploadService %s", uploadId);
         } catch (Exception exc) {

@@ -6,12 +6,14 @@ import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.core.MyObserver;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.type.ElapsedTime;
 import co.astrnt.qasdk.type.ElapsedTimeType;
 import co.astrnt.qasdk.type.InterviewType;
+import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
@@ -21,10 +23,9 @@ import timber.log.Timber;
  * Created by deni rohimat on 27/04/18.
  */
 public class QuestionRepository extends BaseRepository {
-    private final AstronautApi mAstronautApi;
 
     public QuestionRepository(AstronautApi astronautApi) {
-        mAstronautApi = astronautApi;
+        super(astronautApi);
     }
 
     public Observable<BaseApiDao> addQuestionAttempt(QuestionApiDao currentQuestion) {
@@ -40,6 +41,12 @@ public class QuestionRepository extends BaseRepository {
             SectionApiDao currentSection = astrntSDK.getCurrentSection();
             map.put("section_id", String.valueOf(currentSection.getId()));
         }
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Add Question Attempt"
+                )
+        );
 
         return mAstronautApi.getApiService().addAttempt(token, map);
     }
@@ -62,6 +69,13 @@ public class QuestionRepository extends BaseRepository {
             updateElapsedTime(ElapsedTimeType.TEST, currentQuestion.getId());
         }
 
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Add Question Attempt"
+                )
+        );
+
+        sendLog();
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 
@@ -93,6 +107,12 @@ public class QuestionRepository extends BaseRepository {
             }
         }
 
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Answer Question"
+                )
+        );
+
         return mAstronautApi.getApiService().answerQuestion(token, map);
     }
 
@@ -106,6 +126,13 @@ public class QuestionRepository extends BaseRepository {
 
         String token = interviewApiDao.getToken();
 
+        final String interviewCode = interviewApiDao.getInterviewCode();
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Update Elapsed Time " + type
+                )
+        );
+
         mAstronautApi.getApiService().updateElapsedTime(token, map)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
@@ -117,6 +144,12 @@ public class QuestionRepository extends BaseRepository {
                     @Override
                     public void onApiResultError(String message, String code) {
                         Timber.e(message);
+
+                        LogUtil.addNewLog(interviewCode,
+                                new LogDao("Hit API (Elapsed Time)",
+                                        "Error " + message
+                                )
+                        );
                     }
 
                     @Override

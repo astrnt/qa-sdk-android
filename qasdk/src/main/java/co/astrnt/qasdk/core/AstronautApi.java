@@ -31,6 +31,11 @@ public class AstronautApi {
 
     public AstronautApi(String baseUrl, boolean isDebugable) {
 
+        final String manufacturer = Build.MANUFACTURER;
+        final String model = Build.MODEL;
+        final String device = String.format("%s %s", manufacturer, model);
+        final String os = "Android " + Build.VERSION.RELEASE;
+
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
         httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS);
@@ -38,8 +43,8 @@ public class AstronautApi {
             @Override
             public Response intercept(@NonNull Chain chain) throws IOException {
                 Request request = chain.request().newBuilder()
-                        .addHeader("device", "android")
-                        .addHeader("os", Build.VERSION.RELEASE)
+                        .addHeader("device", device)
+                        .addHeader("os", os)
                         .addHeader("browser", "")
                         .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
                         .build();

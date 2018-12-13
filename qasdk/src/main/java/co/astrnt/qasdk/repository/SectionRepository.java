@@ -7,10 +7,12 @@ import co.astrnt.qasdk.core.MyObserver;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.dao.SummarySectionApiDao;
 import co.astrnt.qasdk.type.ElapsedTime;
 import co.astrnt.qasdk.type.ElapsedTimeType;
+import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -19,10 +21,9 @@ import timber.log.Timber;
  * Created by deni rohimat on 25/05/18.
  */
 public class SectionRepository extends BaseRepository {
-    private final AstronautApi mAstronautApi;
 
     public SectionRepository(AstronautApi astronautApi) {
-        mAstronautApi = astronautApi;
+        super(astronautApi);
     }
 
     public Observable<InterviewStartApiDao> startSection(SectionApiDao sectionApiDao) {
@@ -35,6 +36,12 @@ public class SectionRepository extends BaseRepository {
         String token = interviewApiDao.getToken();
 
         updateElapsedTime(ElapsedTimeType.PREPARATION, sectionApiDao.getId());
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Start Section"
+                )
+        );
 
         return mAstronautApi.getApiService().startSection(token, map);
     }
@@ -50,6 +57,13 @@ public class SectionRepository extends BaseRepository {
 
         updateElapsedTime(ElapsedTimeType.SECTION, sectionApiDao.getId());
 
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Finish Section"
+                )
+        );
+
+        sendLog();
         return mAstronautApi.getApiService().stopSection(token, map);
     }
 
@@ -59,7 +73,6 @@ public class SectionRepository extends BaseRepository {
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         String token = interviewApiDao.getToken();
-
 
         return mAstronautApi.getApiService().summarySection(token, map);
     }
@@ -74,6 +87,13 @@ public class SectionRepository extends BaseRepository {
 
         String token = interviewApiDao.getToken();
 
+        final String interviewCode = interviewApiDao.getInterviewCode();
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Update Elapsed Time Section " + type
+                )
+        );
+
         mAstronautApi.getApiService().updateElapsedTime(token, map)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
@@ -85,6 +105,12 @@ public class SectionRepository extends BaseRepository {
                     @Override
                     public void onApiResultError(String message, String code) {
                         Timber.e(message);
+
+                        LogUtil.addNewLog(interviewCode,
+                                new LogDao("Hit API (Elapsed Time Section)",
+                                        "Error " + message
+                                )
+                        );
                     }
 
                     @Override

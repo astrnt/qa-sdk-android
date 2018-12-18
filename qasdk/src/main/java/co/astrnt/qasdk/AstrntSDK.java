@@ -601,6 +601,38 @@ public class AstrntSDK {
         }
     }
 
+    public List<QuestionApiDao> getPending(@UploadStatusState String uploadStatusType) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                SectionApiDao currentSection = getCurrentSection();
+
+                for (QuestionApiDao item : currentSection.getSectionQuestions()) {
+                    if (item.getUploadStatus().equals(uploadStatusType)) {
+                        pendingUpload.add(item);
+                    }
+                }
+
+                return pendingUpload;
+            } else {
+
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                for (QuestionApiDao item : interviewApiDao.getQuestions()) {
+                    if (item.getUploadStatus().equals(uploadStatusType)) {
+                        pendingUpload.add(item);
+                    }
+                }
+
+                return pendingUpload;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public int getTotalSection() {
         if (isPractice()) {
             return 1;

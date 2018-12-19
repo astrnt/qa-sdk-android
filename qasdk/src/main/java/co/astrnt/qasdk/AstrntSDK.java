@@ -794,10 +794,12 @@ public class AstrntSDK {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         assert interviewApiDao != null;
         if (isSectionInterview()) {
-            SectionApiDao currentSection = getCurrentSection();
-            for (QuestionApiDao question : currentSection.getSectionQuestions()) {
-                if (question.getId() == questionId) {
-                    return question;
+
+            for (SectionApiDao section : interviewApiDao.getSections()) {
+                for (QuestionApiDao item : section.getSectionQuestions()) {
+                    if (item.getId() == questionId) {
+                        return item;
+                    }
                 }
             }
         } else {

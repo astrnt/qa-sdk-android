@@ -21,22 +21,22 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
             case CLOSE_INTERVIEW:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
                     currentInterview = astrntSDK.updateQuestionData(currentInterview, resultApiDao.getInterview());
-                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
+                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true);
                 } else {
-                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
+                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), true);
                 }
                 onContinueInterview();
                 break;
             case CLOSE_TEST:
-                astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
+                astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), true);
                 onContinueInterview();
                 break;
             case CLOSE_SECTION:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
                     currentInterview = astrntSDK.updateQuestionData(currentInterview, resultApiDao.getInterview());
-                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview);
+                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true);
                 } else {
-                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview());
+                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), true);
                 }
                 onContinueInterview();
                 break;

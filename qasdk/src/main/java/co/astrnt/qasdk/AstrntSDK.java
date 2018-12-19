@@ -12,6 +12,8 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.core.AstronautApi;
@@ -26,6 +28,7 @@ import co.astrnt.qasdk.dao.QuestionInfoMcqApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
+import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
@@ -94,7 +97,7 @@ public class AstrntSDK {
         return mApiUrl;
     }
 
-    public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao) {
+    public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             if (resultApiDao.getInformation() != null) {
@@ -113,7 +116,7 @@ public class AstrntSDK {
                 updateSectionOrQuestionInfo(resultApiDao.getInterview());
             }
             InterviewApiDao currentInterview = getCurrentInterview();
-            if (resultApiDao.getInformation() != null && currentInterview != null) {
+            if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
         }
@@ -371,23 +374,19 @@ public class AstrntSDK {
 
     private void saveSectionInfo() {
         SectionInfo sectionInfo = new SectionInfo(getSectionIndex());
-        if (sectionInfo != null) {
-            if (!realm.isInTransaction()) {
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(sectionInfo);
-                realm.commitTransaction();
-            }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(sectionInfo);
+            realm.commitTransaction();
         }
     }
 
     private void updateSectionInfo(int sectionIndex) {
         SectionInfo questionInfo = new SectionInfo(sectionIndex);
-        if (questionInfo != null) {
-            if (!realm.isInTransaction()) {
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(questionInfo);
-                realm.commitTransaction();
-            }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
         }
     }
 
@@ -598,6 +597,38 @@ public class AstrntSDK {
             }
         } else {
             return 0;
+        }
+    }
+
+    public List<QuestionApiDao> getPending(@UploadStatusState String uploadStatusType) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                SectionApiDao currentSection = getCurrentSection();
+
+                for (QuestionApiDao item : currentSection.getSectionQuestions()) {
+                    if (item.getUploadStatus().equals(uploadStatusType)) {
+                        pendingUpload.add(item);
+                    }
+                }
+
+                return pendingUpload;
+            } else {
+
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                for (QuestionApiDao item : interviewApiDao.getQuestions()) {
+                    if (item.getUploadStatus().equals(uploadStatusType)) {
+                        pendingUpload.add(item);
+                    }
+                }
+
+                return pendingUpload;
+            }
+        } else {
+            return null;
         }
     }
 

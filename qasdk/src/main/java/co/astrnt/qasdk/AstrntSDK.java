@@ -606,11 +606,13 @@ public class AstrntSDK {
             if (isSectionInterview()) {
                 List<QuestionApiDao> pendingUpload = new ArrayList<>();
 
-                SectionApiDao currentSection = getCurrentSection();
-
-                for (QuestionApiDao item : currentSection.getSectionQuestions()) {
-                    if (item.getUploadStatus().equals(uploadStatusType)) {
-                        pendingUpload.add(item);
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+                        for (QuestionApiDao item : section.getSectionQuestions()) {
+                            if (item.getUploadStatus().equals(uploadStatusType)) {
+                                pendingUpload.add(item);
+                            }
+                        }
                     }
                 }
 
@@ -619,9 +621,11 @@ public class AstrntSDK {
 
                 List<QuestionApiDao> pendingUpload = new ArrayList<>();
 
-                for (QuestionApiDao item : interviewApiDao.getQuestions()) {
-                    if (item.getUploadStatus().equals(uploadStatusType)) {
-                        pendingUpload.add(item);
+                if (interviewApiDao.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
+                    for (QuestionApiDao item : interviewApiDao.getQuestions()) {
+                        if (item.getUploadStatus().equals(uploadStatusType)) {
+                            pendingUpload.add(item);
+                        }
                     }
                 }
 

@@ -70,6 +70,7 @@ public class InterviewRepository extends BaseRepository {
                 )
         );
 
+        astrntSDK.setContinueInterview(true);
         return mAstronautApi.getApiService().startInterview(token, map);
     }
 

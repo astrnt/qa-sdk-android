@@ -235,7 +235,8 @@ public class AstrntSDK {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        if (i == informationApiDao.getSectionIndex()) {
+                        if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
+
                             section.setPrepTimeLeft(informationApiDao.getPreparationTime());
                             section.setPreparationTime(informationApiDao.getPreparationTime());
                             section.setTimeLeft(informationApiDao.getSectionDurationLeft());

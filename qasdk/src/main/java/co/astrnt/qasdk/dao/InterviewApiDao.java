@@ -136,21 +136,18 @@ public class InterviewApiDao extends RealmObject {
         return getQuestions().size();
     }
 
-    public int getTotalAttempt() {
-        int totalAttempt = 0;
-
-        for (QuestionApiDao item : getQuestions()) {
-            totalAttempt += item.getTakesCount();
-        }
-        return totalAttempt;
-    }
-
     public int getTotalUpload() {
         return getTotalQuestion() * 5;
     }
 
+    // in milis
     public int getEstimatedTime() {
-        return getTotalAttempt() * 3;
+        int totalTime = 0;
+
+        for (QuestionApiDao item : getQuestions()) {
+            totalTime += item.getMaxTime() + 30;
+        }
+        return totalTime;
     }
 
     public String getTemp_code() {

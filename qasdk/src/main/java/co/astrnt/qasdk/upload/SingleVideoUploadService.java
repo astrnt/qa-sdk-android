@@ -3,21 +3,18 @@ package co.astrnt.qasdk.upload;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
 import com.google.gson.Gson;
 import com.orhanobut.hawk.Hawk;
 
-import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
-import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,6 +24,7 @@ import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.utils.FileUploadHelper;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.UploadNotifConfig;
 import io.reactivex.annotations.Nullable;
@@ -102,20 +100,10 @@ public class SingleVideoUploadService extends Service {
             astrntSDK.markUploading(currentQuestion);
 
             final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-            String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "v2/video/upload")
-                    .addHeader("token", interviewApiDao.getToken())
-                    .addParameter("interview_code", interviewApiDao.getInterviewCode())
-                    .addParameter("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()))
-                    .addParameter("company_id", String.valueOf(interviewApiDao.getCompany().getId()))
-                    .addParameter("question_id", String.valueOf(questionId))
-                    .addParameter("job_id", String.valueOf(interviewApiDao.getJob().getId()))
-                    .addParameter("device", "android")
-                    .addParameter("device_type", Build.MODEL)
-                    .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
-                    .setUtf8Charset()
+
+            String apiUrl = astrntSDK.getApiUrl() + "v2/video/upload";
+            String uploadId = FileUploadHelper.uploadVideo(context, interviewApiDao, currentQuestion, apiUrl)
                     .setNotificationConfig(notificationConfig)
-                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                    .setMaxRetries(3)
                     .setDelegate(new UploadStatusDelegate() {
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {

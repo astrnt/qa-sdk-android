@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -98,13 +99,12 @@ public class VideoCompressService extends Service {
         if (currentQuestion != null) {
             mNotificationId = (int) currentQuestion.getId();
 
-            File directory = new File(context.getFilesDir(), "video");
+            File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), "video");
             if (!directory.exists()) {
                 directory.mkdir();
             }
-            outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
+            outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video_compressed.mp4");
             outputPath = outputFile.getAbsolutePath();
-
 
             // Make a channel if necessary
             final String channelId = "Astronaut";
@@ -146,7 +146,7 @@ public class VideoCompressService extends Service {
                             .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
                             .setContentTitle("Video Compress")
                             .setContentText("Compress in Progress")
-                            .setPriority(NotificationCompat.PRIORITY_MAX);
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
                     // Show the notification
                     NotificationManagerCompat.from(context).notify(mNotificationId, mBuilder.build());

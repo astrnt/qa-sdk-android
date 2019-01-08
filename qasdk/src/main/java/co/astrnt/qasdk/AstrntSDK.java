@@ -573,6 +573,34 @@ public class AstrntSDK {
         }
     }
 
+    public List<QuestionApiDao> getAllVideoQuestion() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+                        pendingUpload.addAll(section.getSectionQuestions());
+                    }
+                }
+
+                return pendingUpload;
+            } else {
+
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                if (interviewApiDao.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
+                    pendingUpload.addAll(interviewApiDao.getQuestions());
+                }
+
+                return pendingUpload;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public QuestionApiDao searchQuestionById(long id) {
         return realm.where(QuestionApiDao.class).equalTo("id", id).findFirst();
     }

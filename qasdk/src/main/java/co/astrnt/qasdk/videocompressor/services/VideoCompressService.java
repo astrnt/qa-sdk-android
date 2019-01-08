@@ -25,7 +25,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
-import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.upload.aws.AwsUploadService;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
@@ -103,7 +103,7 @@ public class VideoCompressService extends Service {
             if (!directory.exists()) {
                 directory.mkdir();
             }
-            outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video_compressed.mp4");
+            outputFile = new File(directory, currentQuestion.getId() + ".mp4");
             outputPath = outputFile.getAbsolutePath();
 
             // Make a channel if necessary
@@ -113,7 +113,7 @@ public class VideoCompressService extends Service {
                 // the NotificationChannel class is new and not in the support library
                 CharSequence name = "Video Compress";
                 String description = "Astronaut Video Compress";
-                int importance = NotificationManager.IMPORTANCE_HIGH;
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
                 NotificationChannel channel = new NotificationChannel(channelId, name, importance);
                 channel.setDescription(description);
 
@@ -187,13 +187,13 @@ public class VideoCompressService extends Service {
                     astrntSDK.updateVideoPath(currentQuestion, outputPath);
                     if (astrntSDK.isSectionInterview()) {
                         if (astrntSDK.isNotLastSection()) {
-                            SingleVideoUploadService.start(context, questionId);
+                            AwsUploadService.start(context, questionId);
                         } else {
                             EventBus.getDefault().post(new CompressEvent());
                         }
                     } else {
                         if (astrntSDK.isNotLastQuestion()) {
-                            SingleVideoUploadService.start(context, questionId);
+                            AwsUploadService.start(context, questionId);
                         } else {
                             EventBus.getDefault().post(new CompressEvent());
                         }

@@ -1,0 +1,20 @@
+{
+  "Version": "1.0",
+  "IdentityManager": {
+    "Default": {}
+  },
+  "CredentialsProvider": {
+    "CognitoIdentity": {
+      "Default": {
+        "PoolId": "ap-northeast-1:92fc888f-9510-4a69-82d0-579c418e9904",
+        "Region": "ap-northeast-1"
+      }
+    }
+  },
+  "S3TransferUtility": {
+    "Default": {
+      "Bucket": "astrnt-beta-video-invitation-in-ap-n",
+      "Region": "ap-northeast-1"
+    }
+  }
+}

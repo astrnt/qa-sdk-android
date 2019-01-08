@@ -235,7 +235,8 @@ public class AstrntSDK {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        if (i == informationApiDao.getSectionIndex()) {
+                        if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
+
                             section.setPrepTimeLeft(informationApiDao.getPreparationTime());
                             section.setPreparationTime(informationApiDao.getPreparationTime());
                             section.setTimeLeft(informationApiDao.getSectionDurationLeft());
@@ -1153,14 +1154,8 @@ public class AstrntSDK {
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
         if (!realm.isInTransaction()) {
 
-            RealmList<MultipleAnswerApiDao> selectedAnswer = questionApiDao.getSelectedAnswer();
+            RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
             realm.beginTransaction();
-
-            if (answer.isSelected()) {
-                selectedAnswer.remove(answer);
-            } else {
-                selectedAnswer.add(answer);
-            }
 
             RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
             for (MultipleAnswerApiDao item : multipleAnswer) {
@@ -1177,6 +1172,12 @@ public class AstrntSDK {
                 }
             }
 
+            for (MultipleAnswerApiDao item : multipleAnswer) {
+                if (item.isSelected()) {
+                    selectedAnswer.add(item);
+                }
+            }
+
             questionApiDao.setSelectedAnswer(selectedAnswer);
             questionApiDao.setMultiple_answers(multipleAnswer);
             if (selectedAnswer.isEmpty()) {
@@ -1186,12 +1187,14 @@ public class AstrntSDK {
             }
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
+        } else {
+            addSelectedAnswer(questionApiDao, answer);
         }
     }
 
     private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, int answerId) {
 
-        RealmList<MultipleAnswerApiDao> selectedAnswer = questionApiDao.getSelectedAnswer();
+        RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
         RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
         for (MultipleAnswerApiDao item : multipleAnswer) {
@@ -1205,6 +1208,12 @@ public class AstrntSDK {
                 } else {
                     item.setSelected(false);
                 }
+            }
+        }
+
+        for (MultipleAnswerApiDao item : multipleAnswer) {
+            if (item.isSelected()) {
+                selectedAnswer.add(item);
             }
         }
 

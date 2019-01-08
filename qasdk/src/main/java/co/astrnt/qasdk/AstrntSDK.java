@@ -1299,7 +1299,7 @@ public class AstrntSDK {
     }
 
     public boolean isFinishInterview() {
-        return Hawk.get("FinishInterview", false);
+        return Hawk.get("FinishInterview", true);
     }
 
     public void setFinishInterview(boolean isFinish) {

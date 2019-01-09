@@ -196,7 +196,7 @@ public class AwsUploadService extends Service {
 
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
                         .setContentText("Upload Completed")
-                        .setProgress(0, 0, false);
+                        .setProgress(100, 100, false);
 
                 stopSelf();
             } else if (state == TransferState.CANCELED) {

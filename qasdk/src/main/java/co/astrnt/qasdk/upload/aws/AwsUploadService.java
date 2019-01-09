@@ -22,8 +22,10 @@ import java.util.List;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.UploadEvent;
+import co.astrnt.qasdk.utils.LogUtil;
 import timber.log.Timber;
 
 public class AwsUploadService extends Service {
@@ -33,6 +35,7 @@ public class AwsUploadService extends Service {
     private TransferUtility transferUtility;
     private AstrntSDK astrntSDK;
     private QuestionApiDao currentQuestion;
+    private InterviewApiDao interviewApiDao;
 
     private Context context;
 
@@ -63,6 +66,7 @@ public class AwsUploadService extends Service {
 
         final long questionId = intent.getLongExtra(INTENT_KEY_QUESTION, 0);
 
+        interviewApiDao = astrntSDK.getCurrentInterview();
         currentQuestion = astrntSDK.searchQuestionById(questionId);
         final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
@@ -164,6 +168,12 @@ public class AwsUploadService extends Service {
 
             mNotifyManager.notify(mNotificationId, mBuilder.build());
 
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Background Upload (Error)",
+                            "Error upload for question id " + currentQuestion.getId()
+                    )
+            );
+
             if (notifyUploadActivityNeeded) {
                 EventBus.getDefault().post(new UploadEvent());
                 notifyUploadActivityNeeded = false;
@@ -197,6 +207,12 @@ public class AwsUploadService extends Service {
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
                         .setContentText("Upload Completed")
                         .setProgress(100, 100, false);
+
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload (Complete)",
+                                "Success uploaded for question id " + currentQuestion.getId()
+                        )
+                );
 
                 stopSelf();
             } else if (state == TransferState.CANCELED) {

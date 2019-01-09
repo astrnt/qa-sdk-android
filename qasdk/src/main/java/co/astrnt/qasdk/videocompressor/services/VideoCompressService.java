@@ -238,7 +238,7 @@ public class VideoCompressService extends Service {
         mBuilder = new NotificationCompat.Builder(context, channelId)
                 .setOngoing(true)
                 .setAutoCancel(false)
-                .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
+                .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
                 .setContentTitle("Astronaut")
                 .setContentText("Compress in Progress")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);

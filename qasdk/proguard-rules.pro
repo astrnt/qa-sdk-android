@@ -22,9 +22,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Upload Service
--keep class net.gotev.uploadservice.** { *; }
-
 # Realm
 -keep class io.realm.annotations.RealmModule
 -keep @io.realm.annotations.RealmModule class *

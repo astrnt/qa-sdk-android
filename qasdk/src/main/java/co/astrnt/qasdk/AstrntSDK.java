@@ -47,12 +47,14 @@ public class AstrntSDK {
 
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
+    private static String mAwsBucket;
     private static boolean isPractice = false;
     private Realm realm;
     private boolean isDebuggable;
 
-    public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
+    public AstrntSDK(Context context, String apiUrl, String awsBucket, boolean debug, String appId) {
         mApiUrl = apiUrl;
+        mAwsBucket = awsBucket;
         isDebuggable = debug;
 
         if (debug) {
@@ -97,6 +99,10 @@ public class AstrntSDK {
 
     public String getApiUrl() {
         return mApiUrl;
+    }
+
+    public String getAwsBucket() {
+        return mAwsBucket;
     }
 
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {

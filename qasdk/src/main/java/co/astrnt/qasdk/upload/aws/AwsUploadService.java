@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -21,9 +20,11 @@ import java.io.File;
 import java.util.List;
 
 import co.astrnt.qasdk.AstrntSDK;
+import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.UploadEvent;
+import timber.log.Timber;
 
 public class AwsUploadService extends Service {
 
@@ -73,7 +74,7 @@ public class AwsUploadService extends Service {
 
             TransferObserver transferObserver;
 
-            String urlBucket = String.format("astrnt-beta-video-in-ap-n/astronaut/jobs/videos/company/%d/%d/%d",
+            String urlBucket = String.format(astrntSDK.getAwsBucket(),
                     interviewApiDao.getCompany().getId(),
                     interviewApiDao.getJob().getId(),
                     interviewApiDao.getCandidate().getId());
@@ -139,10 +140,12 @@ public class AwsUploadService extends Service {
         mBuilder = new NotificationCompat.Builder(context, channelId)
                 .setOngoing(true)
                 .setAutoCancel(false)
-                .setSmallIcon(co.astrnt.qasdk.R.drawable.ic_autorenew_white_24dp)
-                .setContentTitle("Video Uploading")
+                .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
+                .setContentTitle("Astronaut")
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        mNotifyManager.notify(mNotificationId, mBuilder.build());
     }
 
     private class UploadListener implements TransferListener {
@@ -152,11 +155,14 @@ public class AwsUploadService extends Service {
         // Simply updates the list when notified.
         @Override
         public void onError(int id, Exception e) {
-            Log.e(TAG, "onError: " + id, e);
+            Timber.e("AwsUploadService onError: %d% s", id, e);
 
-            mBuilder.setContentText(e.getMessage());
-            mBuilder.setOngoing(false);
-            mBuilder.setAutoCancel(true);
+            mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                    .setContentText(e.getMessage())
+                    .setOngoing(false)
+                    .setAutoCancel(true);
+
+            mNotifyManager.notify(mNotificationId, mBuilder.build());
 
             if (notifyUploadActivityNeeded) {
                 EventBus.getDefault().post(new UploadEvent());
@@ -166,7 +172,7 @@ public class AwsUploadService extends Service {
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            Log.d(TAG, String.format("onProgressChanged: %d, total: %d, current: %d",
+            Timber.d("AwsUploadService %s", String.format("onProgressChanged: %d, total: %d, current: %d",
                     id, bytesTotal, bytesCurrent));
 
             double percentage = (bytesCurrent * 100) / bytesTotal;
@@ -183,17 +189,26 @@ public class AwsUploadService extends Service {
 
         @Override
         public void onStateChanged(int id, TransferState state) {
-            Log.d(TAG, "onStateChanged: " + id + ", " + state);
+            Timber.d("AwsUploadService onStateChanged: %d, %s", id, state);
 
             if (state == TransferState.COMPLETED) {
-                mBuilder.setContentText("Upload Complete");
+                astrntSDK.markUploaded(currentQuestion);
+
+                mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
+                        .setContentText("Upload Completed")
+                        .setProgress(0, 0, false);
+
                 stopSelf();
             } else if (state == TransferState.CANCELED) {
+                astrntSDK.markAsCompressed(currentQuestion);
+
                 mBuilder.setContentText("Upload Canceled");
             }
 
-            mBuilder.setOngoing(false);
-            mBuilder.setAutoCancel(true);
+            mBuilder.setOngoing(false)
+                    .setAutoCancel(true);
+
+            mNotifyManager.notify(mNotificationId, mBuilder.build());
 
             if (notifyUploadActivityNeeded) {
                 EventBus.getDefault().post(new UploadEvent());

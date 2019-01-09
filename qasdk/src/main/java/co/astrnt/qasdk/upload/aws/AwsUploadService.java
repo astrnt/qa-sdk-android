@@ -155,7 +155,7 @@ public class AwsUploadService extends Service {
         // Simply updates the list when notified.
         @Override
         public void onError(int id, Exception e) {
-            Timber.e("AwsUploadService onError: %d% s", id, e);
+            Timber.e("AwsUploadService onError: %d% s", id, e.getMessage());
 
             mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
                     .setContentText(e.getMessage())
@@ -172,8 +172,8 @@ public class AwsUploadService extends Service {
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            Timber.d("AwsUploadService %s", String.format("onProgressChanged: %d, total: %d, current: %d",
-                    id, bytesTotal, bytesCurrent));
+            Timber.d("AwsUploadService onProgressChanged: %d, total: %d, current: %d",
+                    id, bytesTotal, bytesCurrent);
 
             double percentage = (bytesCurrent * 100) / bytesTotal;
 

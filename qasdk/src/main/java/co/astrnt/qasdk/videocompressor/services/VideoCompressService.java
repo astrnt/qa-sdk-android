@@ -150,18 +150,11 @@ public class VideoCompressService extends Service {
 
                     inputFile.delete();
                     astrntSDK.updateVideoPath(currentQuestion, outputPath);
-                    if (astrntSDK.isSectionInterview()) {
-                        if (astrntSDK.isNotLastSection()) {
-                            AwsUploadService.start(context, questionId);
-                        } else {
-                            EventBus.getDefault().post(new CompressEvent());
-                        }
+
+                    if (astrntSDK.isShowUpload()) {
+                        EventBus.getDefault().post(new CompressEvent());
                     } else {
-                        if (astrntSDK.isNotLastQuestion()) {
-                            AwsUploadService.start(context, questionId);
-                        } else {
-                            EventBus.getDefault().post(new CompressEvent());
-                        }
+                        AwsUploadService.start(context, questionId);
                     }
 
                     mBuilder.setContentText("Compress completed")

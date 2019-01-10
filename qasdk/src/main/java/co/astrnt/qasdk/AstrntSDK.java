@@ -1282,4 +1282,12 @@ public class AstrntSDK {
         Hawk.put("FinishInterview", isFinish);
     }
 
+    public boolean isShowUpload() {
+        return Hawk.get("ShowUpload", false);
+    }
+
+    public void setShowUpload(boolean showUpload) {
+        Hawk.put("ShowUpload", showUpload);
+    }
+
 }

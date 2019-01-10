@@ -215,10 +215,29 @@ public class AwsUploadService extends Service {
                 );
 
                 stopSelf();
+            } else if (state == TransferState.RESUMED_WAITING) {
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload (Resumed)",
+                                "Upload Resumed for question id " + currentQuestion.getId()
+                        )
+                );
+            } else if (state == TransferState.PAUSED) {
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload (Paused)",
+                                "Upload paused for question id " + currentQuestion.getId()
+                        )
+                );
             } else if (state == TransferState.CANCELED) {
                 astrntSDK.markAsCompressed(currentQuestion);
 
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload (Canceled)",
+                                "Upload canceled for question id " + currentQuestion.getId()
+                        )
+                );
+
                 mBuilder.setContentText("Upload Canceled");
+                stopSelf();
             }
 
             mBuilder.setOngoing(false)

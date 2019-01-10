@@ -1093,7 +1093,7 @@ public class AstrntSDK {
     }
 
     public void clearVideoFile(Context context) {
-        File filesDir = context.getFilesDir();
+        File filesDir = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
 
         File[] files = filesDir.listFiles();
 

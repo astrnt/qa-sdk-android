@@ -244,7 +244,22 @@ public class AwsUploadService extends Service {
                         )
                 );
 
-                mBuilder.setContentText("Upload Canceled");
+                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setContentText("Upload Canceled");
+                stopSelf();
+            } else if (state == TransferState.PENDING_NETWORK_DISCONNECT
+                    || state == TransferState.WAITING_FOR_NETWORK) {
+
+                astrntSDK.markAsCompressed(currentQuestion);
+
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload (Pending)",
+                                "Upload pending for question id " + currentQuestion.getId()
+                        )
+                );
+
+                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setContentText("Upload pending, not connected to internet");
                 stopSelf();
             }
 

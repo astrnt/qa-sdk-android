@@ -31,7 +31,6 @@ import timber.log.Timber;
 public class AwsUploadService extends Service {
 
     public static final String INTENT_KEY_QUESTION = "questionId";
-    private final static String TAG = AwsUploadService.class.getSimpleName();
     private TransferUtility transferUtility;
     private AstrntSDK astrntSDK;
     private QuestionApiDao currentQuestion;
@@ -42,6 +41,9 @@ public class AwsUploadService extends Service {
     private NotificationManager mNotifyManager;
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
+
+    private int counter = 0;
+    private int totalQuestion;
 
     public static void start(Context context, long questionId) {
         Intent intent = new Intent(context, AwsUploadService.class);
@@ -86,8 +88,8 @@ public class AwsUploadService extends Service {
             transferObserver = transferUtility.upload(urlBucket, key, file);
             transferObserver.setTransferListener(new UploadListener());
 
-            int counter = 0;
-            int totalQuestion = allVideoQuestion.size();
+            counter = 0;
+            totalQuestion = allVideoQuestion.size();
 
             for (int i = 0; i < allVideoQuestion.size(); i++) {
                 QuestionApiDao item = allVideoQuestion.get(i);
@@ -204,9 +206,15 @@ public class AwsUploadService extends Service {
             if (state == TransferState.COMPLETED) {
                 astrntSDK.markUploaded(currentQuestion);
 
-                mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
-                        .setContentText("Upload Completed")
-                        .setProgress(100, 100, false);
+                if (counter == totalQuestion) {
+                    mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
+                            .setContentText(counter + " of files uploaded, interview complete!")
+                            .setProgress(100, 100, false);
+                } else {
+                    mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
+                            .setContentText("Question " + (counter + 1) + " upload Completed")
+                            .setProgress(100, 100, false);
+                }
 
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                         new LogDao("Background Upload (Complete)",

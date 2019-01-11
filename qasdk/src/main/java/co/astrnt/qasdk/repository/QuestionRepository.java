@@ -71,11 +71,10 @@ public class QuestionRepository extends BaseRepository {
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Add Question Attempt"
+                        "Finish Question"
                 )
         );
 
-        sendLog();
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 

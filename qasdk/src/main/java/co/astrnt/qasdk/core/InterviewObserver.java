@@ -20,7 +20,7 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
             onApiResultError("Code not found or interview already finished", "error");
             return;
         }
-        astrntSDK.saveInterviewResult(resultApiDao, data);
+        astrntSDK.saveInterviewResult(resultApiDao, data, false);
         if (resultApiDao.getInterview().getType().contains(OPEN)) {
             onNeedToRegister(data);
         } else {

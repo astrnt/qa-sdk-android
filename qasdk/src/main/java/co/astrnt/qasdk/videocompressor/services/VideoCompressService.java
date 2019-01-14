@@ -1,9 +1,12 @@
 package co.astrnt.qasdk.videocompressor.services;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -21,7 +24,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
-import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.upload.aws.AwsUploadService;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
@@ -93,14 +96,15 @@ public class VideoCompressService extends Service {
     public void doCompress() {
 
         if (currentQuestion != null) {
-            mNotificationId = (int) currentQuestion.getId();
 
-            File directory = new File(context.getFilesDir(), "video");
+            File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), "video");
             if (!directory.exists()) {
                 directory.mkdir();
             }
-            outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
+            outputFile = new File(directory, currentQuestion.getId() + ".mp4");
             outputPath = outputFile.getAbsolutePath();
+
+            createNotification();
 
             VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
                 @Override
@@ -113,12 +117,6 @@ public class VideoCompressService extends Service {
                                     "Available storage " + astrntSDK.getAvailableStorage() + "Mb"
                             )
                     );
-
-                    mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
-                    mBuilder.setContentTitle("Video Compress")
-                            .setContentText("Compress in progress")
-                            .setSmallIcon(R.drawable.ic_autorenew_white_24dp);
 
                     Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
                 }
@@ -152,22 +150,18 @@ public class VideoCompressService extends Service {
 
                     inputFile.delete();
                     astrntSDK.updateVideoPath(currentQuestion, outputPath);
-                    if (astrntSDK.isSectionInterview()) {
-                        if (astrntSDK.isNotLastSection()) {
-                            SingleVideoUploadService.start(context, questionId);
-                        } else {
-                            EventBus.getDefault().post(new CompressEvent());
-                        }
+
+                    if (astrntSDK.isShowUpload()) {
+                        EventBus.getDefault().post(new CompressEvent());
                     } else {
-                        if (astrntSDK.isNotLastQuestion()) {
-                            SingleVideoUploadService.start(context, questionId);
-                        } else {
-                            EventBus.getDefault().post(new CompressEvent());
-                        }
+                        AwsUploadService.start(context, questionId);
                     }
 
                     mBuilder.setContentText("Compress completed")
-                            .setProgress(0, 0, false);
+                            .setProgress(0, 0, false)
+                            .setOngoing(false)
+                            .setAutoCancel(true);
+
                     mNotifyManager.notify(mNotificationId, mBuilder.build());
                     mNotifyManager.cancel(mNotificationId);
                     stopService();
@@ -177,7 +171,11 @@ public class VideoCompressService extends Service {
                 public void onFail() {
                     String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
-                    mBuilder.setContentText(errorMsg).setProgress(0, 0, false);
+                    mBuilder.setContentText(errorMsg)
+                            .setProgress(0, 0, false)
+                            .setOngoing(false)
+                            .setAutoCancel(true);
+
                     mNotifyManager.notify(mNotificationId, mBuilder.build());
 
                     Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
@@ -185,7 +183,7 @@ public class VideoCompressService extends Service {
 
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
                             new LogDao("Video Compress (Fail)",
-                                    "Fail available storage " + astrntSDK.getAvailableStorage() + "Mb"
+                                    errorMsg
                             )
                     );
 
@@ -203,6 +201,42 @@ public class VideoCompressService extends Service {
         } else {
             stopService();
         }
+    }
+
+    private void createNotification() {
+        mNotificationId = (int) currentQuestion.getId();
+
+        // Make a channel if necessary
+        final String channelId = "Astronaut";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            CharSequence name = "Video Compress";
+            String description = "Astronaut Video Compress";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+
+            // Add the channel
+            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (mNotifyManager != null) {
+                mNotifyManager.createNotificationChannel(channel);
+            }
+        } else {
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        // Create the notification
+        mBuilder = new NotificationCompat.Builder(context, channelId)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
+                .setContentTitle("Astronaut")
+                .setContentText("Compress in Progress")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        mNotifyManager.notify(mNotificationId, mBuilder.build());
     }
 
     public void stopService() {

@@ -14,6 +14,8 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.core.AstronautApi;
@@ -28,6 +30,7 @@ import co.astrnt.qasdk.dao.QuestionInfoMcqApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
+import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
@@ -232,7 +235,8 @@ public class AstrntSDK {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        if (i == informationApiDao.getSectionIndex()) {
+                        if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
+
                             section.setPrepTimeLeft(informationApiDao.getPreparationTime());
                             section.setPreparationTime(informationApiDao.getPreparationTime());
                             section.setTimeLeft(informationApiDao.getSectionDurationLeft());
@@ -596,6 +600,42 @@ public class AstrntSDK {
             }
         } else {
             return 0;
+        }
+    }
+
+    public List<QuestionApiDao> getPending(@UploadStatusState String uploadStatusType) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+                        for (QuestionApiDao item : section.getSectionQuestions()) {
+                            if (item.getUploadStatus().equals(uploadStatusType)) {
+                                pendingUpload.add(item);
+                            }
+                        }
+                    }
+                }
+
+                return pendingUpload;
+            } else {
+
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                if (interviewApiDao.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
+                    for (QuestionApiDao item : interviewApiDao.getQuestions()) {
+                        if (item.getUploadStatus().equals(uploadStatusType)) {
+                            pendingUpload.add(item);
+                        }
+                    }
+                }
+
+                return pendingUpload;
+            }
+        } else {
+            return null;
         }
     }
 

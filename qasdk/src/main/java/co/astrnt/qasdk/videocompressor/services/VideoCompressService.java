@@ -1,12 +1,15 @@
 package co.astrnt.qasdk.videocompressor.services;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -102,6 +105,28 @@ public class VideoCompressService extends Service {
             outputFile = new File(directory, currentInterview.getInterviewCode() + "_" + currentQuestion.getId() + "_video.mp4");
             outputPath = outputFile.getAbsolutePath();
 
+
+            // Make a channel if necessary
+            final String channelId = "Astronaut";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Create the NotificationChannel, but only on API 26+ because
+                // the NotificationChannel class is new and not in the support library
+                CharSequence name = "Video Compress";
+                String description = "Astronaut Video Compress";
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+                channel.setDescription(description);
+
+                // Add the channel
+                mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (mNotifyManager != null) {
+                    mNotifyManager.createNotificationChannel(channel);
+                }
+            } else {
+                mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            }
+
             VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
                 @Override
                 public void onStart() {
@@ -114,17 +139,25 @@ public class VideoCompressService extends Service {
                             )
                     );
 
-                    mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    mBuilder = new NotificationCompat.Builder(context, String.valueOf(currentQuestion.getId()));
-                    mBuilder.setContentTitle("Video Compress")
-                            .setContentText("Compress in progress")
-                            .setSmallIcon(R.drawable.ic_autorenew_white_24dp);
+                    // Create the notification
+                    mBuilder = new NotificationCompat.Builder(context, channelId)
+                            .setOngoing(true)
+                            .setAutoCancel(false)
+                            .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
+                            .setContentTitle("Video Compress")
+                            .setContentText("Compress in Progress")
+                            .setPriority(NotificationCompat.PRIORITY_MAX);
+
+                    // Show the notification
+                    NotificationManagerCompat.from(context).notify(mNotificationId, mBuilder.build());
 
                     Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
                 }
 
                 @Override
                 public void onSuccess() {
+                    mBuilder.setOngoing(false);
+                    mBuilder.setAutoCancel(true);
                     Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
                     Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
 
@@ -175,6 +208,8 @@ public class VideoCompressService extends Service {
 
                 @Override
                 public void onFail() {
+                    mBuilder.setOngoing(false);
+                    mBuilder.setAutoCancel(true);
                     String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
                     mBuilder.setContentText(errorMsg).setProgress(0, 0, false);

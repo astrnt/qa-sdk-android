@@ -117,7 +117,6 @@ public class AwsUploadService extends Service {
         return null;
     }
 
-
     private void createNotification(String message) {
         mNotificationId = (int) currentQuestion.getId();
 
@@ -156,8 +155,6 @@ public class AwsUploadService extends Service {
 
     private class UploadListener implements TransferListener {
 
-        private boolean notifyUploadActivityNeeded = true;
-
         // Simply updates the list when notified.
         @Override
         public void onError(int id, Exception e) {
@@ -176,10 +173,7 @@ public class AwsUploadService extends Service {
                     )
             );
 
-            if (notifyUploadActivityNeeded) {
-                EventBus.getDefault().post(new UploadEvent());
-                notifyUploadActivityNeeded = false;
-            }
+            EventBus.getDefault().post(new UploadEvent());
         }
 
         @Override
@@ -193,10 +187,7 @@ public class AwsUploadService extends Service {
             mNotifyManager.notify(mNotificationId, mBuilder.build());
             astrntSDK.updateProgress(currentQuestion, percentage);
 
-            if (notifyUploadActivityNeeded) {
-                EventBus.getDefault().post(new UploadEvent());
-                notifyUploadActivityNeeded = false;
-            }
+            EventBus.getDefault().post(new UploadEvent());
         }
 
         @Override
@@ -268,10 +259,7 @@ public class AwsUploadService extends Service {
 
             mNotifyManager.notify(mNotificationId, mBuilder.build());
 
-            if (notifyUploadActivityNeeded) {
-                EventBus.getDefault().post(new UploadEvent());
-                notifyUploadActivityNeeded = false;
-            }
+            EventBus.getDefault().post(new UploadEvent());
         }
     }
 }

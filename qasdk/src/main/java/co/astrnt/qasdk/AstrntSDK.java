@@ -371,23 +371,19 @@ public class AstrntSDK {
 
     private void saveSectionInfo() {
         SectionInfo sectionInfo = new SectionInfo(getSectionIndex());
-        if (sectionInfo != null) {
-            if (!realm.isInTransaction()) {
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(sectionInfo);
-                realm.commitTransaction();
-            }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(sectionInfo);
+            realm.commitTransaction();
         }
     }
 
     private void updateSectionInfo(int sectionIndex) {
         SectionInfo questionInfo = new SectionInfo(sectionIndex);
-        if (questionInfo != null) {
-            if (!realm.isInTransaction()) {
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(questionInfo);
-                realm.commitTransaction();
-            }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
         }
     }
 
@@ -759,10 +755,12 @@ public class AstrntSDK {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         assert interviewApiDao != null;
         if (isSectionInterview()) {
-            SectionApiDao currentSection = getCurrentSection();
-            for (QuestionApiDao question : currentSection.getSectionQuestions()) {
-                if (question.getId() == questionId) {
-                    return question;
+
+            for (SectionApiDao section : interviewApiDao.getSections()) {
+                for (QuestionApiDao item : section.getSectionQuestions()) {
+                    if (item.getId() == questionId) {
+                        return item;
+                    }
                 }
             }
         } else {
@@ -1114,14 +1112,8 @@ public class AstrntSDK {
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
         if (!realm.isInTransaction()) {
 
-            RealmList<MultipleAnswerApiDao> selectedAnswer = questionApiDao.getSelectedAnswer();
+            RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
             realm.beginTransaction();
-
-            if (answer.isSelected()) {
-                selectedAnswer.remove(answer);
-            } else {
-                selectedAnswer.add(answer);
-            }
 
             RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
             for (MultipleAnswerApiDao item : multipleAnswer) {
@@ -1138,6 +1130,12 @@ public class AstrntSDK {
                 }
             }
 
+            for (MultipleAnswerApiDao item : multipleAnswer) {
+                if (item.isSelected()) {
+                    selectedAnswer.add(item);
+                }
+            }
+
             questionApiDao.setSelectedAnswer(selectedAnswer);
             questionApiDao.setMultiple_answers(multipleAnswer);
             if (selectedAnswer.isEmpty()) {
@@ -1147,12 +1145,14 @@ public class AstrntSDK {
             }
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
+        } else {
+            addSelectedAnswer(questionApiDao, answer);
         }
     }
 
     private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, int answerId) {
 
-        RealmList<MultipleAnswerApiDao> selectedAnswer = questionApiDao.getSelectedAnswer();
+        RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
         RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
         for (MultipleAnswerApiDao item : multipleAnswer) {
@@ -1166,6 +1166,12 @@ public class AstrntSDK {
                 } else {
                     item.setSelected(false);
                 }
+            }
+        }
+
+        for (MultipleAnswerApiDao item : multipleAnswer) {
+            if (item.isSelected()) {
+                selectedAnswer.add(item);
             }
         }
 

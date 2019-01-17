@@ -7,6 +7,8 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
 
+import com.orhanobut.hawk.Hawk;
+
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
@@ -94,7 +96,7 @@ public class AstrntSDK {
         return mApiUrl;
     }
 
-    public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao) {
+    public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             if (resultApiDao.getInformation() != null) {
@@ -113,7 +115,7 @@ public class AstrntSDK {
                 updateSectionOrQuestionInfo(resultApiDao.getInterview());
             }
             InterviewApiDao currentInterview = getCurrentInterview();
-            if (resultApiDao.getInformation() != null && currentInterview != null) {
+            if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
         }
@@ -1246,6 +1248,14 @@ public class AstrntSDK {
             mAstronautApi = new AstronautApi(mApiUrl, isDebuggable);
         }
         return mAstronautApi;
+    }
+
+    public boolean isContinueInterview() {
+        return Hawk.get("ContinueInterview", false);
+    }
+
+    public void setContinueInterview(boolean isContinue) {
+        Hawk.put("ContinueInterview", isContinue);
     }
 
 }

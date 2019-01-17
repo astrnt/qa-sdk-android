@@ -43,6 +43,7 @@ public class SectionRepository extends BaseRepository {
                 )
         );
 
+        astrntSDK.setContinueInterview(true);
         return mAstronautApi.getApiService().startSection(token, map);
     }
 

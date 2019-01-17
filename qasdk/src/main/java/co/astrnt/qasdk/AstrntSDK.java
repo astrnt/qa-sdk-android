@@ -688,7 +688,7 @@ public class AstrntSDK {
         if (interviewApiDao == null || informationApiDao == null) {
             return true;
         } else {
-            return interviewApiDao.isFinished() || informationApiDao.isFinished();
+            return (interviewApiDao.isFinished() || informationApiDao.isFinished()) && isFinishInterview();
         }
     }
 
@@ -1296,6 +1296,14 @@ public class AstrntSDK {
 
     public void setContinueInterview(boolean isContinue) {
         Hawk.put("ContinueInterview", isContinue);
+    }
+
+    public boolean isFinishInterview() {
+        return Hawk.get("FinishInterview", true);
+    }
+
+    public void setFinishInterview(boolean isFinish) {
+        Hawk.put("FinishInterview", isFinish);
     }
 
 }

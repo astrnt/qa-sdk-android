@@ -87,6 +87,7 @@ public class InterviewRepository extends BaseRepository {
                 )
         );
 
+        astrntSDK.setFinishInterview(true);
         return mAstronautApi.getApiService().finishInterview(token, map);
     }
 

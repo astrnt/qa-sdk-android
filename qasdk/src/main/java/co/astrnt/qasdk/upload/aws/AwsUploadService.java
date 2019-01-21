@@ -215,12 +215,20 @@ public class AwsUploadService extends Service {
 
                 stopSelf();
             } else if (state == TransferState.RESUMED_WAITING) {
+
+                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setProgress(0, 0, false);
+
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                         new LogDao("Background Upload (Resumed)",
                                 "Upload Resumed for question id " + currentQuestion.getId()
                         )
                 );
             } else if (state == TransferState.PAUSED) {
+
+                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setProgress(0, 0, false);
+
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                         new LogDao("Background Upload (Paused)",
                                 "Upload paused for question id " + currentQuestion.getId()
@@ -236,6 +244,7 @@ public class AwsUploadService extends Service {
                 );
 
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setProgress(0, 0, false)
                         .setContentText("Upload Canceled");
                 stopSelf();
             } else if (state == TransferState.PENDING_NETWORK_DISCONNECT
@@ -250,6 +259,7 @@ public class AwsUploadService extends Service {
                 );
 
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setProgress(0, 0, false)
                         .setContentText("Upload pending, not connected to internet");
                 stopSelf();
             }

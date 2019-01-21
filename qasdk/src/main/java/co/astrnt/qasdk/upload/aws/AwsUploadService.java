@@ -73,35 +73,69 @@ public class AwsUploadService extends Service {
         final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
 
-        final File file = new File(currentQuestion.getVideoPath());
-        final String key = file.getName();
-
         if (currentQuestion != null) {
 
-            TransferObserver transferObserver;
+            String videoPath = currentQuestion.getVideoPath();
 
-            String urlBucket = String.format(astrntSDK.getAwsBucket(),
-                    interviewApiDao.getCompany().getId(),
-                    interviewApiDao.getJob().getId(),
-                    interviewApiDao.getCandidate().getId());
+            if (videoPath.equals("")) {
 
-            transferObserver = transferUtility.upload(urlBucket, key, file);
-            transferObserver.setTransferListener(new UploadListener());
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload",
+                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                        )
+                );
 
-            counter = 0;
-            totalQuestion = allVideoQuestion.size();
+                astrntSDK.markNotAnswer(currentQuestion);
+                EventBus.getDefault().post(new UploadEvent());
 
-            for (int i = 0; i < allVideoQuestion.size(); i++) {
-                QuestionApiDao item = allVideoQuestion.get(i);
-                if (item.getId() == currentQuestion.getId()) {
-                    counter = i;
+                stopSelf();
+
+                return START_NOT_STICKY;
+            } else {
+
+                if (videoPath.contains("_raw.mp4")) {
+                    astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
+
+                    EventBus.getDefault().post(new UploadEvent());
+
+                    stopSelf();
+                    return START_NOT_STICKY;
                 }
+
+                final File file = new File(videoPath);
+                final String key = file.getName();
+
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload",
+                                String.format("Start Upload %d, file : %s", currentQuestion.getId(), videoPath)
+                        )
+                );
+
+                TransferObserver transferObserver;
+
+                String urlBucket = String.format(astrntSDK.getAwsBucket(),
+                        interviewApiDao.getCompany().getId(),
+                        interviewApiDao.getJob().getId(),
+                        interviewApiDao.getCandidate().getId());
+
+                transferObserver = transferUtility.upload(urlBucket, key, file);
+                transferObserver.setTransferListener(new UploadListener());
+
+                counter = 0;
+                totalQuestion = allVideoQuestion.size();
+
+                for (int i = 0; i < allVideoQuestion.size(); i++) {
+                    QuestionApiDao item = allVideoQuestion.get(i);
+                    if (item.getId() == currentQuestion.getId()) {
+                        counter = i;
+                    }
+                }
+
+                String uploadMessage = "Uploading video " + (counter + 1) + " from " + totalQuestion;
+                createNotification(uploadMessage);
+
+                return START_STICKY;
             }
-
-            String uploadMessage = "Uploading video " + (counter + 1) + " from " + totalQuestion;
-            createNotification(uploadMessage);
-
-            return START_STICKY;
         } else {
             return START_NOT_STICKY;
         }
@@ -213,7 +247,6 @@ public class AwsUploadService extends Service {
                         )
                 );
 
-                stopSelf();
             } else if (state == TransferState.RESUMED_WAITING) {
 
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
@@ -224,6 +257,7 @@ public class AwsUploadService extends Service {
                                 "Upload Resumed for question id " + currentQuestion.getId()
                         )
                 );
+
             } else if (state == TransferState.PAUSED) {
 
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
@@ -234,6 +268,7 @@ public class AwsUploadService extends Service {
                                 "Upload paused for question id " + currentQuestion.getId()
                         )
                 );
+
             } else if (state == TransferState.CANCELED) {
                 astrntSDK.markAsCompressed(currentQuestion);
 
@@ -246,7 +281,7 @@ public class AwsUploadService extends Service {
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
                         .setProgress(0, 0, false)
                         .setContentText("Upload Canceled");
-                stopSelf();
+
             } else if (state == TransferState.PENDING_NETWORK_DISCONNECT
                     || state == TransferState.WAITING_FOR_NETWORK) {
 
@@ -261,7 +296,7 @@ public class AwsUploadService extends Service {
                 mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
                         .setProgress(0, 0, false)
                         .setContentText("Upload pending, not connected to internet");
-                stopSelf();
+
             }
 
             mBuilder.setOngoing(false)
@@ -270,6 +305,8 @@ public class AwsUploadService extends Service {
             mNotifyManager.notify(mNotificationId, mBuilder.build());
 
             EventBus.getDefault().post(new UploadEvent());
+
+            stopSelf();
         }
     }
 }

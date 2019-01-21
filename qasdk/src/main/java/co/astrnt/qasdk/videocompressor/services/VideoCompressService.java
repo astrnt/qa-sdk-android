@@ -14,6 +14,7 @@ import android.support.v4.app.NotificationCompat;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -51,6 +52,9 @@ public class VideoCompressService extends Service {
     private NotificationManager mNotifyManager;
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
+
+    private int counter = 0;
+    private int totalQuestion;
 
     public static void start(Context context, String inputPath, long questionId) {
         context.startService(
@@ -95,115 +99,147 @@ public class VideoCompressService extends Service {
 
     public void doCompress() {
 
+        List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
+
         if (currentQuestion != null) {
 
-            File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), "video");
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
-            outputFile = new File(directory, currentQuestion.getId() + ".mp4");
-            outputPath = outputFile.getAbsolutePath();
+            if (inputPath.equals("")) {
+                LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                        new LogDao("Compress Video",
+                                String.format("Compress file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                        )
+                );
 
-            createNotification();
+                astrntSDK.markNotAnswer(currentQuestion);
+                stopService();
+            } else {
 
-            VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
-                @Override
-                public void onStart() {
+                File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), "video");
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+                outputFile = new File(directory, currentQuestion.getId() + ".mp4");
+                outputPath = outputFile.getAbsolutePath();
 
-                    astrntSDK.updateCompressing(currentQuestion);
+                LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                        new LogDao("Compress Video",
+                                String.format("Start Compress, src file : %s \n output file %s", inputPath, outputPath)
+                        )
+                );
 
-                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                            new LogDao("Video Compress (Start)",
-                                    "Available storage " + astrntSDK.getAvailableStorage() + "Mb"
-                            )
-                    );
+                counter = 0;
+                totalQuestion = allVideoQuestion.size();
 
-                    Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
+                for (int i = 0; i < allVideoQuestion.size(); i++) {
+                    QuestionApiDao item = allVideoQuestion.get(i);
+                    if (item.getId() == currentQuestion.getId()) {
+                        counter = i;
+                    }
                 }
 
-                @Override
-                public void onSuccess() {
-                    Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
-                    Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
+                String compressMessage = "Compressing video " + (counter + 1) + " from " + totalQuestion;
 
-                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                            new LogDao("Video Compress (Success)",
-                                    "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
-                            )
-                    );
+                createNotification(compressMessage);
 
-                    long fileSizeInMb = outputFile.length() / 1000;
+                VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
+                    @Override
+                    public void onStart() {
 
-                    Timber.d("Video Compress compress output File size %d", outputFile.length());
-                    if (fileSizeInMb < 2) {
+                        astrntSDK.updateCompressing(currentQuestion);
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                new LogDao("Video Compress (Fail)",
-                                        "File too small " + fileSizeInMb + "Mb"
+                                new LogDao("Video Compress (Start)",
+                                        "Available storage " + astrntSDK.getAvailableStorage() + "Mb"
                                 )
                         );
 
-                        astrntSDK.markNotAnswer(currentQuestion);
-                        stopSelf();
-                        return;
+                        Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
                     }
 
-                    inputFile.delete();
-                    astrntSDK.updateVideoPath(currentQuestion, outputPath);
+                    @Override
+                    public void onSuccess() {
+                        Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
+                        Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
 
-                    if (astrntSDK.isShowUpload()) {
-                        EventBus.getDefault().post(new CompressEvent());
-                    } else {
-                        AwsUploadService.start(context, questionId);
+                        LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                new LogDao("Video Compress (Success)",
+                                        "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
+                                )
+                        );
+
+                        long fileSizeInMb = outputFile.length() / 1000;
+
+                        Timber.d("Video Compress compress output File size %d", outputFile.length());
+                        if (fileSizeInMb < 2) {
+
+                            LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                    new LogDao("Video Compress (Fail)",
+                                            "File too small " + fileSizeInMb + "Mb"
+                                    )
+                            );
+
+                            astrntSDK.markNotAnswer(currentQuestion);
+                            stopSelf();
+                            return;
+                        }
+
+                        inputFile.delete();
+                        astrntSDK.updateVideoPath(currentQuestion, outputPath);
+
+                        if (astrntSDK.isShowUpload()) {
+                            EventBus.getDefault().post(new CompressEvent());
+                        } else {
+                            AwsUploadService.start(context, questionId);
+                        }
+
+                        mBuilder.setContentText("Compress completed")
+                                .setProgress(0, 0, false)
+                                .setOngoing(false)
+                                .setAutoCancel(true);
+
+                        mNotifyManager.notify(mNotificationId, mBuilder.build());
+                        mNotifyManager.cancel(mNotificationId);
+                        stopService();
                     }
 
-                    mBuilder.setContentText("Compress completed")
-                            .setProgress(0, 0, false)
-                            .setOngoing(false)
-                            .setAutoCancel(true);
+                    @Override
+                    public void onFail() {
+                        String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
-                    mNotifyManager.notify(mNotificationId, mBuilder.build());
-                    mNotifyManager.cancel(mNotificationId);
-                    stopService();
-                }
+                        mBuilder.setContentText(errorMsg)
+                                .setProgress(0, 0, false)
+                                .setOngoing(false)
+                                .setAutoCancel(true);
 
-                @Override
-                public void onFail() {
-                    String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
+                        mNotifyManager.notify(mNotificationId, mBuilder.build());
 
-                    mBuilder.setContentText(errorMsg)
-                            .setProgress(0, 0, false)
-                            .setOngoing(false)
-                            .setAutoCancel(true);
+                        Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
+                        Timber.e(errorMsg);
 
-                    mNotifyManager.notify(mNotificationId, mBuilder.build());
+                        LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                new LogDao("Video Compress (Fail)",
+                                        errorMsg
+                                )
+                        );
 
-                    Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
-                    Timber.e(errorMsg);
+                        stopService();
+                    }
 
-                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                            new LogDao("Video Compress (Fail)",
-                                    errorMsg
-                            )
-                    );
-
-                    stopService();
-                }
-
-                @Override
-                public void onProgress(float percent) {
-                    mBuilder.setProgress(100, (int) percent, false);
-                    // Displays the progress bar for the first time.
-                    mNotifyManager.notify(mNotificationId, mBuilder.build());
+                    @Override
+                    public void onProgress(float percent) {
+                        mBuilder.setProgress(100, (int) percent, false);
+                        // Displays the progress bar for the first time.
+                        mNotifyManager.notify(mNotificationId, mBuilder.build());
 //                    Timber.w("Video Compress progress %s", percent);
-                }
-            });
+                    }
+                });
+            }
         } else {
             stopService();
         }
     }
 
-    private void createNotification() {
+    private void createNotification(String message) {
         mNotificationId = (int) currentQuestion.getId();
 
         // Make a channel if necessary
@@ -233,7 +269,7 @@ public class VideoCompressService extends Service {
                 .setAutoCancel(false)
                 .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
                 .setContentTitle("Astronaut")
-                .setContentText("Compress in Progress")
+                .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         mNotifyManager.notify(mNotificationId, mBuilder.build());

@@ -27,6 +27,7 @@ import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.aws.AwsUploadService;
 import co.astrnt.qasdk.utils.LogUtil;
+import co.astrnt.qasdk.utils.ServiceUtils;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -189,7 +190,9 @@ public class VideoCompressService extends Service {
                         if (astrntSDK.isShowUpload()) {
                             EventBus.getDefault().post(new CompressEvent());
                         } else {
-                            AwsUploadService.start(context, questionId);
+                            if (!ServiceUtils.isMyServiceRunning(context, AwsUploadService.class)) {
+                                AwsUploadService.start(context, outputPath, questionId);
+                            }
                         }
 
                         mBuilder.setContentText("Compress completed")

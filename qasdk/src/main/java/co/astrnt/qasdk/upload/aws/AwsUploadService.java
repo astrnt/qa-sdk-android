@@ -36,7 +36,11 @@ public class AwsUploadService extends Service {
 
     public static final long NOTIFY_INTERVAL = 60 * 1000;
 
-    public static final String INTENT_KEY_QUESTION = "questionId";
+    public static final String EXT_QUESTION_ID = "AwsUploadService.QuestionId";
+    public static final String EXT_PATH = "AwsUploadService.Path";
+
+    private String videoPath;
+
     private TransferUtility transferUtility;
     private AstrntSDK astrntSDK;
     private QuestionApiDao currentQuestion;
@@ -53,10 +57,12 @@ public class AwsUploadService extends Service {
     private int counter = 0;
     private int totalQuestion;
 
-    public static void start(Context context, long questionId) {
-        Intent intent = new Intent(context, AwsUploadService.class);
-        intent.putExtra(INTENT_KEY_QUESTION, questionId);
-        context.startService(intent);
+    public static void start(Context context, String inputPath, long questionId) {
+        context.startService(
+                new Intent(context, AwsUploadService.class)
+                        .putExtra(EXT_PATH, inputPath)
+                        .putExtra(EXT_QUESTION_ID, questionId)
+        );
     }
 
     @Override
@@ -81,7 +87,8 @@ public class AwsUploadService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getExtras() != null) {
-            final long questionId = intent.getLongExtra(INTENT_KEY_QUESTION, 0);
+            videoPath = intent.getStringExtra(EXT_PATH);
+            long questionId = intent.getLongExtra(EXT_QUESTION_ID, 0);
 
             interviewApiDao = astrntSDK.getCurrentInterview();
             currentQuestion = astrntSDK.searchQuestionById(questionId);
@@ -93,8 +100,6 @@ public class AwsUploadService extends Service {
 
         final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
-
-        String videoPath = currentQuestion.getVideoPath();
 
         final File file = new File(videoPath);
 

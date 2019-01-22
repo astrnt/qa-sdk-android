@@ -1,10 +1,12 @@
 package co.astrnt.qasdk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Environment;
 import android.os.StatFs;
 
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.orhanobut.hawk.Hawk;
 
 import java.io.File;
@@ -52,6 +54,8 @@ public class AstrntSDK {
         Realm.init(context);
 
         realm = Realm.getInstance(getRealmConfig());
+
+        context.startService(new Intent(context, TransferService.class));
     }
 
     public AstrntSDK() {

@@ -103,7 +103,7 @@ public class VideoCompressService extends Service {
 
         if (currentQuestion != null) {
 
-            if (inputPath.equals("")) {
+            if (!inputFile.exists()) {
                 LogUtil.addNewLog(currentInterview.getInterviewCode(),
                         new LogDao("Compress Video",
                                 String.format("Compress file not found. Mark not answer for Question Id : %d", currentQuestion.getId())

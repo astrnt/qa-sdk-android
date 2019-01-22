@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
@@ -18,6 +19,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
@@ -25,10 +28,13 @@ import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.UploadEvent;
+import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.LogUtil;
 import timber.log.Timber;
 
 public class AwsUploadService extends Service {
+
+    public static final long NOTIFY_INTERVAL = 60 * 1000;
 
     public static final String INTENT_KEY_QUESTION = "questionId";
     private TransferUtility transferUtility;
@@ -37,6 +43,8 @@ public class AwsUploadService extends Service {
     private InterviewApiDao interviewApiDao;
 
     private Context context;
+    private Handler mHandler = new Handler();
+    private Timer mTimer = null;
 
     private NotificationManager mNotifyManager;
     private NotificationCompat.Builder mBuilder;
@@ -61,48 +69,59 @@ public class AwsUploadService extends Service {
 
         AwsUtil util = new AwsUtil();
         transferUtility = util.getTransferUtility(this);
+
+        if (mTimer != null) {
+            mTimer.cancel();
+        } else {
+            mTimer = new Timer();
+        }
+        mTimer.scheduleAtFixedRate(new AwsUploadService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.getExtras() != null) {
+            final long questionId = intent.getLongExtra(INTENT_KEY_QUESTION, 0);
 
-        final long questionId = intent.getLongExtra(INTENT_KEY_QUESTION, 0);
+            interviewApiDao = astrntSDK.getCurrentInterview();
+            currentQuestion = astrntSDK.searchQuestionById(questionId);
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
 
-        interviewApiDao = astrntSDK.getCurrentInterview();
-        currentQuestion = astrntSDK.searchQuestionById(questionId);
+    private void doUploadVideo() {
+
         final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
 
-        if (currentQuestion != null) {
+        String videoPath = currentQuestion.getVideoPath();
 
-            String videoPath = currentQuestion.getVideoPath();
+        final File file = new File(videoPath);
 
-            if (videoPath.equals("")) {
+        if (!file.exists()) {
 
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload",
-                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
-                        )
-                );
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Background Upload",
+                            String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                    )
+            );
 
-                astrntSDK.markNotAnswer(currentQuestion);
+            astrntSDK.markNotAnswer(currentQuestion);
+            EventBus.getDefault().post(new UploadEvent());
+
+            stopService();
+
+        } else {
+
+            if (videoPath.contains("_raw.mp4")) {
+                astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
+
                 EventBus.getDefault().post(new UploadEvent());
 
-                stopSelf();
+                stopService();
 
-                return START_NOT_STICKY;
             } else {
 
-                if (videoPath.contains("_raw.mp4")) {
-                    astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
-
-                    EventBus.getDefault().post(new UploadEvent());
-
-                    stopSelf();
-                    return START_NOT_STICKY;
-                }
-
-                final File file = new File(videoPath);
                 final String key = file.getName();
 
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
@@ -133,11 +152,7 @@ public class AwsUploadService extends Service {
 
                 String uploadMessage = "Uploading video " + (counter + 1) + " from " + totalQuestion;
                 createNotification(uploadMessage);
-
-                return START_STICKY;
             }
-        } else {
-            return START_NOT_STICKY;
         }
     }
 
@@ -187,25 +202,35 @@ public class AwsUploadService extends Service {
         mNotifyManager.notify(mNotificationId, mBuilder.build());
     }
 
+    public void stopService() {
+        mTimer.cancel();
+
+        stopSelf();
+    }
+
     private class UploadListener implements TransferListener {
 
         // Simply updates the list when notified.
         @Override
         public void onError(int id, Exception e) {
-            Timber.e("AwsUploadService onError: %d% s", id, e.getMessage());
 
-            mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
-                    .setContentText(e.getMessage())
-                    .setOngoing(false)
-                    .setAutoCancel(true);
+            if (e != null) {
+                Timber.e("AwsUploadService onError: %d% s", id, e.getMessage());
 
-            mNotifyManager.notify(mNotificationId, mBuilder.build());
+                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                        .setContentText(e.getMessage())
+                        .setOngoing(false)
+                        .setAutoCancel(true);
 
-            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                    new LogDao("Background Upload (Error)",
-                            "Error upload for question id " + currentQuestion.getId()
-                    )
-            );
+                mNotifyManager.notify(mNotificationId, mBuilder.build());
+
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload (Error)",
+                                "Error upload for question id " + currentQuestion.getId()
+                        )
+                );
+
+            }
 
             EventBus.getDefault().post(new UploadEvent());
         }
@@ -228,75 +253,85 @@ public class AwsUploadService extends Service {
         public void onStateChanged(int id, TransferState state) {
             Timber.d("AwsUploadService onStateChanged: %d, %s", id, state);
 
-            if (state == TransferState.COMPLETED) {
-                astrntSDK.markUploaded(currentQuestion);
+            switch (state) {
+                case COMPLETED:
+                    astrntSDK.markUploaded(currentQuestion);
 
-                if (counter == totalQuestion) {
-                    mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
-                            .setContentText(counter + " of files uploaded, interview complete!")
-                            .setProgress(100, 100, false);
-                } else {
-                    mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
-                            .setContentText("Question " + (counter + 1) + " upload Completed")
-                            .setProgress(100, 100, false);
-                }
+                    if (counter == totalQuestion) {
+                        mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
+                                .setContentText(counter + " of files uploaded, interview complete!")
+                                .setProgress(100, 100, false);
+                    } else {
+                        mBuilder.setSmallIcon(R.drawable.ic_cloud_done_white_24dp)
+                                .setContentText("Question " + (counter + 1) + " upload Completed")
+                                .setProgress(100, 100, false);
+                    }
 
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload (Complete)",
-                                "Success uploaded for question id " + currentQuestion.getId()
-                        )
-                );
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Complete)",
+                                    "Success uploaded for question id " + currentQuestion.getId()
+                            )
+                    );
 
-            } else if (state == TransferState.RESUMED_WAITING) {
+                    EventBus.getDefault().post(new UploadEvent());
 
-                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
-                        .setProgress(0, 0, false);
+                    break;
+                case RESUMED_WAITING:
 
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload (Resumed)",
-                                "Upload Resumed for question id " + currentQuestion.getId()
-                        )
-                );
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Resumed)",
+                                    "Upload Resumed for question id " + currentQuestion.getId()
+                            )
+                    );
 
-            } else if (state == TransferState.PAUSED) {
+                    mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                            .setProgress(0, 0, false)
+                            .setContentText("Upload Resumed Waiting");
 
-                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
-                        .setProgress(0, 0, false);
+                    break;
+                case PAUSED:
 
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload (Paused)",
-                                "Upload paused for question id " + currentQuestion.getId()
-                        )
-                );
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Paused)",
+                                    "Upload paused for question id " + currentQuestion.getId()
+                            )
+                    );
 
-            } else if (state == TransferState.CANCELED) {
-                astrntSDK.markAsCompressed(currentQuestion);
+                    mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                            .setProgress(0, 0, false)
+                            .setContentText("Upload Paused");
 
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload (Canceled)",
-                                "Upload canceled for question id " + currentQuestion.getId()
-                        )
-                );
+                    break;
+                case CANCELED:
+                    astrntSDK.markAsCompressed(currentQuestion);
 
-                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
-                        .setProgress(0, 0, false)
-                        .setContentText("Upload Canceled");
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Canceled)",
+                                    "Upload canceled for question id " + currentQuestion.getId()
+                            )
+                    );
 
-            } else if (state == TransferState.PENDING_NETWORK_DISCONNECT
-                    || state == TransferState.WAITING_FOR_NETWORK) {
+                    mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                            .setProgress(0, 0, false)
+                            .setContentText("Upload Canceled");
 
-                astrntSDK.markAsCompressed(currentQuestion);
+                    break;
+                case PENDING_NETWORK_DISCONNECT:
+                case WAITING_FOR_NETWORK:
 
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload (Pending)",
-                                "Upload pending for question id " + currentQuestion.getId()
-                        )
-                );
+                    astrntSDK.markAsCompressed(currentQuestion);
 
-                mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
-                        .setProgress(0, 0, false)
-                        .setContentText("Upload pending, not connected to internet");
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Pending)",
+                                    "Upload pending for question id " + currentQuestion.getId()
+                            )
+                    );
 
+                    mBuilder.setSmallIcon(R.drawable.ic_cloud_off_white_24dp)
+                            .setProgress(0, 0, false)
+                            .setContentText("Upload pending, not connected to internet");
+
+                    break;
             }
 
             mBuilder.setOngoing(false)
@@ -304,9 +339,28 @@ public class AwsUploadService extends Service {
 
             mNotifyManager.notify(mNotificationId, mBuilder.build());
 
-            EventBus.getDefault().post(new UploadEvent());
+            stopService();
+        }
+    }
 
-            stopSelf();
+    class TimeDisplayTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (currentQuestion != null) {
+                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                            doUploadVideo();
+                        } else {
+                            stopService();
+                        }
+                    } else {
+                        stopService();
+                    }
+                }
+            });
         }
     }
 }

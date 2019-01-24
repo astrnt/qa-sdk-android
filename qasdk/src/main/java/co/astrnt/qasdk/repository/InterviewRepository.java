@@ -143,4 +143,11 @@ public class InterviewRepository extends BaseRepository {
         return mAstronautApi.getApiService().summary(token, map);
     }
 
+    public Observable<BaseApiDao> gdprComplied(String interviewCode) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewCode);
+
+        return mAstronautApi.getApiService().gdprComplied("", map);
+    }
+
 }

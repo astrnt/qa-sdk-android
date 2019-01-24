@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.core.AstronautApi;
+import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
@@ -102,6 +103,8 @@ public class AstrntSDK {
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
+            GdprDao gdprDao = new GdprDao(resultApiDao.getGdpr_complied(), resultApiDao.getGdpr_text(), resultApiDao.getGdpr_aggrement_text());
+            saveGdprDao(gdprDao);
             if (resultApiDao.getInformation() != null) {
                 realm.copyToRealmOrUpdate(resultApiDao.getInformation());
             }
@@ -1304,6 +1307,19 @@ public class AstrntSDK {
 
     public void setFinishInterview(boolean isFinish) {
         Hawk.put("FinishInterview", isFinish);
+    }
+
+    public boolean isGdprComplied() {
+        GdprDao gdprDao = Hawk.get("GdprDao");
+        return gdprDao.isGdprComplied();
+    }
+
+    public GdprDao getGdprDao() {
+        return Hawk.get("GdprDao");
+    }
+
+    public void saveGdprDao(GdprDao gdprDao) {
+        Hawk.put("GdprDao", gdprDao);
     }
 
 }

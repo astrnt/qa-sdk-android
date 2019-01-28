@@ -1,14 +1,11 @@
 package co.astrnt.qasdk;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.support.annotation.NonNull;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.UploadService;
@@ -20,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
@@ -75,7 +73,7 @@ public class AstrntSDK {
         UploadService.EXECUTE_IN_FOREGROUND = false;
         UploadService.BUFFER_SIZE = 1024;
 
-        context.startService(new Intent(context, TransferService.class));
+//        context.startService(new Intent(context, TransferService.class));
     }
 
     public AstrntSDK() {

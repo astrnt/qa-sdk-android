@@ -3,15 +3,22 @@ package co.astrnt.qasdk;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.support.annotation.NonNull;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.orhanobut.hawk.Hawk;
 
+import net.gotev.uploadservice.UploadService;
+import net.gotev.uploadservice.okhttp.OkHttpStack;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
@@ -33,6 +40,10 @@ import co.astrnt.qasdk.utils.SectionInfo;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import timber.log.Timber;
 
 public class AstrntSDK {
@@ -55,6 +66,14 @@ public class AstrntSDK {
         Realm.init(context);
 
         realm = Realm.getInstance(getRealmConfig());
+
+        UploadService.NAMESPACE = appId;
+        UploadService.HTTP_STACK = new OkHttpStack(getOkHttpClient());
+        UploadService.BACKOFF_MULTIPLIER = 2;
+        UploadService.IDLE_TIMEOUT = 30 * 1000;
+        UploadService.UPLOAD_POOL_SIZE = 1;
+        UploadService.EXECUTE_IN_FOREGROUND = false;
+        UploadService.BUFFER_SIZE = 1024;
 
         context.startService(new Intent(context, TransferService.class));
     }
@@ -1266,6 +1285,45 @@ public class AstrntSDK {
         }
     }
 
+    @NonNull
+    private OkHttpClient getOkHttpClient() {
+
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.followRedirects(true);
+        httpClientBuilder.followSslRedirects(true);
+        httpClientBuilder.retryOnConnectionFailure(true);
+        httpClientBuilder.writeTimeout(5, TimeUnit.MINUTES);
+        httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
+        httpClientBuilder.connectTimeout(3, TimeUnit.MINUTES);
+
+//        if (isDebuggable) {
+//            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+//            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//
+//            httpClientBuilder.addInterceptor(loggingInterceptor);
+//        }
+
+        final String manufacturer = Build.MANUFACTURER;
+        final String model = Build.MODEL;
+        final String device = String.format("%s %s", manufacturer, model);
+        final String os = "Android " + Build.VERSION.RELEASE;
+
+        httpClientBuilder.addInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(@NonNull Chain chain) throws IOException {
+                Request request = chain.request().newBuilder()
+                        .addHeader("device", device)
+                        .addHeader("os", os)
+                        .addHeader("browser", "")
+                        .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
+                        .build();
+                return chain.proceed(request);
+            }
+        });
+
+        return httpClientBuilder.build();
+    }
+
     public AstronautApi getApi() {
         if (mAstronautApi == null) {
             mAstronautApi = new AstronautApi(mApiUrl, isDebuggable);
@@ -1288,7 +1346,7 @@ public class AstrntSDK {
     public void setShowUpload(boolean showUpload) {
         Hawk.put("ShowUpload", showUpload);
     }
-    
+
     public boolean isFinishInterview() {
         return Hawk.get("FinishInterview", true);
     }

@@ -25,6 +25,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.upload.aws.AwsUploadService;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.ServiceUtils;
@@ -191,7 +192,8 @@ public class VideoCompressService extends Service {
                             EventBus.getDefault().post(new CompressEvent());
                         } else {
                             if (!ServiceUtils.isMyServiceRunning(context, AwsUploadService.class)) {
-                                AwsUploadService.start(context, outputPath, questionId);
+//                                AwsUploadService.start(context, outputPath, questionId);
+                                SingleVideoUploadService.start(context, questionId);
                             }
                         }
 

@@ -36,13 +36,20 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
             }
             int sectionIndex = 0;
             if (json.getAsJsonObject().get("section_index") != null) {
-                sectionIndex = json.getAsJsonObject().get("section_index").getAsInt();
+                try {
+                    sectionIndex = json.getAsJsonObject().get("section_index").getAsInt();
+                } catch (Exception e) {
+                    sectionIndex = 0;
+                }
             }
             int preparationTime = 0;
             if (json.getAsJsonObject().get("preparation_time") != null) {
                 preparationTime = json.getAsJsonObject().get("preparation_time").getAsInt();
             }
-            String sectionInfo = json.getAsJsonObject().get("section_info").getAsString();
+            String sectionInfo = "";
+            if (json.getAsJsonObject().get("section_info") != null) {
+                sectionInfo = json.getAsJsonObject().get("section_info").getAsString();
+            }
 
             JsonElement questionsInfo;
             if (json.getAsJsonObject().get("questions_info") != null) {

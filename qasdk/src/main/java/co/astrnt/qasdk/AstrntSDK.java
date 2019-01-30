@@ -1,14 +1,11 @@
 package co.astrnt.qasdk;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.support.annotation.NonNull;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.UploadService;
@@ -20,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
@@ -50,14 +48,12 @@ public class AstrntSDK {
 
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
-    private static String mAwsBucket;
     private static boolean isPractice = false;
     private Realm realm;
     private boolean isDebuggable;
 
-    public AstrntSDK(Context context, String apiUrl, String awsBucket, boolean debug, String appId) {
+    public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
         mApiUrl = apiUrl;
-        mAwsBucket = awsBucket;
         isDebuggable = debug;
 
         if (debug) {
@@ -74,8 +70,6 @@ public class AstrntSDK {
         UploadService.UPLOAD_POOL_SIZE = 1;
         UploadService.EXECUTE_IN_FOREGROUND = false;
         UploadService.BUFFER_SIZE = 1024;
-
-        context.startService(new Intent(context, TransferService.class));
     }
 
     public AstrntSDK() {
@@ -104,10 +98,6 @@ public class AstrntSDK {
 
     public String getApiUrl() {
         return mApiUrl;
-    }
-
-    public String getAwsBucket() {
-        return mAwsBucket;
     }
 
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
@@ -1366,6 +1356,18 @@ public class AstrntSDK {
 
     public void saveGdprDao(GdprDao gdprDao) {
         Hawk.put("GdprDao", gdprDao);
+    }
+
+    public String getUploadId() {
+        return Hawk.get("UploadId");
+    }
+
+    public void saveUploadId(String uploadId) {
+        Hawk.put("UploadId", uploadId);
+    }
+
+    public void removeUploadId() {
+        Hawk.delete("UploadId");
     }
 
 }

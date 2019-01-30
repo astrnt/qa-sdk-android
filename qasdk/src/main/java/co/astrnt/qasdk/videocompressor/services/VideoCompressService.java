@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import androidx.core.app.NotificationCompat;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -26,7 +26,6 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.upload.SingleVideoUploadService;
-import co.astrnt.qasdk.upload.aws.AwsUploadService;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.ServiceUtils;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
@@ -191,7 +190,7 @@ public class VideoCompressService extends Service {
                         if (astrntSDK.isShowUpload()) {
                             EventBus.getDefault().post(new CompressEvent());
                         } else {
-                            if (!ServiceUtils.isMyServiceRunning(context, AwsUploadService.class)) {
+                            if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
 //                                AwsUploadService.start(context, outputPath, questionId);
                                 SingleVideoUploadService.start(context, questionId);
                             }

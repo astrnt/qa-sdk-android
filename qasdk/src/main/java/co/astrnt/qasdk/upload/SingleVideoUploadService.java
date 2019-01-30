@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.google.gson.Gson;
-import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
@@ -91,34 +90,46 @@ public class SingleVideoUploadService extends Service {
 
         final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
 
-        final File file = new File(currentQuestion.getVideoPath());
+        try {
 
-        if (!file.exists()) {
+            if (currentQuestion.getVideoPath() == null) {
 
-            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                    new LogDao("Background Upload",
-                            String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
-                    )
-            );
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload",
+                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                        )
+                );
 
-            astrntSDK.markNotAnswer(currentQuestion);
-            EventBus.getDefault().post(new UploadEvent());
+                astrntSDK.markNotAnswer(currentQuestion);
 
-            stopService();
+                stopService();
+            }
 
-        } else {
+            final File file = new File(currentQuestion.getVideoPath());
 
-            if (currentQuestion.getVideoPath().contains("_raw.mp4")) {
-                astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
+            if (!file.exists()) {
 
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload",
+                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                        )
+                );
+
+                astrntSDK.markNotAnswer(currentQuestion);
                 EventBus.getDefault().post(new UploadEvent());
 
                 stopService();
 
             } else {
 
-                try {
+                if (currentQuestion.getVideoPath().contains("_raw.mp4")) {
+                    astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
 
+                    EventBus.getDefault().post(new UploadEvent());
+
+                    stopService();
+
+                } else {
                     if (currentQuestion.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
                             currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
                         stopService();
@@ -159,7 +170,7 @@ public class SingleVideoUploadService extends Service {
 
                                 @Override
                                 public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-                                    Hawk.delete("UploadId");
+                                    astrntSDK.removeUploadId();
                                     Timber.e("Video Upload Error : ");
                                     if (exception != null) {
                                         Timber.e("Video Upload Error : %s", exception.getMessage());
@@ -188,7 +199,7 @@ public class SingleVideoUploadService extends Service {
 
                                 @Override
                                 public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                                    Hawk.delete("UploadId");
+                                    astrntSDK.removeUploadId();
                                     astrntSDK.markUploaded(currentQuestion);
 
                                     LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
@@ -201,7 +212,7 @@ public class SingleVideoUploadService extends Service {
 
                                 @Override
                                 public void onCancelled(Context context, UploadInfo uploadInfo) {
-                                    Hawk.delete("UploadId");
+                                    astrntSDK.removeUploadId();
                                     Timber.e("Video Upload Canceled");
                                     astrntSDK.markAsCompressed(currentQuestion);
 
@@ -214,13 +225,13 @@ public class SingleVideoUploadService extends Service {
                                 }
                             }).startUpload();
 
-                    Hawk.put("UploadId", uploadId);
+                    astrntSDK.saveUploadId(uploadId);
 
                     Timber.d("SingleVideoUploadService %s", uploadId);
-                } catch (Exception exc) {
-                    Timber.d("SingleVideoUploadService %s", exc.getMessage());
                 }
             }
+        } catch (Exception exc) {
+            Timber.d("SingleVideoUploadService %s", exc.getMessage());
         }
 
     }

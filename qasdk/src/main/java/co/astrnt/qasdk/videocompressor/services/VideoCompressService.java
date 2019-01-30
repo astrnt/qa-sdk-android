@@ -191,7 +191,6 @@ public class VideoCompressService extends Service {
                             EventBus.getDefault().post(new CompressEvent());
                         } else {
                             if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-//                                AwsUploadService.start(context, outputPath, questionId);
                                 SingleVideoUploadService.start(context, questionId);
                             }
                         }

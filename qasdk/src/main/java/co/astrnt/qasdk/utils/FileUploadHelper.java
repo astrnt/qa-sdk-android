@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import co.astrnt.qasdk.dao.InterviewApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 
 public class FileUploadHelper {
@@ -22,6 +23,12 @@ public class FileUploadHelper {
         String questionId = currentQuestion.getId() + "";
         String jobId = interviewApiDao.getJob().getId() + "";
         String filePath = currentQuestion.getVideoPath();
+
+        LogUtil.addNewLog(interviewCode,
+                new LogDao("Video Upload " + questionId,
+                        "Video path : " + filePath
+                )
+        );
 
         return new MultipartUploadRequest(context, url)
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")

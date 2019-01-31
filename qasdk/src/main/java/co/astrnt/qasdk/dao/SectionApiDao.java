@@ -138,7 +138,7 @@ public class SectionApiDao extends RealmObject {
     // Support Method
 
     public int getTimerDuration() {
-        if (preparation_time > 0) {
+        if (getPreparationTime() > 0) {
             return getPreparationTime();
         } else {
             return getDuration();

@@ -3,33 +3,35 @@ package co.astrnt.qasdk.upload;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
 import com.google.gson.Gson;
-import com.orhanobut.hawk.Hawk;
 
-import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.ServerResponse;
 import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.annotation.Nullable;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.event.UploadEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.utils.FileUploadHelper;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.UploadNotifConfig;
-import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
 
 public class SingleVideoUploadService extends Service {
@@ -85,108 +87,153 @@ public class SingleVideoUploadService extends Service {
     }
 
     public void doUploadVideo() {
+
+        final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+
         try {
-            String uploadMessage = "Uploading answer " + currentQuestion.getTitle();
 
-            UploadNotificationConfig notificationConfig = UploadNotifConfig.getSingleNotificationConfig(uploadMessage);
-            notificationConfig.setNotificationChannelId(UploadService.NAMESPACE);
-            notificationConfig.setClearOnActionForAllStatuses(true);
-            notificationConfig.setRingToneEnabled(false);
+            if (currentQuestion.getVideoPath() == null) {
 
-            if (currentQuestion.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
-                    currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload",
+                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                        )
+                );
+
+                astrntSDK.markNotAnswer(currentQuestion);
+
                 stopService();
-                return;
             }
 
-            astrntSDK.markUploading(currentQuestion);
+            final File file = new File(currentQuestion.getVideoPath());
 
-            final InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-            String uploadId = new MultipartUploadRequest(context, astrntSDK.getApiUrl() + "v2/video/upload")
-                    .addHeader("token", interviewApiDao.getToken())
-                    .addParameter("interview_code", interviewApiDao.getInterviewCode())
-                    .addParameter("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()))
-                    .addParameter("company_id", String.valueOf(interviewApiDao.getCompany().getId()))
-                    .addParameter("question_id", String.valueOf(questionId))
-                    .addParameter("job_id", String.valueOf(interviewApiDao.getJob().getId()))
-                    .addParameter("device", "android")
-                    .addParameter("device_type", Build.MODEL)
-                    .addFileToUpload(new File(currentQuestion.getVideoPath()).getAbsolutePath(), "interview_video")
-                    .setUtf8Charset()
-                    .setNotificationConfig(notificationConfig)
-                    .setAutoDeleteFilesAfterSuccessfulUpload(true)
-                    .setMaxRetries(3)
-                    .setDelegate(new UploadStatusDelegate() {
-                        @Override
-                        public void onProgress(Context context, UploadInfo uploadInfo) {
-                            if (uploadInfo != null) {
-                                Timber.d("Video Upload Progress : %s", uploadInfo.getProgressPercent());
-                                astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
-                            }
+            if (!file.exists()) {
+
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Background Upload",
+                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                        )
+                );
+
+                astrntSDK.markNotAnswer(currentQuestion);
+                EventBus.getDefault().post(new UploadEvent());
+
+                stopService();
+
+            } else {
+
+                if (currentQuestion.getVideoPath().contains("_raw.mp4")) {
+                    astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
+
+                    EventBus.getDefault().post(new UploadEvent());
+
+                    stopService();
+
+                } else {
+                    if (currentQuestion.getUploadStatus().equals(UploadStatusType.NOT_ANSWER) ||
+                            currentQuestion.getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+                        stopService();
+                        return;
+                    }
+
+                    List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
+
+                    int counter = 0;
+                    int totalQuestion = allVideoQuestion.size();
+
+                    for (int i = 0; i < allVideoQuestion.size(); i++) {
+                        QuestionApiDao item = allVideoQuestion.get(i);
+                        if (item.getId() == currentQuestion.getId()) {
+                            counter = i;
                         }
+                    }
 
-                        @Override
-                        public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-                            Hawk.delete("UploadId");
-                            Timber.e("Video Upload Error : ");
-                            if (exception != null) {
-                                Timber.e("Video Upload Error : %s", exception.getMessage());
-                            }
-                            if (serverResponse != null && serverResponse.getBody() != null) {
-                                String message;
-                                try {
-                                    BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
-                                    message = baseApiDao.getMessage();
-                                    Timber.e(baseApiDao.getMessage());
-                                } catch (Exception e) {
-                                    Timber.e("Video Upload Error : %s", exception.getMessage());
-                                    message = exception.getMessage();
+                    String uploadMessage = "Uploading video " + (counter + 1) + " from " + totalQuestion;
+
+                    UploadNotificationConfig notificationConfig = UploadNotifConfig.getSingleNotificationConfig(uploadMessage);
+                    notificationConfig.setNotificationChannelId(UploadService.NAMESPACE);
+                    notificationConfig.setClearOnActionForAllStatuses(true);
+                    notificationConfig.setRingToneEnabled(false);
+                    astrntSDK.markUploading(currentQuestion);
+
+                    String apiUrl = astrntSDK.getApiUrl() + "v2/video/upload";
+                    String uploadId = FileUploadHelper.uploadVideo(context, interviewApiDao, currentQuestion, apiUrl)
+                            .setNotificationConfig(notificationConfig)
+                            .setDelegate(new UploadStatusDelegate() {
+                                @Override
+                                public void onProgress(Context context, UploadInfo uploadInfo) {
+                                    if (uploadInfo != null) {
+                                        Timber.d("Video Upload Progress : %s", uploadInfo.getProgressPercent());
+                                        astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
+                                    }
                                 }
 
-                                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                        new LogDao("Single Video Upload Services (Error)",
-                                                "Error " + message
-                                        )
-                                );
-                            }
-                            astrntSDK.markAsCompressed(currentQuestion);
-                            stopService();
-                        }
+                                @Override
+                                public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                                    astrntSDK.removeUploadId();
+                                    Timber.e("Video Upload Error : ");
+                                    if (exception != null) {
+                                        Timber.e("Video Upload Error : %s", exception.getMessage());
+                                    }
+                                    if (serverResponse != null && serverResponse.getBody() != null) {
+                                        String message;
+                                        try {
+                                            BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                            message = baseApiDao.getMessage();
+                                            Timber.e(baseApiDao.getMessage());
+                                        } catch (Exception e) {
+                                            assert exception != null;
+                                            Timber.e("Video Upload Error : %s", exception.getMessage());
+                                            message = exception.getMessage();
+                                        }
 
-                        @Override
-                        public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                            Hawk.delete("UploadId");
-                            astrntSDK.markUploaded(currentQuestion);
+                                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                                new LogDao("Single Video Upload Services (Error)",
+                                                        "Error " + message
+                                                )
+                                        );
+                                    }
+                                    astrntSDK.markAsCompressed(currentQuestion);
+                                    stopService();
+                                }
 
-                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                    new LogDao("Single Video Upload Services (Complete)",
-                                            "Success uploaded for question id " + currentQuestion.getId()
-                                    )
-                            );
-                            stopService();
-                        }
+                                @Override
+                                public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                    astrntSDK.removeUploadId();
+                                    astrntSDK.markUploaded(currentQuestion);
 
-                        @Override
-                        public void onCancelled(Context context, UploadInfo uploadInfo) {
-                            Hawk.delete("UploadId");
-                            Timber.e("Video Upload Canceled");
-                            astrntSDK.markAsCompressed(currentQuestion);
+                                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                            new LogDao("Single Video Upload Services (Complete)",
+                                                    "Success uploaded for question id " + currentQuestion.getId()
+                                            )
+                                    );
+                                    stopService();
+                                }
 
-                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                    new LogDao("Single Video Upload Services (Cancelled)",
-                                            "Cancelled"
-                                    )
-                            );
-                            stopService();
-                        }
-                    }).startUpload();
+                                @Override
+                                public void onCancelled(Context context, UploadInfo uploadInfo) {
+                                    astrntSDK.removeUploadId();
+                                    Timber.e("Video Upload Canceled");
+                                    astrntSDK.markAsCompressed(currentQuestion);
 
-            Hawk.put("UploadId", uploadId);
+                                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                            new LogDao("Single Video Upload Services (Cancelled)",
+                                                    "Cancelled"
+                                            )
+                                    );
+                                    stopService();
+                                }
+                            }).startUpload();
 
-            Timber.d("SingleVideoUploadService %s", uploadId);
+                    astrntSDK.saveUploadId(uploadId);
+
+                    Timber.d("SingleVideoUploadService %s", uploadId);
+                }
+            }
         } catch (Exception exc) {
             Timber.d("SingleVideoUploadService %s", exc.getMessage());
         }
+
     }
 
     public void stopService() {

@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.support.annotation.NonNull;
 
 import com.orhanobut.hawk.Hawk;
 
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
@@ -124,6 +124,8 @@ public class AstrntSDK {
             if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
+        } else {
+            saveInterviewResult(resultApiDao, interviewApiDao, isContinue);
         }
 
     }
@@ -210,6 +212,8 @@ public class AstrntSDK {
             interview.setInterviewCode(interviewCode);
             realm.copyToRealmOrUpdate(interview);
             realm.commitTransaction();
+        } else {
+            saveInterview(interview, token, interviewCode);
         }
     }
 
@@ -327,6 +331,8 @@ public class AstrntSDK {
             realm.commitTransaction();
 
             updateSectionOrQuestionInfo(interview);
+        } else {
+            updateInterview(interview, informationApiDao);
         }
     }
 
@@ -338,6 +344,8 @@ public class AstrntSDK {
                 currentSection.setDuration(timeLeft);
                 realm.copyToRealmOrUpdate(currentSection);
                 realm.commitTransaction();
+            } else {
+                updateSectionTimeLeft(currentSection, timeLeft);
             }
         }
     }
@@ -350,6 +358,8 @@ public class AstrntSDK {
                 currentSection.setPreparationTime(timeLeft);
                 realm.copyToRealmOrUpdate(currentSection);
                 realm.commitTransaction();
+            } else {
+                updateSectionPrepTimeLeft(currentSection, timeLeft);
             }
         }
     }
@@ -362,6 +372,8 @@ public class AstrntSDK {
                 currentQuestion.setTimeLeft(timeLeft);
                 realm.copyToRealmOrUpdate(currentQuestion);
                 realm.commitTransaction();
+            } else {
+                updateQuestionTimeLeft(currentQuestion, timeLeft);
             }
         }
     }
@@ -374,6 +386,8 @@ public class AstrntSDK {
                 interviewApiDao.setDuration_left(timeLeft);
                 realm.copyToRealmOrUpdate(interviewApiDao);
                 realm.commitTransaction();
+            } else {
+                updateInterviewTimeLeft(timeLeft);
             }
         }
     }
@@ -384,6 +398,8 @@ public class AstrntSDK {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(sectionInfo);
             realm.commitTransaction();
+        } else {
+            saveSectionInfo();
         }
     }
 
@@ -393,6 +409,8 @@ public class AstrntSDK {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
+        } else {
+            updateSectionInfo(sectionIndex);
         }
     }
 
@@ -406,6 +424,8 @@ public class AstrntSDK {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
+        } else {
+            saveQuestionInfo();
         }
     }
 
@@ -417,6 +437,8 @@ public class AstrntSDK {
             QuestionInfo questionInfo = new QuestionInfo(questionIndex, questionAttempt, false);
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
+        } else {
+            updateQuestionInfo(questionIndex, questionAttempt);
         }
     }
 
@@ -537,6 +559,8 @@ public class AstrntSDK {
 
                     realm.copyToRealmOrUpdate(question);
                     realm.commitTransaction();
+                } else {
+                    updateQuestion(interview, questionState);
                 }
             }
         }
@@ -573,6 +597,34 @@ public class AstrntSDK {
                     }
                 }
             }
+        }
+    }
+
+    public List<QuestionApiDao> getAllVideoQuestion() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+                        pendingUpload.addAll(section.getSectionQuestions());
+                    }
+                }
+
+                return pendingUpload;
+            } else {
+
+                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+
+                if (interviewApiDao.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
+                    pendingUpload.addAll(interviewApiDao.getQuestions());
+                }
+
+                return pendingUpload;
+            }
+        } else {
+            return null;
         }
     }
 
@@ -857,6 +909,8 @@ public class AstrntSDK {
 
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
+        } else {
+            increaseQuestionIndex();
         }
     }
 
@@ -872,6 +926,8 @@ public class AstrntSDK {
 
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
+        } else {
+            decreaseQuestionIndex();
         }
     }
 
@@ -887,6 +943,8 @@ public class AstrntSDK {
 
             realm.copyToRealmOrUpdate(sectionInfo);
             realm.commitTransaction();
+        } else {
+            increaseSectionIndex();
         }
 
         SectionApiDao nextSection = getNextSection();
@@ -922,6 +980,8 @@ public class AstrntSDK {
                 realm.copyToRealmOrUpdate(questionInfo);
                 realm.commitTransaction();
             }
+        } else {
+            decreaseQuestionAttempt();
         }
     }
 
@@ -1081,7 +1141,7 @@ public class AstrntSDK {
     }
 
     public void clearVideoFile(Context context) {
-        File filesDir = context.getFilesDir();
+        File filesDir = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
 
         File[] files = filesDir.listFiles();
 
@@ -1135,6 +1195,8 @@ public class AstrntSDK {
             questionInfo.setId(20180427);
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
+        } else {
+            setPracticeMode();
         }
     }
 
@@ -1301,6 +1363,14 @@ public class AstrntSDK {
         Hawk.put("ContinueInterview", isContinue);
     }
 
+    public boolean isShowUpload() {
+        return Hawk.get("ShowUpload", false);
+    }
+
+    public void setShowUpload(boolean showUpload) {
+        Hawk.put("ShowUpload", showUpload);
+    }
+
     public boolean isFinishInterview() {
         return Hawk.get("FinishInterview", true);
     }
@@ -1320,6 +1390,18 @@ public class AstrntSDK {
 
     public void saveGdprDao(GdprDao gdprDao) {
         Hawk.put("GdprDao", gdprDao);
+    }
+
+    public String getUploadId() {
+        return Hawk.get("UploadId");
+    }
+
+    public void saveUploadId(String uploadId) {
+        Hawk.put("UploadId", uploadId);
+    }
+
+    public void removeUploadId() {
+        Hawk.delete("UploadId");
     }
 
 }

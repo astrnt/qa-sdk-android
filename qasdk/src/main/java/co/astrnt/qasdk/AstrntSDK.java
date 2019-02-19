@@ -1426,6 +1426,14 @@ public class AstrntSDK {
         Hawk.put("WelcomeVideoDao", welcomeVideoDao);
     }
 
+    public boolean isFinishWatchWelcomeVideo() {
+        return Hawk.get("isFinishWatchWelcomeVideo", false);
+    }
+
+    public void saveFinishWatchWelcomeVideo(boolean finished) {
+        Hawk.put("isFinishWatchWelcomeVideo", finished);
+    }
+
     public String getWelcomeVideoUri() {
         return Hawk.get("WelcomeVideoUri", "");
     }

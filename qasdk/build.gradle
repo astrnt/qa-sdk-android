@@ -49,6 +49,9 @@ dependencies {
     api "net.gotev:uploadservice:$uploadServiceVersion"
     api "net.gotev:uploadservice-okhttp:$uploadServiceVersion"
 
+//    Download Manager
+    api 'com.mindorks.android:prdownloader:0.5.0'
+
     //    Event Bus for Broadcast Receiver
     api 'org.greenrobot:eventbus:3.1.1'
 

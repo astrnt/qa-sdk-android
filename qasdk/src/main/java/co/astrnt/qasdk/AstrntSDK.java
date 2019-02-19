@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 
+import com.downloader.PRDownloader;
+import com.downloader.PRDownloaderConfig;
 import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.UploadService;
@@ -29,6 +31,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.QuestionInfoApiDao;
 import co.astrnt.qasdk.dao.QuestionInfoMcqApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
+import co.astrnt.qasdk.dao.WelcomeVideoDao;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
 import co.astrnt.qasdk.type.UploadStatusState;
@@ -60,6 +63,14 @@ public class AstrntSDK {
             Timber.plant(new Timber.DebugTree());
         }
         Realm.init(context);
+
+        PRDownloaderConfig config = PRDownloaderConfig.newBuilder()
+                .setDatabaseEnabled(true)
+                .setReadTimeout(30_000)
+                .setConnectTimeout(30_000)
+                .build();
+
+        PRDownloader.initialize(context, config);
 
         realm = Realm.getInstance(getRealmConfig());
 
@@ -103,8 +114,6 @@ public class AstrntSDK {
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            GdprDao gdprDao = new GdprDao(resultApiDao.getGdpr_complied(), resultApiDao.getGdpr_text(), resultApiDao.getGdpr_aggrement_text());
-            saveGdprDao(gdprDao);
             if (resultApiDao.getInformation() != null) {
                 realm.copyToRealmOrUpdate(resultApiDao.getInformation());
             }
@@ -112,6 +121,11 @@ public class AstrntSDK {
                 realm.copyToRealmOrUpdate(resultApiDao.getInvitation_video());
             }
             realm.commitTransaction();
+            GdprDao gdprDao = new GdprDao(resultApiDao.getGdpr_complied(), resultApiDao.getGdpr_text(), resultApiDao.getGdpr_aggrement_text());
+            saveGdprDao(gdprDao);
+            if (resultApiDao.getWelcomeVideo() != null) {
+                saveWelcomeVideoDao(resultApiDao.getWelcomeVideo());
+            }
             if (interviewApiDao != null) {
                 saveInterview(interviewApiDao, resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(interviewApiDao);
@@ -1402,6 +1416,34 @@ public class AstrntSDK {
 
     public void removeUploadId() {
         Hawk.delete("UploadId");
+    }
+
+    public WelcomeVideoDao getWelcomeVideoDao() {
+        return Hawk.get("WelcomeVideoDao");
+    }
+
+    public void saveWelcomeVideoDao(WelcomeVideoDao welcomeVideoDao) {
+        Hawk.put("WelcomeVideoDao", welcomeVideoDao);
+    }
+
+    public String getWelcomeVideoUri() {
+        return Hawk.get("WelcomeVideoUri", "");
+    }
+
+    public void saveWelcomeVideoUri(String videoUri) {
+        Hawk.put("WelcomeVideoUri", videoUri);
+    }
+
+    public String getDownloadId() {
+        return Hawk.get("DownloadId");
+    }
+
+    public void saveDownloadId(String downloadId) {
+        Hawk.put("DownloadId", downloadId);
+    }
+
+    public void removeDownloadId() {
+        Hawk.delete("DownloadId");
     }
 
 }

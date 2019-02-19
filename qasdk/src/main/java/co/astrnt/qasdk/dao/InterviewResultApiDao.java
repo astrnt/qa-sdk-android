@@ -15,6 +15,7 @@ public class InterviewResultApiDao extends BaseApiDao implements RealmModel {
     private InterviewApiDao interview;
     private InformationApiDao information;
     private InvitationVideoApiDao invitation_video;
+    private WelcomeVideoDao welcome_video;
     private int gdpr_complied;
     private String gdpr_text;
     private String gdpr_aggrement_text;
@@ -65,6 +66,14 @@ public class InterviewResultApiDao extends BaseApiDao implements RealmModel {
 
     public void setInvitation_video(InvitationVideoApiDao invitation_video) {
         this.invitation_video = invitation_video;
+    }
+
+    public WelcomeVideoDao getWelcomeVideo() {
+        return welcome_video;
+    }
+
+    public void setWelcomeVideo(WelcomeVideoDao welcome_video) {
+        this.welcome_video = welcome_video;
     }
 
     public int getGdpr_complied() {

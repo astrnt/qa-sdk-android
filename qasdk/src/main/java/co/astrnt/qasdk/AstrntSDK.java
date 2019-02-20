@@ -1145,6 +1145,7 @@ public class AstrntSDK {
     }
 
     public void clearDb() {
+        removeHawkSaved();
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.deleteAll();
@@ -1161,9 +1162,7 @@ public class AstrntSDK {
 
         if (files != null) {
             for (File file : files) {
-                if (file.getName().equals("video")) {
-                    deleteRecursive(file);
-                }
+                deleteRecursive(file);
             }
         }
     }
@@ -1452,6 +1451,18 @@ public class AstrntSDK {
 
     public void removeDownloadId() {
         Hawk.delete("DownloadId");
+    }
+
+    private void removeHawkSaved() {
+        Hawk.delete("isFinishWatchWelcomeVideo");
+        Hawk.delete("WelcomeVideoDao");
+        Hawk.delete("GdprDao");
+        Hawk.delete("ContinueInterview");
+        Hawk.delete("ShowUpload");
+        Hawk.delete("FinishInterview");
+        Hawk.delete("WelcomeVideoUri");
+        removeDownloadId();
+        removeUploadId();
     }
 
 }

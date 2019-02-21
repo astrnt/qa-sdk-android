@@ -1441,11 +1441,11 @@ public class AstrntSDK {
         Hawk.put("WelcomeVideoUri", videoUri);
     }
 
-    public String getDownloadId() {
-        return Hawk.get("DownloadId");
+    public int getDownloadId() {
+        return Hawk.get("DownloadId", 0);
     }
 
-    public void saveDownloadId(String downloadId) {
+    public void saveDownloadId(int downloadId) {
         Hawk.put("DownloadId", downloadId);
     }
 

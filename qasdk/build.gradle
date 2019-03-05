@@ -14,6 +14,10 @@ android {
         versionName "1.8.0"
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false

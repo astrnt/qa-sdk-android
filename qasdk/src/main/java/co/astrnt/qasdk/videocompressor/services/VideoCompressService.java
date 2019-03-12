@@ -155,7 +155,7 @@ public class VideoCompressService extends Service {
                         .setListener(new MediaTranscoder.Listener() {
                             @Override
                             public void onTranscodeProgress(double progress) {
-                                mBuilder.setProgress(100, (int) progress, true);
+                                mBuilder.setProgress(1, (int) progress, true);
                                 mNotifyManager.notify(mNotificationId, mBuilder.build());
                             }
 

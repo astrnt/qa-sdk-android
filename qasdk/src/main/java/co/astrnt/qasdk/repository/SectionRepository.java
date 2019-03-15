@@ -39,7 +39,8 @@ public class SectionRepository extends BaseRepository {
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Start Section"
+                        "Start Section, index = " + ((astrntSDK.getSectionIndex() + 1) + 1) +
+                                ", sectionId = " + sectionApiDao.getId()
                 )
         );
 
@@ -60,7 +61,8 @@ public class SectionRepository extends BaseRepository {
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Finish Section"
+                        "Finish Section, index = " + (astrntSDK.getSectionIndex() + 1) +
+                                ", sectionId = " + sectionApiDao.getId()
                 )
         );
 
@@ -91,7 +93,9 @@ public class SectionRepository extends BaseRepository {
         final String interviewCode = interviewApiDao.getInterviewCode();
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Update Elapsed Time Section " + type
+                        "Update Elapsed Time Section, type = " + type +
+                                ", index = " + (astrntSDK.getSectionIndex() + 1)
+                                + ", refId = " + refId
                 )
         );
 

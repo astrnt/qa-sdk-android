@@ -44,7 +44,8 @@ public class QuestionRepository extends BaseRepository {
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Add Question Attempt"
+                        "Add Question Attempt, index = " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + currentQuestion.getId()
                 )
         );
 
@@ -71,7 +72,8 @@ public class QuestionRepository extends BaseRepository {
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Finish Question"
+                        "Finish Question, index = " + astrntSDK.getQuestionIndex() +
+                                ", questionId = " + currentQuestion.getId()
                 )
         );
 
@@ -108,7 +110,8 @@ public class QuestionRepository extends BaseRepository {
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Answer Question"
+                        "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + currentQuestion.getId()
                 )
         );
 
@@ -128,7 +131,9 @@ public class QuestionRepository extends BaseRepository {
         final String interviewCode = interviewApiDao.getInterviewCode();
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
-                        "Update Elapsed Time " + type
+                        "Update Elapsed Time, type =  " + type +
+                                ", index = " + (astrntSDK.getQuestionIndex() + 1)
+                                + ", refId = " + refId
                 )
         );
 

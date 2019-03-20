@@ -14,6 +14,10 @@ android {
         versionName "1.8.0"
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -51,6 +55,8 @@ dependencies {
 
 //    Download Manager
     api 'com.mindorks.android:prdownloader:0.5.0'
+
+    api 'com.otaliastudios:transcoder:0.4.0'
 
     //    Event Bus for Broadcast Receiver
     api 'org.greenrobot:eventbus:3.1.1'

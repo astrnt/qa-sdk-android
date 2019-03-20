@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="co.astrnt.qasdk">
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -7,5 +8,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND"/>
     <uses-permission android:name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND"/>
+
+    <uses-sdk tools:overrideLibrary="com.otaliastudios.transcoder"/>
 
 </manifest>

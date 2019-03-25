@@ -34,6 +34,11 @@ public class QuestionApiDao extends RealmObject {
     private String uploadStatus;
     private double uploadProgress;
 
+    //this field below is additional field for Free Text Question
+    private int min_length;
+    private int max_length;
+    private String answer;
+
     //this field below is additional field for MCQ
     private int timeLeft;
     private Boolean isAnswered;
@@ -235,5 +240,30 @@ public class QuestionApiDao extends RealmObject {
 
     public void setSelectedAnswer(RealmList<MultipleAnswerApiDao> selectedAnswer) {
         this.selectedAnswer = selectedAnswer;
+    }
+
+    //Free Text method support
+    public int getMin_length() {
+        return min_length;
+    }
+
+    public void setMin_length(int min_length) {
+        this.min_length = min_length;
+    }
+
+    public int getMax_length() {
+        return max_length;
+    }
+
+    public void setMax_length(int max_length) {
+        this.max_length = max_length;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 }

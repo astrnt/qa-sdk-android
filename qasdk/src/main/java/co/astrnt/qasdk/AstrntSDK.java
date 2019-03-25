@@ -1305,6 +1305,22 @@ public class AstrntSDK {
         return questionApiDao;
     }
 
+    public void addAnswer(QuestionApiDao questionApiDao, String answer) {
+        if (!realm.isInTransaction()) {
+
+            questionApiDao.setAnswer(answer);
+            if (answer.isEmpty()) {
+                questionApiDao.setAnswered(false);
+            } else {
+                questionApiDao.setAnswered(true);
+            }
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        } else {
+            addAnswer(questionApiDao, answer);
+        }
+    }
+
     public void markAnswered(QuestionApiDao questionApiDao) {
 
         if (!realm.isInTransaction()) {

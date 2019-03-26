@@ -1307,6 +1307,7 @@ public class AstrntSDK {
 
     public void addAnswer(QuestionApiDao questionApiDao, String answer) {
         if (!realm.isInTransaction()) {
+            realm.beginTransaction();
 
             questionApiDao.setAnswer(answer);
             if (answer.isEmpty()) {

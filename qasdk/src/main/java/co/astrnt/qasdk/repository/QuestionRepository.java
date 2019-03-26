@@ -13,7 +13,7 @@ import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.type.ElapsedTime;
 import co.astrnt.qasdk.type.ElapsedTimeType;
 import co.astrnt.qasdk.type.InterviewType;
-import co.astrnt.qasdk.type.QuestionType;
+import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -91,7 +91,7 @@ public class QuestionRepository extends BaseRepository {
         map.put("question_id", String.valueOf(currentQuestion.getId()));
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
 
-        if (currentQuestion.getType_child().equals(QuestionType.FREE_TEXT)) {
+        if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
             map.put("type", "1");
             map.put("text_answer", currentQuestion.getAnswer());
 

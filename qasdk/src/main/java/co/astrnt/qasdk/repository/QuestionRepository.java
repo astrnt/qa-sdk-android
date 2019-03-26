@@ -93,7 +93,7 @@ public class QuestionRepository extends BaseRepository {
 
         if (currentQuestion.getType_child().equals(QuestionType.FREE_TEXT)) {
             map.put("type", "1");
-            // TODO: put answer param
+            map.put("text_answer", currentQuestion.getAnswer());
 
         } else {
             map.put("type", "0");

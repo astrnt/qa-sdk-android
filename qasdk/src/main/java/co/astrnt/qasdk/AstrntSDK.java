@@ -1012,8 +1012,16 @@ public class AstrntSDK {
         }
     }
 
+    public boolean isLastQuestion() {
+        return !isNotLastQuestion();
+    }
+
     public boolean isNotLastSection() {
         return getSectionIndex() < getTotalSection();
+    }
+
+    public boolean isLastSection() {
+        return !isNotLastSection();
     }
 
     public void updateCompressing(QuestionApiDao questionApiDao) {

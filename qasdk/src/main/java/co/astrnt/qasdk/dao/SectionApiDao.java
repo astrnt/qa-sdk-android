@@ -14,6 +14,7 @@ public class SectionApiDao extends RealmObject {
     private String title;
     private String instruction;
     private String type; //SectionType
+    private String sub_type;
     private int duration;
     private int preparation_time;
     private boolean randomize;
@@ -56,6 +57,14 @@ public class SectionApiDao extends RealmObject {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getSub_type() {
+        return sub_type;
+    }
+
+    public void setSub_type(String sub_type) {
+        this.sub_type = sub_type;
     }
 
     public int getDuration() {

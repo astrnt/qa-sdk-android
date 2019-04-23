@@ -10,17 +10,19 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 
-import com.otaliastudios.transcoder.MediaTranscoder;
+import net.ypresto.androidtranscoder.MediaTranscoder;
+import net.ypresto.androidtranscoder.format.Android16By9FormatStrategy;
+import net.ypresto.androidtranscoder.format.MediaFormatStrategyPresets;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Future;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
@@ -150,18 +152,19 @@ public class VideoCompressService extends Service {
 
                 Timber.d("Video Compress compress START %s %s", inputPath, outputPath);
 
-                mFuture = MediaTranscoder.into(outputPath)
-                        .setDataSource(inputPath)
-                        .setListener(new MediaTranscoder.Listener() {
-                            @Override
-                            public void onTranscodeProgress(double progress) {
-                                mBuilder.setProgress(1, (int) progress, true);
-                                mNotifyManager.notify(mNotificationId, mBuilder.build());
-                            }
+                try {
+                    mFuture = MediaTranscoder.getInstance()
+                            .transcodeVideo(outputPath, inputPath, MediaFormatStrategyPresets.createAndroid16x9Strategy720P(
+                                    Android16By9FormatStrategy.AUDIO_BITRATE_AS_IS,
+                                    Android16By9FormatStrategy.AUDIO_CHANNELS_AS_IS), new MediaTranscoder.Listener() {
+                                @Override
+                                public void onTranscodeProgress(double progress) {
+                                    mBuilder.setProgress(1, (int) progress, true);
+                                    mNotifyManager.notify(mNotificationId, mBuilder.build());
+                                }
 
-                            @Override
-                            public void onTranscodeCompleted(int successCode) {
-                                if (successCode == MediaTranscoder.SUCCESS_TRANSCODED) {
+                                @Override
+                                public void onTranscodeCompleted() {
 
                                     Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
                                     Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
@@ -189,67 +192,58 @@ public class VideoCompressService extends Service {
                                     }
 
                                     successCompress();
+                                }
 
-                                } else if (successCode == MediaTranscoder.SUCCESS_NOT_NEEDED) {
-                                    Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS Not Needed Compress");
-                                    Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
+                                @Override
+                                public void onTranscodeCanceled() {
+                                    String errorMsg = "Video Compress Canceled";
+
+                                    mBuilder.setContentText(errorMsg)
+                                            .setProgress(0, 0, false)
+                                            .setOngoing(false)
+                                            .setAutoCancel(true);
+
+                                    mNotifyManager.notify(mNotificationId, mBuilder.build());
+
+                                    Timber.e("Video Compress %s %s %s", inputPath, outputPath, "CANCELED");
+                                    Timber.e(errorMsg);
 
                                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                            new LogDao("Video Compress (Success Not Needed Compress)",
-                                                    "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
+                                            new LogDao("Video Compress (Canceled)",
+                                                    errorMsg
                                             )
                                     );
 
-                                    successCompress();
+                                    stopService();
                                 }
-                            }
 
-                            @Override
-                            public void onTranscodeCanceled() {
-                                String errorMsg = "Video Compress Canceled";
+                                @Override
+                                public void onTranscodeFailed(Exception exception) {
+                                    String errorMsg = String.format("Video Compress FAILED Available Storage %d, because %s", astrntSDK.getAvailableStorage(), exception.getMessage());
 
-                                mBuilder.setContentText(errorMsg)
-                                        .setProgress(0, 0, false)
-                                        .setOngoing(false)
-                                        .setAutoCancel(true);
+                                    mBuilder.setContentText(errorMsg)
+                                            .setProgress(0, 0, false)
+                                            .setOngoing(false)
+                                            .setAutoCancel(true);
 
-                                mNotifyManager.notify(mNotificationId, mBuilder.build());
+                                    mNotifyManager.notify(mNotificationId, mBuilder.build());
 
-                                Timber.e("Video Compress %s %s %s", inputPath, outputPath, "CANCELED");
-                                Timber.e(errorMsg);
+                                    Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
+                                    Timber.e(errorMsg);
 
-                                LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                        new LogDao("Video Compress (Canceled)",
-                                                errorMsg
-                                        )
-                                );
+                                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                            new LogDao("Video Compress (Failed)",
+                                                    errorMsg
+                                            )
+                                    );
 
-                                stopService();
-                            }
+                                    stopService();
+                                }
+                            });
 
-                            @Override
-                            public void onTranscodeFailed(@NonNull Throwable exception) {
-                                String errorMsg = String.format("Video Compress FAILED Available Storage %d, because %s", astrntSDK.getAvailableStorage(), exception.getMessage());
-
-                                mBuilder.setContentText(errorMsg)
-                                        .setProgress(0, 0, false)
-                                        .setOngoing(false)
-                                        .setAutoCancel(true);
-
-                                mNotifyManager.notify(mNotificationId, mBuilder.build());
-
-                                Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
-                                Timber.e(errorMsg);
-
-                                LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                        new LogDao("Video Compress (Failed)",
-                                                errorMsg
-                                        )
-                                );
-
-                                stopService();
-                            }
-                        }).transcode();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

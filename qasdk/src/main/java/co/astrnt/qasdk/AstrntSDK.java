@@ -1234,7 +1234,15 @@ public class AstrntSDK {
     }
 
     public boolean isStorageEnough() {
-        return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+        if (isSectionInterview()) {
+            if (isSectionHasVideo()) {
+                return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+            } else {
+                return true;
+            }
+        } else {
+            return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+        }
     }
 
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {

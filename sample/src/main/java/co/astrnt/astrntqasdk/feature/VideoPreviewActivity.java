@@ -199,7 +199,7 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
                     }
 
                     @Override
-                    public void onApiResultError(String message, String code) {
+                    public void onApiResultError(String title, String message, String code) {
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                     }
 

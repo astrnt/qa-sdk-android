@@ -6,6 +6,7 @@ package co.astrnt.qasdk.dao;
 public class BaseApiDao {
 
     private String status;
+    private String title;
     private String message;
 
     public String getStatus() {
@@ -14,6 +15,14 @@ public class BaseApiDao {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getMessage() {

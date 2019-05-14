@@ -133,7 +133,7 @@ public class VideoInstructionActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onApiResultError(String message, String code) {
+                    public void onApiResultError(String title, String message, String code) {
                     }
 
                     @Override

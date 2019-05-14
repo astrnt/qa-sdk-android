@@ -27,7 +27,7 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onSectionType(resultApiDao.getInterview());
                 break;
             default:
-                onApiResultError(resultApiDao.getMessage(), "error");
+                onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
                 break;
         }
     }

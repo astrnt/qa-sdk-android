@@ -42,19 +42,19 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 assert body != null;
                 BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
                 message = apiDao.getMessage();
-                onApiResultError(apiDao.getMessage(), apiDao.getStatus());
+                onApiResultError(apiDao.getTitle(), apiDao.getMessage(), apiDao.getStatus());
             } catch (Exception e2) {
                 e2.printStackTrace();
-                onApiResultError("Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
+                onApiResultError("", "Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
             }
         } else if (e instanceof UnknownHostException) {
-            onApiResultError("Koneksi terputus, silahkan coba lagi", "exception");
+            onApiResultError("", "Koneksi terputus, silahkan coba lagi", "exception");
         } else if (e instanceof SocketTimeoutException) {
-            onApiResultError("Koneksi terputus, silahkan coba lagi", "exception");
+            onApiResultError("", "Koneksi terputus, silahkan coba lagi", "exception");
         } else {
             System.err.println(e.getMessage());
             e.printStackTrace();
-            onApiResultError("Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
+            onApiResultError("", "Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
         }
 
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
@@ -70,7 +70,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     @Override
     public final void onNext(T t) {
         if (t == null) {
-            onApiResultError("Terjadi kesalahan, silahkan coba lagi", "error");
+            onApiResultError("", "Terjadi kesalahan, silahkan coba lagi", "error");
             return;
         }
         if (t.getStatus() != null && t.getStatus().contains("error")) {
@@ -97,7 +97,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 }
 
             }
-            onApiResultError(t.getMessage(), t.getStatus());
+            onApiResultError(t.getTitle(), t.getMessage(), t.getStatus());
         } else {
             onApiResultOk(t);
         }
@@ -105,7 +105,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
     public abstract void onApiResultCompleted();
 
-    public abstract void onApiResultError(String message, String code);
+    public abstract void onApiResultError(String title, String message, String code);
 
     public abstract void onApiResultOk(T t);
 }

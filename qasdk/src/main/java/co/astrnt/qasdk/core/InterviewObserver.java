@@ -17,7 +17,7 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
         InterviewApiDao data = resultApiDao.getInterview();
         if (data == null) {
-            onApiResultError("Code not found or interview already finished", "error");
+            onApiResultError("", "Code not found or interview already finished", "error");
             return;
         }
         astrntSDK.saveInterviewResult(resultApiDao, data, false);
@@ -36,7 +36,7 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                     onSectionType(data);
                     break;
                 default:
-                    onApiResultError(resultApiDao.getMessage(), "error");
+                    onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
                     break;
             }
         }

@@ -155,7 +155,7 @@ public class QuestionRepository extends BaseRepository {
                     }
 
                     @Override
-                    public void onApiResultError(String message, String code) {
+                    public void onApiResultError(String title, String message, String code) {
                         Timber.e(message);
 
                         LogUtil.addNewLog(interviewCode,

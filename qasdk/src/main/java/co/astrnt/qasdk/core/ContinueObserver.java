@@ -42,7 +42,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 onContinueInterview();
                 break;
             default:
-                onApiResultError(resultApiDao.getMessage(), "error");
+                onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
                 if (currentInterview != null && currentInterview.getInterviewCode() != null) {
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
                             new LogDao("Continue",

@@ -97,7 +97,11 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 }
 
             }
-            onApiResultError(t.getTitle(), t.getMessage(), t.getStatus());
+            if (t.getTitle() != null) {
+                onApiResultError(t.getTitle(), t.getMessage(), t.getStatus());
+            } else {
+                onApiResultError("", t.getMessage(), t.getStatus());
+            }
         } else {
             onApiResultOk(t);
         }

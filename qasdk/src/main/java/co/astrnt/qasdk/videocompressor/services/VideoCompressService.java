@@ -247,15 +247,16 @@ public class VideoCompressService extends Service {
         mNotificationId = (int) currentQuestion.getId();
 
         // Make a channel if necessary
-        final String channelId = "Astronaut";
+        final String channelId = "Astronaut Q&A";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create the NotificationChannel, but only on API 26+ because
             // the NotificationChannel class is new and not in the support library
             CharSequence name = "Video Compress";
-            String description = "Astronaut Video Compress";
+            String description = "Astronaut Q&A Video Compress";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(channelId, name, importance);
             channel.setDescription(description);
+            channel.setSound(null, null);
 
             // Add the channel
             mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -272,7 +273,7 @@ public class VideoCompressService extends Service {
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
-                .setContentTitle("Astronaut")
+                .setContentTitle("Astronaut Q&A")
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 

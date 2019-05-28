@@ -39,14 +39,14 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
 
     api 'io.reactivex.rxjava2:rxjava:2.2.6'
-    api 'androidx.core:core:1.0.1'
+    api 'androidx.core:core:1.0.2'
     api 'androidx.legacy:legacy-support-core-utils:1.0.0'
     api 'androidx.media:media:1.0.1'
 
     api 'com.squareup.retrofit2:retrofit:2.5.0'
     api 'com.squareup.retrofit2:converter-gson:2.5.0'
     api 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
-    api 'com.squareup.okhttp3:logging-interceptor:3.13.1'
+    api 'com.squareup.okhttp3:logging-interceptor:3.14.1'
     api 'com.jakewharton.timber:timber:4.7.1'
 
     def uploadServiceVersion = "3.5.2"

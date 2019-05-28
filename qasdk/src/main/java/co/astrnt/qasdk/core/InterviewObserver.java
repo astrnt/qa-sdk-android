@@ -36,7 +36,11 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                     onSectionType(data);
                     break;
                 default:
-                    onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                    if (resultApiDao.getTitle() != null) {
+                        onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                    } else {
+                        onApiResultError("", resultApiDao.getMessage(), "error");
+                    }
                     break;
             }
         }

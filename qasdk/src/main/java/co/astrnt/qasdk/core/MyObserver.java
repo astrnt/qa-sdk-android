@@ -42,7 +42,11 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 assert body != null;
                 BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
                 message = apiDao.getMessage();
-                onApiResultError(apiDao.getTitle(), apiDao.getMessage(), apiDao.getStatus());
+                if (apiDao.getTitle() != null) {
+                    onApiResultError(apiDao.getTitle(), apiDao.getMessage(), "error");
+                } else {
+                    onApiResultError("", apiDao.getMessage(), "error");
+                }
             } catch (Exception e2) {
                 e2.printStackTrace();
                 onApiResultError("", "Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
@@ -98,9 +102,9 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
             }
             if (t.getTitle() != null) {
-                onApiResultError(t.getTitle(), t.getMessage(), t.getStatus());
+                onApiResultError(t.getTitle(), t.getMessage(), "error");
             } else {
-                onApiResultError("", t.getMessage(), t.getStatus());
+                onApiResultError("", t.getMessage(), "error");
             }
         } else {
             onApiResultOk(t);

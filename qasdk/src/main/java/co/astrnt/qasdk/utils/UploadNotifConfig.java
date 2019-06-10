@@ -18,7 +18,7 @@ public class UploadNotifConfig {
         UploadNotificationConfig config = new UploadNotificationConfig();
 
         config.setTitleForAllStatuses(uploadCounter)
-                .setNotificationChannelId("Astronaut")
+                .setNotificationChannelId("Astronaut Q&A")
                 .setRingToneEnabled(false)
                 .setClearOnActionForAllStatuses(true);
 

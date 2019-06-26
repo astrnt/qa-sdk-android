@@ -1012,8 +1012,16 @@ public class AstrntSDK {
         }
     }
 
+    public boolean isLastQuestion() {
+        return !isNotLastQuestion();
+    }
+
     public boolean isNotLastSection() {
         return getSectionIndex() < getTotalSection();
+    }
+
+    public boolean isLastSection() {
+        return !isNotLastSection();
     }
 
     public void updateCompressing(QuestionApiDao questionApiDao) {
@@ -1226,7 +1234,15 @@ public class AstrntSDK {
     }
 
     public boolean isStorageEnough() {
-        return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+        if (isSectionInterview()) {
+            if (isSectionHasVideo()) {
+                return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+            } else {
+                return true;
+            }
+        } else {
+            return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+        }
     }
 
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
@@ -1303,6 +1319,23 @@ public class AstrntSDK {
             questionApiDao.setAnswered(true);
         }
         return questionApiDao;
+    }
+
+    public void addAnswer(QuestionApiDao questionApiDao, String answer) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setAnswer(answer);
+            if (answer.isEmpty()) {
+                questionApiDao.setAnswered(false);
+            } else {
+                questionApiDao.setAnswered(true);
+            }
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        } else {
+            addAnswer(questionApiDao, answer);
+        }
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {

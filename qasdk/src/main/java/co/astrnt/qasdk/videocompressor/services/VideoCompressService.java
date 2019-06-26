@@ -13,7 +13,6 @@ import android.os.IBinder;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;

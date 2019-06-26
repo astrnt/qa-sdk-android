@@ -12,6 +12,7 @@ public class InterviewApiDao extends RealmObject {
     @PrimaryKey
     private long invite_id;
     private String type;
+    private String sub_type;
     private int is_allowed_preview;
     private String first_time;
     private int duration_left;
@@ -42,6 +43,14 @@ public class InterviewApiDao extends RealmObject {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getSub_type() {
+        return sub_type;
+    }
+
+    public void setSub_type(String sub_type) {
+        this.sub_type = sub_type;
     }
 
     public int getIs_allowed_preview() {

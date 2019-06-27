@@ -18,30 +18,30 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
         InterviewApiDao data = resultApiDao.getInterview();
         if (data == null) {
             onApiResultError("", "Code not found or interview already finished", "error");
-            return;
-        }
-        astrntSDK.saveInterviewResult(resultApiDao, data, false);
-        if (resultApiDao.getInterview().getType().contains(OPEN)) {
-            onNeedToRegister(data);
         } else {
-            astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
-            switch (data.getType()) {
-                case CLOSE_INTERVIEW:
-                    onInterviewType(data);
-                    break;
-                case CLOSE_TEST:
-                    onTestType(data);
-                    break;
-                case CLOSE_SECTION:
-                    onSectionType(data);
-                    break;
-                default:
-                    if (resultApiDao.getTitle() != null) {
-                        onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
-                    } else {
-                        onApiResultError("", resultApiDao.getMessage(), "error");
-                    }
-                    break;
+            astrntSDK.saveInterviewResult(resultApiDao, data, false);
+            if (resultApiDao.getInterview().getType().contains(OPEN)) {
+                onNeedToRegister(data);
+            } else {
+                astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
+                switch (data.getType()) {
+                    case CLOSE_INTERVIEW:
+                        onInterviewType(data);
+                        break;
+                    case CLOSE_TEST:
+                        onTestType(data);
+                        break;
+                    case CLOSE_SECTION:
+                        onSectionType(data);
+                        break;
+                    default:
+                        if (resultApiDao.getTitle() != null) {
+                            onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                        } else {
+                            onApiResultError("", resultApiDao.getMessage(), "error");
+                        }
+                        break;
+                }
             }
         }
     }

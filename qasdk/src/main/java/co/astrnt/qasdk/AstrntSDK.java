@@ -779,44 +779,57 @@ public class AstrntSDK {
 
     public SectionApiDao getCurrentSection() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        int sectionIndex = getSectionIndex();
-        if (sectionIndex < interviewApiDao.getSections().size()) {
-            return interviewApiDao.getSections().get(sectionIndex);
+        if (interviewApiDao != null) {
+            int sectionIndex = getSectionIndex();
+            if (sectionIndex < interviewApiDao.getSections().size()) {
+                return interviewApiDao.getSections().get(sectionIndex);
+            } else {
+                return interviewApiDao.getSections().last();
+            }
         } else {
-            return interviewApiDao.getSections().last();
+            return null;
         }
     }
 
     public SectionApiDao getSectionByIndex(int sectionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        if (sectionIndex < interviewApiDao.getSections().size()) {
-            return interviewApiDao.getSections().get(sectionIndex);
+        if (interviewApiDao != null) {
+            if (sectionIndex < interviewApiDao.getSections().size()) {
+                return interviewApiDao.getSections().get(sectionIndex);
+            } else {
+                return interviewApiDao.getSections().last();
+            }
         } else {
-            return interviewApiDao.getSections().last();
+            return null;
         }
     }
 
     public SectionApiDao getSectionById(long sectionId) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        for (SectionApiDao item : interviewApiDao.getSections()) {
-            if (item.getId() == sectionId) {
-                return item;
+        if (interviewApiDao != null) {
+            for (SectionApiDao item : interviewApiDao.getSections()) {
+                if (item.getId() == sectionId) {
+                    return item;
+                }
             }
+            return null;
+        } else {
+            return null;
         }
-        return null;
     }
 
     private SectionApiDao getNextSection() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        int sectionIndex = getSectionIndex();
-        if (sectionIndex < interviewApiDao.getSections().size()) {
-            return interviewApiDao.getSections().get(sectionIndex);
+        if (interviewApiDao != null) {
+
+            int sectionIndex = getSectionIndex();
+            if (sectionIndex < interviewApiDao.getSections().size()) {
+                return interviewApiDao.getSections().get(sectionIndex);
+            } else {
+                return interviewApiDao.getSections().last();
+            }
         } else {
-            return interviewApiDao.getSections().last();
+            return null;
         }
     }
 
@@ -825,82 +838,93 @@ public class AstrntSDK {
             return getPracticeQuestion();
         }
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        int questionIndex = getQuestionIndex();
-        if (isSectionInterview()) {
-            SectionApiDao currentSection = getCurrentSection();
-            if (questionIndex < currentSection.getSectionQuestions().size()) {
-                return currentSection.getSectionQuestions().get(questionIndex);
+        if (interviewApiDao != null) {
+            int questionIndex = getQuestionIndex();
+            if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
+                if (questionIndex < currentSection.getSectionQuestions().size()) {
+                    return currentSection.getSectionQuestions().get(questionIndex);
+                } else {
+                    return currentSection.getSectionQuestions().last();
+                }
             } else {
-                return currentSection.getSectionQuestions().last();
+                if (questionIndex < interviewApiDao.getQuestions().size()) {
+                    return interviewApiDao.getQuestions().get(questionIndex);
+                } else {
+                    return interviewApiDao.getQuestions().last();
+                }
             }
         } else {
-            if (questionIndex < interviewApiDao.getQuestions().size()) {
-                return interviewApiDao.getQuestions().get(questionIndex);
-            } else {
-                return interviewApiDao.getQuestions().last();
-            }
+            return null;
         }
     }
 
     private QuestionApiDao getQuestionByIndex(int questionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        if (isSectionInterview()) {
-            SectionApiDao currentSection = getCurrentSection();
-            if (questionIndex < currentSection.getSectionQuestions().size()) {
-                return currentSection.getSectionQuestions().get(questionIndex);
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
+                if (questionIndex < currentSection.getSectionQuestions().size()) {
+                    return currentSection.getSectionQuestions().get(questionIndex);
+                } else {
+                    return currentSection.getSectionQuestions().last();
+                }
             } else {
-                return currentSection.getSectionQuestions().last();
+                if (questionIndex < interviewApiDao.getQuestions().size()) {
+                    return interviewApiDao.getQuestions().get(questionIndex);
+                } else {
+                    return interviewApiDao.getQuestions().last();
+                }
             }
         } else {
-            if (questionIndex < interviewApiDao.getQuestions().size()) {
-                return interviewApiDao.getQuestions().get(questionIndex);
-            } else {
-                return interviewApiDao.getQuestions().last();
-            }
+            return null;
         }
     }
 
     public QuestionApiDao getQuestionById(long questionId) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        if (isSectionInterview()) {
-
-            for (SectionApiDao section : interviewApiDao.getSections()) {
-                for (QuestionApiDao item : section.getSectionQuestions()) {
-                    if (item.getId() == questionId) {
-                        return item;
+        if (interviewApiDao != null) {
+            if (isSectionInterview()) {
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    for (QuestionApiDao item : section.getSectionQuestions()) {
+                        if (item.getId() == questionId) {
+                            return item;
+                        }
+                    }
+                }
+            } else {
+                for (QuestionApiDao question : interviewApiDao.getQuestions()) {
+                    if (question.getId() == questionId) {
+                        return question;
                     }
                 }
             }
+            return null;
         } else {
-            for (QuestionApiDao question : interviewApiDao.getQuestions()) {
-                if (question.getId() == questionId) {
-                    return question;
-                }
-            }
+            return null;
         }
-        return null;
     }
 
     private QuestionApiDao getNextQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        assert interviewApiDao != null;
-        int questionIndex = getQuestionIndex();
-        if (isSectionInterview()) {
-            SectionApiDao currentSection = getCurrentSection();
-            if (questionIndex < currentSection.getSectionQuestions().size()) {
-                return currentSection.getSectionQuestions().get(questionIndex);
+        if (interviewApiDao != null) {
+            int questionIndex = getQuestionIndex();
+            if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
+                if (questionIndex < currentSection.getSectionQuestions().size()) {
+                    return currentSection.getSectionQuestions().get(questionIndex);
+                } else {
+                    return currentSection.getSectionQuestions().last();
+                }
             } else {
-                return currentSection.getSectionQuestions().last();
+                if (questionIndex < interviewApiDao.getQuestions().size()) {
+                    return interviewApiDao.getQuestions().get(questionIndex);
+                } else {
+                    return interviewApiDao.getQuestions().last();
+                }
             }
         } else {
-            if (questionIndex < interviewApiDao.getQuestions().size()) {
-                return interviewApiDao.getQuestions().get(questionIndex);
-            } else {
-                return interviewApiDao.getQuestions().last();
-            }
+            return null;
         }
     }
 

@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.core;
 
+import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 
@@ -15,6 +16,9 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
         astrntSDK.clearDb();
+
+        astrntSDK = new AstrntSDK();
+
         astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), false);
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:

@@ -15,7 +15,7 @@ public class QuestionInfoApiDao extends RealmObject {
     private int interviewIndex;
     private int interviewAttempt;
     private String status;
-    private int message;
+    private String message;
     private RealmList<PrevQuestionStateApiDao> prevQuestStates;
 
     public boolean isFinished() {
@@ -50,11 +50,11 @@ public class QuestionInfoApiDao extends RealmObject {
         this.status = status;
     }
 
-    public int getMessage() {
+    public String getMessage() {
         return message;
     }
 
-    public void setMessage(int message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 

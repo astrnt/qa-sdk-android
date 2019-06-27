@@ -16,6 +16,7 @@ import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import timber.log.Timber;
@@ -150,6 +151,11 @@ public class QuestionRepository extends BaseRepository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new MyObserver<BaseApiDao>() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
                     @Override
                     public void onApiResultCompleted() {
                     }

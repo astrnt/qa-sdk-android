@@ -14,6 +14,7 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.utils.LogUtil;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -75,6 +76,11 @@ public class BaseRepository {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io())
                         .subscribe(new MyObserver<BaseApiDao>() {
+
+                            @Override
+                            public void onSubscribe(Disposable d) {
+                            }
+
                             @Override
                             public void onApiResultCompleted() {
                             }

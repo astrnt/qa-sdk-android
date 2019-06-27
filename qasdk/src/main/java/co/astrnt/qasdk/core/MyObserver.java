@@ -12,7 +12,6 @@ import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 
 /**
@@ -21,11 +20,6 @@ import okhttp3.ResponseBody;
 public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
     protected AstrntSDK astrntSDK = new AstrntSDK();
-
-    @Override
-    public void onSubscribe(Disposable d) {
-
-    }
 
     @Override
     public final void onComplete() {

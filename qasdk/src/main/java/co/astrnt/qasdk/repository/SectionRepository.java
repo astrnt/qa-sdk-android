@@ -14,6 +14,7 @@ import co.astrnt.qasdk.type.ElapsedTime;
 import co.astrnt.qasdk.type.ElapsedTimeType;
 import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -103,6 +104,11 @@ public class SectionRepository extends BaseRepository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new MyObserver<BaseApiDao>() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
                     @Override
                     public void onApiResultCompleted() {
                     }

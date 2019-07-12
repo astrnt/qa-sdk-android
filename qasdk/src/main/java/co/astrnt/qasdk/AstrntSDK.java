@@ -1535,6 +1535,14 @@ public class AstrntSDK {
         Hawk.put(PreferenceKey.KEY_NEED_REGISTER, value);
     }
 
+    public boolean isSourcing() {
+        return Hawk.get(PreferenceKey.KEY_IS_SOURCING, false);
+    }
+
+    public void saveSourcing(boolean value) {
+        Hawk.put(PreferenceKey.KEY_IS_SOURCING, value);
+    }
+
     private void removeHawkSaved() {
         Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);

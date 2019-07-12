@@ -22,8 +22,10 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
             if (resultApiDao.getInterview().getType().contains(OPEN)) {
                 onNeedToRegister(data);
+                astrntSDK.saveSourcing(true);
             } else {
                 astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
+                astrntSDK.saveSourcing(false);
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:
                         onInterviewType(data);

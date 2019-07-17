@@ -1,5 +1,7 @@
 package co.astrnt.qasdk.dao;
 
+import com.google.gson.annotations.SerializedName;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -18,6 +20,8 @@ public class JobApiDao extends RealmObject {
     private String responsibility;
     private String documentType;
     private String type;
+    @SerializedName("recruitment_type")
+    private String recruitmentType;
 
     public long getId() {
         return id;
@@ -89,5 +93,13 @@ public class JobApiDao extends RealmObject {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getRecruitmentType() {
+        return recruitmentType;
+    }
+
+    public void setRecruitmentType(String recruitmentType) {
+        this.recruitmentType = recruitmentType;
     }
 }

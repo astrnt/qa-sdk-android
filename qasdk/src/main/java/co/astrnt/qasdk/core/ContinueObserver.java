@@ -18,6 +18,13 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
         InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
         boolean isContinue = astrntSDK.isContinueInterview();
+
+        if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
+            astrntSDK.saveSourcing(true);
+        } else {
+            astrntSDK.saveSourcing(false);
+        }
+
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {

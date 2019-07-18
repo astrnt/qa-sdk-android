@@ -15,4 +15,5 @@ public class PreferenceKey {
     public static final String KEY_SHOW_UPLOAD = "ShowUpload";
     public static final String KEY_FINISH_INTERVIEW = "FinishInterview";
     public static final String KEY_IS_SOURCING = "IsSourcing";
+    public static final String KEY_UNAUTHORIZED = "IsUnauthorized";
 }

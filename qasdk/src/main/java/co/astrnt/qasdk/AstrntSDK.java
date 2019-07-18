@@ -1536,7 +1536,7 @@ public class AstrntSDK {
     }
 
     public boolean isSourcing() {
-        return Hawk.get(PreferenceKey.KEY_IS_SOURCING, false);
+        return Hawk.get(PreferenceKey.KEY_IS_SOURCING, true);
     }
 
     public void saveSourcing(boolean value) {

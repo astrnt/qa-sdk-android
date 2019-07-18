@@ -20,12 +20,17 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
             onApiResultError("", "Code not found or interview already finished", "error");
         } else {
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
-            if (resultApiDao.getInterview().getType().contains(OPEN)) {
-                onNeedToRegister(data);
+
+            if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
                 astrntSDK.saveSourcing(true);
             } else {
-                astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
                 astrntSDK.saveSourcing(false);
+            }
+
+            if (resultApiDao.getInterview().getType().contains(OPEN)) {
+                onNeedToRegister(data);
+            } else {
+                astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:
                         onInterviewType(data);

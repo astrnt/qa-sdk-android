@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.os.StatFs;
 
 import com.downloader.PRDownloader;
-import com.downloader.PRDownloaderConfig;
 import com.orhanobut.hawk.Hawk;
 
 import net.gotev.uploadservice.UploadService;
@@ -65,13 +64,7 @@ public class AstrntSDK {
         }
         Realm.init(context);
 
-        PRDownloaderConfig config = PRDownloaderConfig.newBuilder()
-                .setDatabaseEnabled(true)
-                .setReadTimeout(30_000)
-                .setConnectTimeout(30_000)
-                .build();
-
-        PRDownloader.initialize(context, config);
+        PRDownloader.initialize(context);
 
         realm = Realm.getInstance(getRealmConfig());
 
@@ -1191,11 +1184,13 @@ public class AstrntSDK {
     public void clearVideoFile(Context context) {
         File filesDir = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
 
-        File[] files = filesDir.listFiles();
+        if (filesDir != null) {
+            File[] files = filesDir.listFiles();
 
-        if (files != null) {
-            for (File file : files) {
-                deleteRecursive(file);
+            if (files != null) {
+                for (File file : files) {
+                    deleteRecursive(file);
+                }
             }
         }
     }
@@ -1207,7 +1202,7 @@ public class AstrntSDK {
             }
         }
 
-        fileOrDirectory.delete();
+        fileOrDirectory.deleteOnExit();
     }
 
     public boolean isPractice() {
@@ -1543,6 +1538,14 @@ public class AstrntSDK {
         Hawk.put(PreferenceKey.KEY_IS_SOURCING, value);
     }
 
+    public boolean isUnauthorized() {
+        return Hawk.get(PreferenceKey.KEY_UNAUTHORIZED, false);
+    }
+
+    public void saveUnauthorized(boolean value) {
+        Hawk.put(PreferenceKey.KEY_UNAUTHORIZED, value);
+    }
+
     private void removeHawkSaved() {
         Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);
@@ -1551,6 +1554,7 @@ public class AstrntSDK {
         Hawk.delete(PreferenceKey.KEY_CONTINUE);
         Hawk.delete(PreferenceKey.KEY_SHOW_UPLOAD);
         Hawk.delete(PreferenceKey.KEY_FINISH_INTERVIEW);
+        Hawk.delete(PreferenceKey.KEY_UNAUTHORIZED);
         removeDownloadId();
         removeUploadId();
     }

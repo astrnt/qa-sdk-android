@@ -3,10 +3,10 @@ package co.astrnt.astrntqasdk.feature;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.qasdk.dao.JobApiDao;

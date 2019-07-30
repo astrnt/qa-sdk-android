@@ -3,11 +3,9 @@ package co.astrnt.astrntqasdk.feature;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,6 +15,7 @@ import android.widget.VideoView;
 
 import java.io.File;
 
+import androidx.annotation.Nullable;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.astrntqasdk.listener.PreviewListener;
@@ -27,6 +26,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.repository.QuestionRepository;
 import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class VideoPreviewActivity extends BaseActivity implements PreviewListener, View.OnClickListener {
@@ -107,20 +107,17 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
     }
 
     private void prepareVideoPlayer() {
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
+        videoView.setOnPreparedListener(mp -> {
 
-                videoDuration = mp.getDuration();
+            videoDuration = mp.getDuration();
 
-                ViewGroup.LayoutParams lp = videoView.getLayoutParams();
-                float videoWidth = mp.getVideoWidth();
-                float videoHeight = mp.getVideoHeight();
-                float viewWidth = videoView.getWidth();
-                lp.height = (int) (viewWidth * (videoHeight / videoWidth));
-                videoView.setLayoutParams(lp);
-                onVideoPlay();
-            }
+            ViewGroup.LayoutParams lp = videoView.getLayoutParams();
+            float videoWidth = mp.getVideoWidth();
+            float videoHeight = mp.getVideoHeight();
+            float viewWidth = videoView.getWidth();
+            lp.height = (int) (viewWidth * (videoHeight / videoWidth));
+            videoView.setLayoutParams(lp);
+            onVideoPlay();
         });
     }
 
@@ -186,12 +183,13 @@ public class VideoPreviewActivity extends BaseActivity implements PreviewListene
         progressDialog.show();
 
         mQuestionRepository.finishQuestion(currentQuestion)
-                .compose(SchedulerUtils.ioToMain())
-                .doOnError(throwable -> {
-                    getView().showProgress(false);
-                    getView().showError(throwable);
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MyObserver<BaseApiDao>() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
 
                     @Override
                     public void onApiResultCompleted() {

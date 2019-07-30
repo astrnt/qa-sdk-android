@@ -2,9 +2,9 @@ package co.astrnt.astrntqasdk.base;
 
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import co.astrnt.astrntqasdk.AstronautApp;
 import co.astrnt.qasdk.VideoSDK;
 import co.astrnt.qasdk.core.AstronautApi;

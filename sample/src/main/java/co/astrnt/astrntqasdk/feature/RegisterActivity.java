@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import androidx.annotation.Nullable;
 import co.astrnt.astrntqasdk.BuildConfig;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
@@ -33,6 +33,7 @@ import co.astrnt.qasdk.dao.post.RegisterPost;
 import co.astrnt.qasdk.repository.InterviewRepository;
 import co.astrnt.qasdk.utils.StringUtils;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class RegisterActivity extends BaseActivity {
@@ -186,12 +187,13 @@ public class RegisterActivity extends BaseActivity {
         progressDialog.show();
 
         mInterviewRepository.registerUser(param)
-                .compose(SchedulerUtils.ioToMain())
-                .doOnError(throwable -> {
-                    getView().showProgress(false);
-                    getView().showError(throwable);
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new RegisterObserver() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
 
                     @Override
                     public void onApiResultCompleted() {

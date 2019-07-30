@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -58,22 +57,19 @@ public class EnterCodeActivity extends BaseActivity {
 
         videoSDK.clearDb();
         if (BuildConfig.DEBUG) {
-            inpCode.setText("idvideo");
+            inpCode.setText("BARU");
         }
 
         checkingPermission();
 
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String code = inpCode.getText().toString();
-                if (TextUtils.isEmpty(code)) {
-                    inpCode.setError("Code still empty");
-                    inpCode.setFocusable(true);
-                    return;
-                }
-                enterCode(code);
+        btnSubmit.setOnClickListener(v -> {
+            String code = inpCode.getText().toString();
+            if (TextUtils.isEmpty(code)) {
+                inpCode.setError("Code still empty");
+                inpCode.setFocusable(true);
+                return;
             }
+            enterCode(code);
         });
     }
 
@@ -151,12 +147,13 @@ public class EnterCodeActivity extends BaseActivity {
         progressDialog.show();
 
         mInterviewRepository.enterCode(code, BuildConfig.SDK_VERSION)
-                .compose(SchedulerUtils.ioToMain())
-                .doOnError(throwable -> {
-                    getView().showProgress(false);
-                    getView().showError(throwable);
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new InterviewObserver() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
 
                     @Override
                     public void onApiResultCompleted() {

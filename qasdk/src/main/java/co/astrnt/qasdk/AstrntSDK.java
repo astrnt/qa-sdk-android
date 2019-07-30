@@ -64,6 +64,8 @@ public class AstrntSDK {
         }
         Realm.init(context);
 
+        Hawk.init(context).build();
+
         PRDownloader.initialize(context);
 
         realm = Realm.getInstance(getRealmConfig());

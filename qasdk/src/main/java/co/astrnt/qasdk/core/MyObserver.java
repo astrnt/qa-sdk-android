@@ -43,16 +43,16 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 }
             } catch (Exception e2) {
                 e2.printStackTrace();
-                onApiResultError("", "Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
+                onApiResultError("", e.getMessage(), "exception");
             }
         } else if (e instanceof UnknownHostException) {
-            onApiResultError("", "Koneksi terputus, silahkan coba lagi", "exception");
+            onApiResultError("", e.getMessage(), "exception");
         } else if (e instanceof SocketTimeoutException) {
-            onApiResultError("", "Koneksi terputus, silahkan coba lagi", "exception");
+            onApiResultError("", e.getMessage(), "exception");
         } else {
             System.err.println(e.getMessage());
             e.printStackTrace();
-            onApiResultError("", "Terjadi kesalahan, silakan hubungi help@astrnt.co", "exception");
+            onApiResultError("", e.getMessage(), "exception");
         }
 
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
@@ -68,7 +68,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     @Override
     public final void onNext(T t) {
         if (t == null) {
-            onApiResultError("", "Terjadi kesalahan, silahkan coba lagi", "error");
+            onApiResultError("", "Failed connect to server", "error");
             return;
         }
         if (t.getStatus() != null && t.getStatus().contains("error")) {

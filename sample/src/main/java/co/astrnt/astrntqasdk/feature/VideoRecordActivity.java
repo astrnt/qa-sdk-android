@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,6 +17,7 @@ import com.otaliastudios.cameraview.CameraView;
 
 import java.io.File;
 
+import androidx.annotation.Nullable;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.astrntqasdk.listener.RecordListener;
@@ -26,6 +26,7 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.repository.QuestionRepository;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class VideoRecordActivity extends BaseActivity implements RecordListener {
@@ -73,12 +74,7 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
 
         currentQuestion = videoSDK.getCurrentQuestion();
 
-        btnControl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setToNextState();
-            }
-        });
+        btnControl.setOnClickListener(v -> setToNextState());
 
         setUpCamera();
     }
@@ -111,12 +107,13 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
         progressDialog.show();
 
         mQuestionRepository.addQuestionAttempt(currentQuestion)
-                .compose(SchedulerUtils.ioToMain())
-                .doOnError(throwable -> {
-                    getView().showProgress(false);
-                    getView().showError(throwable);
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MyObserver<BaseApiDao>() {
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
 
                     @Override
                     public void onApiResultCompleted() {
@@ -226,33 +223,28 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
 
         txtTimer.setVisibility(View.VISIBLE);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                countDownTimer = new CountDownTimer(currentQuestion.getMaxTime() * 1000, 1000) {
+        new Handler().postDelayed(() -> countDownTimer = new CountDownTimer(currentQuestion.getMaxTime() * 1000, 1000) {
 
-                    public void onTick(long millisUntilFinished) {
-                        long currentProgress = millisUntilFinished / 1000;
-                        txtTimer.setText(String.valueOf(currentProgress));
-                        if (currentProgress < 40) {
-                            btnControl.setClickable(true);
-                            btnControl.setEnabled(true);
-                        }
-                        if (currentProgress < 5) {
-                            if (txtCountDown.getVisibility() == View.GONE) {
-                                txtCountDown.setVisibility(View.VISIBLE);
-                            }
-                            txtCountDown.setText(String.valueOf(currentProgress + 1));
-                        }
+            public void onTick(long millisUntilFinished) {
+                long currentProgress = millisUntilFinished / 1000;
+                txtTimer.setText(String.valueOf(currentProgress));
+                if (currentProgress < 40) {
+                    btnControl.setClickable(true);
+                    btnControl.setEnabled(true);
+                }
+                if (currentProgress < 5) {
+                    if (txtCountDown.getVisibility() == View.GONE) {
+                        txtCountDown.setVisibility(View.VISIBLE);
                     }
-
-                    public void onFinish() {
-                        txtTimer.setVisibility(View.GONE);
-                        setCurrentState(STATE_ON_FINISH);
-                    }
-                }.start();
+                    txtCountDown.setText(String.valueOf(currentProgress + 1));
+                }
             }
-        }, 2000);
+
+            public void onFinish() {
+                txtTimer.setVisibility(View.GONE);
+                setCurrentState(STATE_ON_FINISH);
+            }
+        }.start(), 2000);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package co.astrnt.astrntqasdk.widget;
 
 import android.content.Context;
-import androidx.appcompat.widget.AppCompatEditText;
 import android.util.AttributeSet;
 
+import androidx.appcompat.widget.AppCompatEditText;
 import co.astrnt.qasdk.dao.CustomFieldApiDao;
 
 public class CustomFieldEditText extends AppCompatEditText {

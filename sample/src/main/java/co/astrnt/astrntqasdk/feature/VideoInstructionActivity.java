@@ -4,14 +4,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import co.astrnt.astrntqasdk.R;
 import co.astrnt.astrntqasdk.base.BaseActivity;
 import co.astrnt.qasdk.core.MyObserver;
@@ -19,6 +19,7 @@ import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.repository.InterviewRepository;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class VideoInstructionActivity extends BaseActivity {
@@ -121,12 +122,13 @@ public class VideoInstructionActivity extends BaseActivity {
         progressDialog.show();
 
         mInterviewRepository.startInterview()
-                .compose(SchedulerUtils.ioToMain())
-                .doOnError(throwable -> {
-                    getView().showProgress(false);
-                    getView().showError(throwable);
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MyObserver<InterviewStartApiDao>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
                     @Override
                     public void onApiResultCompleted() {
                         progressDialog.dismiss();

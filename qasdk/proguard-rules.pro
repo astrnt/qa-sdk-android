@@ -124,3 +124,15 @@
 -keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
 }
+
+# Work Manager
+-keepclasseswithmembernames class * {
+   native <methods>;
+}
+
+-keep class androidx.renderscript.** { *; }
+
+# Parcelable
+-keepclassmembers class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator CREATOR;
+}

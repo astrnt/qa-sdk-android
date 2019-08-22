@@ -12,6 +12,24 @@
 #   public *;
 #}
 
+# AndroidX
+-dontwarn com.google.android.material.**
+-keep class com.google.android.material.** { *; }
+
+-dontwarn androidx.**
+-keep class androidx.** { *; }
+-keep interface androidx.** { *; }
+
+-keep public class * extends androidx.versionedparcelable.VersionedParcelable {
+  <init>();
+}
+
+-dontwarn android.support.v4.**
+-keep class android.support.v4.** { *; }
+
+-dontwarn android.support.v7.**
+-keep class android.support.v7.** { *; }
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 -keepattributes *Annotation*

@@ -1548,6 +1548,14 @@ public class AstrntSDK {
         Hawk.put(PreferenceKey.KEY_UNAUTHORIZED, value);
     }
 
+    public boolean isProfile() {
+        return Hawk.get(PreferenceKey.KEY_IS_PROFILE, false);
+    }
+
+    public void saveIsProfile(boolean value) {
+        Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
+    }
+
     private void removeHawkSaved() {
         Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);

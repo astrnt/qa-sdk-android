@@ -184,11 +184,11 @@ public class InterviewApiDao extends RealmObject {
         this.interviewCode = interviewCode;
     }
 
-    public int getTotal_video_question() {
+    public int getTotalVideoQuestion() {
         return total_video_question;
     }
 
-    public void setTotal_video_question(int total_video_question) {
+    public void setTotalVideoQuestion(int total_video_question) {
         this.total_video_question = total_video_question;
     }
 }

@@ -20,6 +20,10 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
         astrntSDK = new AstrntSDK();
 
         astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), false);
+
+        boolean isProfile = resultApiDao.getInterview().getType().contains("profile");
+        astrntSDK.saveIsProfile(isProfile);
+
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
                 onInterviewType(resultApiDao.getInterview());

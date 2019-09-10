@@ -13,6 +13,7 @@ public class RegisterPost {
     private String phone;
     private String device;
     private int version;
+    private int is_profile;
     private List<CustomFieldsPost> custom_fields;
 
     public long getJob_id() {
@@ -85,6 +86,14 @@ public class RegisterPost {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public int getIs_profile() {
+        return is_profile;
+    }
+
+    public void setIs_profile(int is_profile) {
+        this.is_profile = is_profile;
     }
 
     public List<CustomFieldsPost> getCustom_fields() {

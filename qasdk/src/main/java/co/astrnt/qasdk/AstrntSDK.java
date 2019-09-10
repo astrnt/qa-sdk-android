@@ -657,11 +657,19 @@ public class AstrntSDK {
         }
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
-            if (isSectionInterview()) {
-                SectionApiDao currentSection = getCurrentSection();
-                return currentSection.getTotalQuestion();
+            if (isProfile()) {
+                if (isNeedRegister()) {
+                    return interviewApiDao.getTotalVideoQuestion();
+                } else {
+                    return interviewApiDao.getTotalQuestion();
+                }
             } else {
-                return interviewApiDao.getTotalQuestion();
+                if (isSectionInterview()) {
+                    SectionApiDao currentSection = getCurrentSection();
+                    return currentSection.getTotalQuestion();
+                } else {
+                    return interviewApiDao.getTotalQuestion();
+                }
             }
         } else {
             return 0;
@@ -1256,14 +1264,18 @@ public class AstrntSDK {
     }
 
     public boolean isStorageEnough() {
-        if (isSectionInterview()) {
-            if (isSectionHasVideo()) {
-                return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
-            } else {
-                return true;
-            }
-        } else {
+        if (isProfile()) {
             return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+        } else {
+            if (isSectionInterview()) {
+                if (isSectionHasVideo()) {
+                    return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+                } else {
+                    return true;
+                }
+            } else {
+                return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+            }
         }
     }
 
@@ -1546,6 +1558,14 @@ public class AstrntSDK {
 
     public void saveUnauthorized(boolean value) {
         Hawk.put(PreferenceKey.KEY_UNAUTHORIZED, value);
+    }
+
+    public boolean isProfile() {
+        return Hawk.get(PreferenceKey.KEY_IS_PROFILE, false);
+    }
+
+    public void saveIsProfile(boolean value) {
+        Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
     }
 
     private void removeHawkSaved() {

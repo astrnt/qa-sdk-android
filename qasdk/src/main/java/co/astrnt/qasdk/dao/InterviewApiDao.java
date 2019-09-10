@@ -16,6 +16,7 @@ public class InterviewApiDao extends RealmObject {
     private int is_allowed_preview;
     private String first_time;
     private int duration_left;
+    private int total_video_question;
     private JobApiDao job;
     private CompanyApiDao company;
     private CandidateApiDao candidate;
@@ -181,5 +182,13 @@ public class InterviewApiDao extends RealmObject {
 
     public void setInterviewCode(String interviewCode) {
         this.interviewCode = interviewCode;
+    }
+
+    public int getTotalVideoQuestion() {
+        return total_video_question;
+    }
+
+    public void setTotalVideoQuestion(int total_video_question) {
+        this.total_video_question = total_video_question;
     }
 }

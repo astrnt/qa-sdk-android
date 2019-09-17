@@ -5,6 +5,7 @@ import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
+import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_SECTION;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_TEST;
 
@@ -23,6 +24,7 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
 
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
+            case CLOSE_INTERVIEW_PROFILE:
                 onInterviewType(resultApiDao.getInterview());
                 break;
             case CLOSE_TEST:

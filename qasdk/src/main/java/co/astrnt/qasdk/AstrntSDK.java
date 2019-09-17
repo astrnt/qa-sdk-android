@@ -47,6 +47,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import timber.log.Timber;
 
+import static co.astrnt.qasdk.type.InterviewType.PROFILE;
+
 public class AstrntSDK {
 
     private static AstronautApi mAstronautApi;
@@ -108,6 +110,16 @@ public class AstrntSDK {
     }
 
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
+
+        if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
+            saveSourcing(true);
+        } else {
+            saveSourcing(false);
+        }
+
+        boolean isProfile = resultApiDao.getInterview().getType().contains(PROFILE);
+        saveIsProfile(isProfile);
+
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             if (resultApiDao.getInformation() != null) {
@@ -216,6 +228,16 @@ public class AstrntSDK {
     }
 
     public void saveInterview(InterviewApiDao interview, String token, String interviewCode) {
+
+        if (interview.getJob().getRecruitmentType().equals("sourcing")) {
+            saveSourcing(true);
+        } else {
+            saveSourcing(false);
+        }
+
+        boolean isProfile = interview.getType().contains(PROFILE);
+        saveIsProfile(isProfile);
+
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             interview.setToken(token);

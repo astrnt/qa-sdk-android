@@ -12,4 +12,6 @@ public class InterviewType {
     public static final String TEST = "test";
     public static final String OPEN_TEST = "open test";
     public static final String OPEN_SECTION = "open section";
+    public static final String PROFILE = "profile";
+    public static final String CLOSE_INTERVIEW_PROFILE = "close interview profile";
 }

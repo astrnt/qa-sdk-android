@@ -4,6 +4,7 @@ import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
+import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_SECTION;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_TEST;
 import static co.astrnt.qasdk.type.InterviewType.OPEN;
@@ -21,18 +22,13 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
         } else {
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
 
-            if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
-                astrntSDK.saveSourcing(true);
-            } else {
-                astrntSDK.saveSourcing(false);
-            }
-
             if (resultApiDao.getInterview().getType().contains(OPEN)) {
                 onNeedToRegister(data);
             } else {
                 astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:
+                    case CLOSE_INTERVIEW_PROFILE:
                         onInterviewType(data);
                         break;
                     case CLOSE_TEST:

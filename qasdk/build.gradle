@@ -32,25 +32,25 @@ android {
 
 configurations.all {
     resolutionStrategy {
-        force 'com.squareup.okio:okio:2.2.2'
-        force 'com.squareup.okhttp3:okhttp:3.14.2'
-        force 'androidx.vectordrawable:vectordrawable-animated:1.0.0'
+        force 'com.squareup.okio:okio:2.4.0'
+        force 'com.squareup.okhttp3:okhttp:3.14.3'
+        force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     }
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
 
-    api 'io.reactivex.rxjava2:rxjava:2.2.10'
-    api 'androidx.core:core:1.0.2'
+    api 'io.reactivex.rxjava2:rxjava:2.2.12'
+    api 'androidx.core:core:1.1.0'
     api 'androidx.legacy:legacy-support-core-utils:1.0.0'
-    api 'androidx.media:media:1.0.1'
+    api 'androidx.media:media:1.1.0'
 
-    def retrofitVersion = "2.6.0"
+    def retrofitVersion = "2.6.1"
     api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     api "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     api "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    api 'com.squareup.okhttp3:logging-interceptor:3.14.2'
+    api 'com.squareup.okhttp3:logging-interceptor:3.14.3'
     api 'com.jakewharton.timber:timber:4.7.1'
 
     def uploadServiceVersion = "3.5.2"

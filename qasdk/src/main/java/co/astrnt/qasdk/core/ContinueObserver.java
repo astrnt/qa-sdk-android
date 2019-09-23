@@ -6,6 +6,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.utils.LogUtil;
 
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
+import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_SECTION;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_TEST;
 
@@ -19,15 +20,10 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
         InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
         boolean isContinue = astrntSDK.isContinueInterview();
 
-        if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
-            astrntSDK.saveSourcing(true);
-        } else {
-            astrntSDK.saveSourcing(false);
-        }
-
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
             case CLOSE_SECTION:
+            case CLOSE_INTERVIEW_PROFILE:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
                     currentInterview = astrntSDK.updateQuestionData(currentInterview, resultApiDao.getInterview());
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview, isContinue);

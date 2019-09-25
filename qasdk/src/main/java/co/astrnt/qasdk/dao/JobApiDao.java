@@ -22,6 +22,8 @@ public class JobApiDao extends RealmObject {
     private String type;
     @SerializedName("recruitment_type")
     private String recruitmentType;
+    @SerializedName("job_url")
+    private String jobUrl;
 
     public long getId() {
         return id;
@@ -101,5 +103,13 @@ public class JobApiDao extends RealmObject {
 
     public void setRecruitmentType(String recruitmentType) {
         this.recruitmentType = recruitmentType;
+    }
+
+    public String getJobUrl() {
+        return jobUrl;
+    }
+
+    public void setJobUrl(String jobUrl) {
+        this.jobUrl = jobUrl;
     }
 }

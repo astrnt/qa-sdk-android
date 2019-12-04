@@ -174,24 +174,24 @@ public class SingleVideoUploadService extends Service {
                                     Timber.e("Video Upload Error : ");
                                     if (exception != null) {
                                         Timber.e("Video Upload Error : %s", exception.getMessage());
-                                    }
-                                    if (serverResponse != null && serverResponse.getBody() != null) {
-                                        String message;
-                                        try {
-                                            BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
-                                            message = baseApiDao.getMessage();
-                                            Timber.e(baseApiDao.getMessage());
-                                        } catch (Exception e) {
-                                            assert exception != null;
-                                            Timber.e("Video Upload Error : %s", exception.getMessage());
-                                            message = exception.getMessage();
-                                        }
+                                    } else {
+                                        if (serverResponse != null && serverResponse.getBody() != null) {
+                                            String message;
+                                            try {
+                                                BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                                message = baseApiDao.getMessage();
+                                                Timber.e(baseApiDao.getMessage());
+                                            } catch (Exception e) {
+                                                Timber.e("Video Upload Error : %s", e.getMessage());
+                                                message = e.getMessage();
+                                            }
 
-                                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                                new LogDao("Single Video Upload Services (Error)",
-                                                        "Error " + message
-                                                )
-                                        );
+                                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                                    new LogDao("Single Video Upload Services (Error)",
+                                                            "Error " + message
+                                                    )
+                                            );
+                                        }
                                     }
                                     astrntSDK.markAsCompressed(currentQuestion);
                                     stopService();

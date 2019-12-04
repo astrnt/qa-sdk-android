@@ -665,7 +665,7 @@ public class AstrntSDK {
     }
 
     public InterviewApiDao getCurrentInterview() {
-        InterviewApiDao currentInterview = realm.where(InterviewApiDao.class).findFirst();
+        InterviewApiDao currentInterview = Realm.getDefaultInstance().where(InterviewApiDao.class).findFirst();
         if (currentInterview != null) {
             return currentInterview;
         } else {

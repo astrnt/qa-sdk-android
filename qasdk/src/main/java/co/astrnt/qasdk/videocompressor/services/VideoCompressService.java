@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.videocompressor.services;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -88,12 +89,20 @@ public class VideoCompressService extends Service {
         context = this;
         astrntSDK = new AstrntSDK();
 
+        startServiceOreoCondition();
+
         if (mTimer != null) {
             mTimer.cancel();
         } else {
             mTimer = new Timer();
         }
         mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+    }
+
+    private void startServiceOreoCondition() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotification("Compress Video");
+        }
     }
 
     @Nullable
@@ -275,6 +284,7 @@ public class VideoCompressService extends Service {
         mBuilder = new NotificationCompat.Builder(context, channelId)
                 .setOngoing(true)
                 .setAutoCancel(false)
+                .setCategory(Notification.CATEGORY_SERVICE)
                 .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
                 .setContentTitle("Astronaut Q&A")
                 .setContentText(message)
@@ -285,7 +295,7 @@ public class VideoCompressService extends Service {
 
     public void stopService() {
         mTimer.cancel();
-
+        mNotifyManager.cancelAll();
         stopSelf();
     }
 

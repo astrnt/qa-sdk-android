@@ -1,5 +1,8 @@
 package co.astrnt.qasdk.upload;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +26,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
+import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
@@ -48,6 +53,10 @@ public class SingleVideoUploadService extends Service {
     private Timer mTimer = null;
     private QuestionApiDao currentQuestion;
     private AstrntSDK astrntSDK;
+
+    private NotificationManager mNotifyManager;
+    private NotificationCompat.Builder mBuilder;
+    private int mNotificationId;
 
     public static void start(Context context, long questionId) {
         Intent intent = new Intent(context, SingleVideoUploadService.class)
@@ -77,6 +86,8 @@ public class SingleVideoUploadService extends Service {
 
         astrntSDK = new AstrntSDK();
 
+        startServiceOreoCondition();
+
         if (mTimer != null) {
             mTimer.cancel();
         } else {
@@ -84,6 +95,51 @@ public class SingleVideoUploadService extends Service {
         }
         mTimer.scheduleAtFixedRate(new SingleVideoUploadService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
+
+    private void startServiceOreoCondition() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotification("Upload Video");
+        }
+    }
+
+    private void createNotification(String message) {
+        mNotificationId = (int) currentQuestion.getId();
+
+        // Make a channel if necessary
+        final String channelId = "Astronaut Q&A";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            CharSequence name = "Upload Video";
+            String description = "Astronaut Q&A Upload Video";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setSound(null, null);
+
+            // Add the channel
+            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (mNotifyManager != null) {
+                mNotifyManager.createNotificationChannel(channel);
+            }
+        } else {
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        // Create the notification
+        mBuilder = new NotificationCompat.Builder(context, channelId)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
+                .setContentTitle("Astronaut Q&A")
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        mNotifyManager.notify(mNotificationId, mBuilder.build());
+    }
+
 
     @Nullable
     @Override
@@ -243,6 +299,7 @@ public class SingleVideoUploadService extends Service {
 
     public void stopService() {
         if (mTimer != null) mTimer.cancel();
+        mNotifyManager.cancelAll();
         stopSelf();
     }
 
@@ -254,6 +311,7 @@ public class SingleVideoUploadService extends Service {
                 currentQuestion = astrntSDK.searchQuestionById(questionId);
                 if (currentQuestion != null) {
                     if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                        mNotifyManager.cancelAll();
                         doUploadVideo();
                     } else {
                         stopService();

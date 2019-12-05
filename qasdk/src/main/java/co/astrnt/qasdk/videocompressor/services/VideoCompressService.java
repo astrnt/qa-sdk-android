@@ -62,12 +62,7 @@ public class VideoCompressService extends Service {
         Intent intent = new Intent(context, VideoCompressService.class)
                 .putExtra(EXT_PATH, inputPath)
                 .putExtra(EXT_QUESTION_ID, questionId);
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
+        context.startService(intent);
     }
 
     @Override

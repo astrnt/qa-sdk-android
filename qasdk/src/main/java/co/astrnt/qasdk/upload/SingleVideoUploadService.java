@@ -61,12 +61,7 @@ public class SingleVideoUploadService extends Service {
     public static void start(Context context, long questionId) {
         Intent intent = new Intent(context, SingleVideoUploadService.class)
                 .putExtra(EXT_QUESTION_ID, questionId);
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
+        context.startService(intent);
     }
 
     @Override

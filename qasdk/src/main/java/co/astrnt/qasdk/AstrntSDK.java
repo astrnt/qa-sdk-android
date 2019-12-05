@@ -880,7 +880,7 @@ public class AstrntSDK {
         }
     }
 
-    private QuestionApiDao getQuestionByIndex(int questionIndex) {
+    public QuestionApiDao getQuestionByIndex(int questionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
             if (isSectionInterview()) {
@@ -981,7 +981,9 @@ public class AstrntSDK {
             realm.beginTransaction();
 
             QuestionInfo questionInfo = getQuestionInfo();
-            questionInfo.decreaseIndex();
+            if (questionInfo.getIndex() > 0) {
+                questionInfo.decreaseIndex();
+            }
 
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();

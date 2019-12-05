@@ -58,11 +58,15 @@ public class VideoCompressService extends Service {
     private int totalQuestion;
 
     public static void start(Context context, String inputPath, long questionId) {
-        context.startService(
-                new Intent(context, VideoCompressService.class)
-                        .putExtra(EXT_PATH, inputPath)
-                        .putExtra(EXT_QUESTION_ID, questionId)
-        );
+        Intent intent = new Intent(context, VideoCompressService.class)
+                .putExtra(EXT_PATH, inputPath)
+                .putExtra(EXT_QUESTION_ID, questionId);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
     }
 
     @Override
@@ -289,18 +293,15 @@ public class VideoCompressService extends Service {
 
         @Override
         public void run() {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (currentQuestion != null) {
-                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.PENDING)) {
-                            doCompress();
-                        } else {
-                            stopService();
-                        }
+            mHandler.post(() -> {
+                if (currentQuestion != null) {
+                    if (currentQuestion.getUploadStatus().equals(UploadStatusType.PENDING)) {
+                        doCompress();
                     } else {
                         stopService();
                     }
+                } else {
+                    stopService();
                 }
             });
         }

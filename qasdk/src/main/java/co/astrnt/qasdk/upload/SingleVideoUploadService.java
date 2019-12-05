@@ -3,6 +3,7 @@ package co.astrnt.qasdk.upload;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -49,10 +50,14 @@ public class SingleVideoUploadService extends Service {
     private AstrntSDK astrntSDK;
 
     public static void start(Context context, long questionId) {
-        context.startService(
-                new Intent(context, SingleVideoUploadService.class)
-                        .putExtra(EXT_QUESTION_ID, questionId)
-        );
+        Intent intent = new Intent(context, SingleVideoUploadService.class)
+                .putExtra(EXT_QUESTION_ID, questionId);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
     }
 
     @Override
@@ -245,19 +250,16 @@ public class SingleVideoUploadService extends Service {
 
         @Override
         public void run() {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    currentQuestion = astrntSDK.searchQuestionById(questionId);
-                    if (currentQuestion != null) {
-                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
-                            doUploadVideo();
-                        } else {
-                            stopService();
-                        }
+            mHandler.post(() -> {
+                currentQuestion = astrntSDK.searchQuestionById(questionId);
+                if (currentQuestion != null) {
+                    if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                        doUploadVideo();
                     } else {
                         stopService();
                     }
+                } else {
+                    stopService();
                 }
             });
         }

@@ -251,6 +251,9 @@ public class VideoCompressService extends Service {
     }
 
     private void createNotification(String message) {
+        if (currentQuestion == null) {
+            return;
+        }
         mNotificationId = (int) currentQuestion.getId();
 
         // Make a channel if necessary
@@ -290,7 +293,7 @@ public class VideoCompressService extends Service {
 
     public void stopService() {
         mTimer.cancel();
-        mNotifyManager.cancelAll();
+        if (mNotifyManager != null) mNotifyManager.cancelAll();
         stopSelf();
     }
 

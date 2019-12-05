@@ -98,6 +98,9 @@ public class SingleVideoUploadService extends Service {
     }
 
     private void createNotification(String message) {
+        if (currentQuestion == null) {
+            return;
+        }
         mNotificationId = (int) currentQuestion.getId();
 
         // Make a channel if necessary
@@ -294,7 +297,7 @@ public class SingleVideoUploadService extends Service {
 
     public void stopService() {
         if (mTimer != null) mTimer.cancel();
-        mNotifyManager.cancelAll();
+        if (mNotifyManager != null) mNotifyManager.cancelAll();
         stopSelf();
     }
 
@@ -306,7 +309,7 @@ public class SingleVideoUploadService extends Service {
                 currentQuestion = astrntSDK.searchQuestionById(questionId);
                 if (currentQuestion != null) {
                     if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
-                        mNotifyManager.cancelAll();
+                        if (mNotifyManager != null) mNotifyManager.cancelAll();
                         doUploadVideo();
                     } else {
                         stopService();

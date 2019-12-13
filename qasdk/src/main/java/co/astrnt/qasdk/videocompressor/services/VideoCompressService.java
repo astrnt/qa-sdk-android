@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.videocompressor.services;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -58,11 +59,10 @@ public class VideoCompressService extends Service {
     private int totalQuestion;
 
     public static void start(Context context, String inputPath, long questionId) {
-        context.startService(
-                new Intent(context, VideoCompressService.class)
-                        .putExtra(EXT_PATH, inputPath)
-                        .putExtra(EXT_QUESTION_ID, questionId)
-        );
+        Intent intent = new Intent(context, VideoCompressService.class)
+                .putExtra(EXT_PATH, inputPath)
+                .putExtra(EXT_QUESTION_ID, questionId);
+        context.startService(intent);
     }
 
     @Override
@@ -84,12 +84,20 @@ public class VideoCompressService extends Service {
         context = this;
         astrntSDK = new AstrntSDK();
 
+        startServiceOreoCondition();
+
         if (mTimer != null) {
             mTimer.cancel();
         } else {
             mTimer = new Timer();
         }
         mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+    }
+
+    private void startServiceOreoCondition() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotification("Compress Video");
+        }
     }
 
     @Nullable
@@ -243,6 +251,9 @@ public class VideoCompressService extends Service {
     }
 
     private void createNotification(String message) {
+        if (currentQuestion == null) {
+            return;
+        }
         mNotificationId = (int) currentQuestion.getId();
 
         // Make a channel if necessary
@@ -271,6 +282,7 @@ public class VideoCompressService extends Service {
         mBuilder = new NotificationCompat.Builder(context, channelId)
                 .setOngoing(true)
                 .setAutoCancel(false)
+                .setCategory(Notification.CATEGORY_SERVICE)
                 .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
                 .setContentTitle("Astronaut Q&A")
                 .setContentText(message)
@@ -281,7 +293,7 @@ public class VideoCompressService extends Service {
 
     public void stopService() {
         mTimer.cancel();
-
+        if (mNotifyManager != null) mNotifyManager.cancelAll();
         stopSelf();
     }
 
@@ -289,18 +301,15 @@ public class VideoCompressService extends Service {
 
         @Override
         public void run() {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (currentQuestion != null) {
-                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.PENDING)) {
-                            doCompress();
-                        } else {
-                            stopService();
-                        }
+            mHandler.post(() -> {
+                if (currentQuestion != null) {
+                    if (currentQuestion.getUploadStatus().equals(UploadStatusType.PENDING)) {
+                        doCompress();
                     } else {
                         stopService();
                     }
+                } else {
+                    stopService();
                 }
             });
         }

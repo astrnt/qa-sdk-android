@@ -1,8 +1,12 @@
 package co.astrnt.qasdk.upload;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -22,7 +26,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
+import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
@@ -48,11 +54,14 @@ public class SingleVideoUploadService extends Service {
     private QuestionApiDao currentQuestion;
     private AstrntSDK astrntSDK;
 
+    private NotificationManager mNotifyManager;
+    private NotificationCompat.Builder mBuilder;
+    private int mNotificationId;
+
     public static void start(Context context, long questionId) {
-        context.startService(
-                new Intent(context, SingleVideoUploadService.class)
-                        .putExtra(EXT_QUESTION_ID, questionId)
-        );
+        Intent intent = new Intent(context, SingleVideoUploadService.class)
+                .putExtra(EXT_QUESTION_ID, questionId);
+        context.startService(intent);
     }
 
     @Override
@@ -72,6 +81,8 @@ public class SingleVideoUploadService extends Service {
 
         astrntSDK = new AstrntSDK();
 
+        startServiceOreoCondition();
+
         if (mTimer != null) {
             mTimer.cancel();
         } else {
@@ -79,6 +90,54 @@ public class SingleVideoUploadService extends Service {
         }
         mTimer.scheduleAtFixedRate(new SingleVideoUploadService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
+
+    private void startServiceOreoCondition() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotification("Upload Video");
+        }
+    }
+
+    private void createNotification(String message) {
+        if (currentQuestion == null) {
+            return;
+        }
+        mNotificationId = (int) currentQuestion.getId();
+
+        // Make a channel if necessary
+        final String channelId = "Astronaut Q&A";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            CharSequence name = "Upload Video";
+            String description = "Astronaut Q&A Upload Video";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setSound(null, null);
+
+            // Add the channel
+            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (mNotifyManager != null) {
+                mNotifyManager.createNotificationChannel(channel);
+            }
+        } else {
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        // Create the notification
+        mBuilder = new NotificationCompat.Builder(context, channelId)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
+                .setContentTitle("Astronaut Q&A")
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        mNotifyManager.notify(mNotificationId, mBuilder.build());
+    }
+
 
     @Nullable
     @Override
@@ -174,24 +233,24 @@ public class SingleVideoUploadService extends Service {
                                     Timber.e("Video Upload Error : ");
                                     if (exception != null) {
                                         Timber.e("Video Upload Error : %s", exception.getMessage());
-                                    }
-                                    if (serverResponse != null && serverResponse.getBody() != null) {
-                                        String message;
-                                        try {
-                                            BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
-                                            message = baseApiDao.getMessage();
-                                            Timber.e(baseApiDao.getMessage());
-                                        } catch (Exception e) {
-                                            assert exception != null;
-                                            Timber.e("Video Upload Error : %s", exception.getMessage());
-                                            message = exception.getMessage();
-                                        }
+                                    } else {
+                                        if (serverResponse != null && serverResponse.getBody() != null) {
+                                            String message;
+                                            try {
+                                                BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                                message = baseApiDao.getMessage();
+                                                Timber.e(baseApiDao.getMessage());
+                                            } catch (Exception e) {
+                                                Timber.e("Video Upload Error : %s", e.getMessage());
+                                                message = e.getMessage();
+                                            }
 
-                                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                                new LogDao("Single Video Upload Services (Error)",
-                                                        "Error " + message
-                                                )
-                                        );
+                                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                                    new LogDao("Single Video Upload Services (Error)",
+                                                            "Error " + message
+                                                    )
+                                            );
+                                        }
                                     }
                                     astrntSDK.markAsCompressed(currentQuestion);
                                     stopService();
@@ -238,6 +297,7 @@ public class SingleVideoUploadService extends Service {
 
     public void stopService() {
         if (mTimer != null) mTimer.cancel();
+        if (mNotifyManager != null) mNotifyManager.cancelAll();
         stopSelf();
     }
 
@@ -245,19 +305,17 @@ public class SingleVideoUploadService extends Service {
 
         @Override
         public void run() {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    currentQuestion = astrntSDK.searchQuestionById(questionId);
-                    if (currentQuestion != null) {
-                        if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
-                            doUploadVideo();
-                        } else {
-                            stopService();
-                        }
+            mHandler.post(() -> {
+                currentQuestion = astrntSDK.searchQuestionById(questionId);
+                if (currentQuestion != null) {
+                    if (currentQuestion.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                        if (mNotifyManager != null) mNotifyManager.cancelAll();
+                        doUploadVideo();
                     } else {
                         stopService();
                     }
+                } else {
+                    stopService();
                 }
             });
         }

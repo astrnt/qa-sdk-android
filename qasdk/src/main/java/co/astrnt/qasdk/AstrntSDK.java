@@ -1098,6 +1098,22 @@ public class AstrntSDK {
         }
     }
 
+    public void updateQuestionMediaPath(QuestionApiDao questionApiDao, String mediaPath) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            if (questionApiDao.getMedia() != null) {
+                questionApiDao.getMedia().setOfflinePath(mediaPath);
+            }
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        } else {
+            updateQuestionMediaPath(questionApiDao, mediaPath);
+        }
+    }
+
     public void updateMediaPath(SectionApiDao sectionApiDao, String mediaPath) {
 
         if (!realm.isInTransaction()) {

@@ -13,7 +13,6 @@ import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,10 +40,9 @@ import co.astrnt.qasdk.utils.SectionInfo;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 import static co.astrnt.qasdk.type.InterviewType.PROFILE;
@@ -1435,29 +1433,26 @@ public class AstrntSDK {
         httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
         httpClientBuilder.connectTimeout(3, TimeUnit.MINUTES);
 
-//        if (isDebuggable) {
-//            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-//            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//
-//            httpClientBuilder.addInterceptor(loggingInterceptor);
-//        }
+        if (isDebuggable) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            httpClientBuilder.addInterceptor(loggingInterceptor);
+        }
 
         final String manufacturer = Build.MANUFACTURER;
         final String model = Build.MODEL;
         final String device = String.format("%s %s", manufacturer, model);
         final String os = "Android " + Build.VERSION.RELEASE;
 
-        httpClientBuilder.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(@NonNull Chain chain) throws IOException {
-                Request request = chain.request().newBuilder()
-                        .addHeader("device", device)
-                        .addHeader("os", os)
-                        .addHeader("browser", "")
-                        .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
-                        .build();
-                return chain.proceed(request);
-            }
+        httpClientBuilder.addInterceptor(chain -> {
+            Request request = chain.request().newBuilder()
+                    .addHeader("device", device)
+                    .addHeader("os", os)
+                    .addHeader("browser", "")
+                    .addHeader("screenresolution", getScreenWidth() + "x" + getScreenHeight())
+                    .build();
+            return chain.proceed(request);
         });
 
         return httpClientBuilder.build();

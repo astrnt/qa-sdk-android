@@ -44,6 +44,13 @@ public class QuestionApiDao extends RealmObject {
     private Boolean isAnswered;
     private RealmList<MultipleAnswerApiDao> selectedAnswer;
 
+    //media file
+//    private MediaDao media;
+//    private @MediaTypes String media_type;
+//    private int media_id;
+//    private int media_attempt;
+//    private int media_attempt_left;
+
     public long getId() {
         return id;
     }
@@ -266,4 +273,45 @@ public class QuestionApiDao extends RealmObject {
     public void setAnswer(String answer) {
         this.answer = answer;
     }
+//
+//    public MediaDao getMedia() {
+//        return media;
+//    }
+//
+//    public void setMedia(MediaDao media) {
+//        this.media = media;
+//    }
+//
+//    public @MediaTypes
+//    String getMediaType() {
+//        return media_type;
+//    }
+//
+//    public void setMediaType(@MediaTypes String media_type) {
+//        this.media_type = media_type;
+//    }
+//
+//    public int getMediaId() {
+//        return media_id;
+//    }
+//
+//    public void setMediaId(int media_id) {
+//        this.media_id = media_id;
+//    }
+//
+//    public int getMediaAttempt() {
+//        return media_attempt;
+//    }
+//
+//    public void setMediaAttempt(int media_attempt) {
+//        this.media_attempt = media_attempt;
+//    }
+//
+//    public int getMediaAttemptLeft() {
+//        return media_attempt_left;
+//    }
+//
+//    public void setMediaAttemptLeft(int media_attempt_left) {
+//        this.media_attempt_left = media_attempt_left;
+//    }
 }

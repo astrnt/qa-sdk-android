@@ -1100,6 +1100,22 @@ public class AstrntSDK {
         }
     }
 
+    public void updateMediaPath(SectionApiDao sectionApiDao, String mediaPath) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            if (sectionApiDao.getMedia() != null) {
+                sectionApiDao.getMedia().setOfflinePath(mediaPath);
+            }
+
+            realm.copyToRealmOrUpdate(sectionApiDao);
+            realm.commitTransaction();
+        } else {
+            updateMediaPath(sectionApiDao, mediaPath);
+        }
+    }
+
     public void updateProgress(QuestionApiDao questionApiDao, double progress) {
 
         if (!realm.isInTransaction()) {
@@ -1453,6 +1469,36 @@ public class AstrntSDK {
         }
         return mAstronautApi;
     }
+
+    public boolean haveMediaToDownload() {
+        boolean haveMediaToDownload = false;
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao.getSections() != null) {
+            for (SectionApiDao section : interviewApiDao.getSections()) {
+                if (section.getMedia() != null) {
+                    if (section.getMedia().getOfflinePath() == null) {
+                        haveMediaToDownload = true;
+                    }
+                }
+//                for (QuestionApiDao question : section.getSectionQuestions()) {
+//                    if (question.getMedia() != null) {
+//                        if (question.getMedia().getOfflinePath() == null) {
+//                            haveMediaToDownload = true;
+//                        }
+//                    }
+//                }
+            }
+        }
+
+        WelcomeVideoDao welcomeVideoDao = getWelcomeVideoDao();
+        String videoUri = getWelcomeVideoUri();
+        if (welcomeVideoDao != null && videoUri.isEmpty()) {
+            haveMediaToDownload = true;
+        }
+
+        return haveMediaToDownload;
+    }
+
 
     public boolean isContinueInterview() {
         return Hawk.get(PreferenceKey.KEY_CONTINUE, false);

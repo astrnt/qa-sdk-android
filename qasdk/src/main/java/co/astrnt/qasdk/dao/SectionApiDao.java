@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.dao;
 
+import co.astrnt.qasdk.type.MediaTypes;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -21,6 +22,10 @@ public class SectionApiDao extends RealmObject {
     private String image;
     private String parent_id;
     private RealmList<QuestionApiDao> section_questions;
+
+    private MediaDao media;
+    private @MediaTypes String media_type;
+    private int media_id;
 
     //additional field
     private int prepTimeLeft;
@@ -144,7 +149,32 @@ public class SectionApiDao extends RealmObject {
         return getTotalAttempt() * 3;
     }
 
-    // Support Method
+    public MediaDao getMedia() {
+        return media;
+    }
+
+    public void setMedia(MediaDao media) {
+        this.media = media;
+    }
+
+    public @MediaTypes
+    String getMediaType() {
+        return media_type;
+    }
+
+    public void setMediaType(@MediaTypes String media_type) {
+        this.media_type = media_type;
+    }
+
+    public int getMediaId() {
+        return media_id;
+    }
+
+    public void setMediaId(int media_id) {
+        this.media_id = media_id;
+    }
+
+// Support Method
 
     public int getTimerDuration() {
         if (getPreparationTime() > 0) {

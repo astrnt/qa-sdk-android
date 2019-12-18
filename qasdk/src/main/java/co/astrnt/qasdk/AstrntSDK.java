@@ -1480,13 +1480,14 @@ public class AstrntSDK {
                         haveMediaToDownload = true;
                     }
                 }
-//                for (QuestionApiDao question : section.getSectionQuestions()) {
-//                    if (question.getMedia() != null) {
-//                        if (question.getMedia().getOfflinePath() == null) {
-//                            haveMediaToDownload = true;
-//                        }
-//                    }
-//                }
+
+                for (QuestionApiDao question : section.getSectionQuestions()) {
+                    if (question.getMedia() != null) {
+                        if (question.getMedia().getOfflinePath() == null) {
+                            haveMediaToDownload = true;
+                        }
+                    }
+                }
             }
         }
 

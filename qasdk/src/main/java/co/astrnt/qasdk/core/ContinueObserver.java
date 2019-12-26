@@ -25,7 +25,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
             case CLOSE_SECTION:
             case CLOSE_INTERVIEW_PROFILE:
                 if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
-                    currentInterview = astrntSDK.updateQuestionData(currentInterview, resultApiDao.getInterview());
+                    currentInterview = astrntSDK.updateInterviewData(currentInterview, resultApiDao.getInterview());
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview, isContinue);
                 } else {
                     astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), isContinue);

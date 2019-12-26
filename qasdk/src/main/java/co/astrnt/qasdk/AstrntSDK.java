@@ -150,7 +150,7 @@ public class AstrntSDK {
 
     }
 
-    public InterviewApiDao updateQuestionData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
+    public InterviewApiDao updateInterviewData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -162,11 +162,33 @@ public class AstrntSDK {
                     for (SectionApiDao section : currentInterview.getSections()) {
 
                         if (newSection.getId() == section.getId()) {
+
+                            if (newSection.getMedia() != null) {
+                                if (section.getMedia() != null) {
+                                    if (newSection.getMediaId() == section.getMediaId()) {
+                                        if (section.getMedia().getOfflinePath() != null) {
+                                            newSection.getMedia().setOfflinePath(section.getMedia().getOfflinePath());
+                                        }
+                                    }
+                                }
+                            }
+
                             RealmList<QuestionApiDao> questionList = new RealmList<>();
 
                             for (QuestionApiDao newQuestion : newSection.getSectionQuestions()) {
                                 for (QuestionApiDao question : section.getSectionQuestions()) {
                                     if (newQuestion.getId() == question.getId()) {
+
+                                        if (newQuestion.getMedia() != null) {
+                                            if (question.getMedia() != null) {
+                                                if (newQuestion.getMediaId() == question.getMediaId()) {
+                                                    if (question.getMedia().getOfflinePath() != null) {
+                                                        newQuestion.getMedia().setOfflinePath(question.getMedia().getOfflinePath());
+                                                    }
+                                                }
+                                            }
+                                        }
+
                                         if (newSection.getType().equals(SectionType.INTERVIEW)) {
                                             newQuestion.setUploadStatus(question.getUploadStatus());
                                             newQuestion.setVideoPath(question.getVideoPath());
@@ -209,6 +231,8 @@ public class AstrntSDK {
 
             realm.copyToRealmOrUpdate(newInterview);
             realm.commitTransaction();
+        } else {
+            updateInterviewData(currentInterview, newInterview);
         }
         return newInterview;
     }

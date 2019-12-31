@@ -63,6 +63,11 @@ public class QuestionRepository extends BaseRepository {
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
         map.put("question_id", String.valueOf(currentQuestion.getId()));
 
+        if (astrntSDK.isSectionInterview()) {
+            SectionApiDao currentSection = astrntSDK.getCurrentSection();
+            map.put("section_id", String.valueOf(currentSection.getId()));
+        }
+
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
                         "Add Media Attempt, number " + (astrntSDK.getQuestionIndex() + 1) +

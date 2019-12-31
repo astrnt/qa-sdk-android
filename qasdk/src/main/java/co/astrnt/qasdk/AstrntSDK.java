@@ -654,6 +654,34 @@ public class AstrntSDK {
         }
     }
 
+    public int getMediaAttempt() {
+        QuestionInfo questionInfo = getQuestionInfo();
+        if (questionInfo != null) {
+            return questionInfo.getMediaAttempt();
+        } else {
+            if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
+                if (currentSection != null) {
+                    if (currentSection.getSectionQuestions() != null) {
+                        assert currentSection.getSectionQuestions().first() != null;
+                        return currentSection.getSectionQuestions().first().getMediaAttemptLeft();
+                    }
+                    return 1;
+                } else {
+                    return 1;
+                }
+
+            } else {
+                QuestionApiDao currentQuestion = getCurrentQuestion();
+                if (currentQuestion != null) {
+                    return currentQuestion.getMediaAttemptLeft();
+                } else {
+                    return 1;
+                }
+            }
+        }
+    }
+
     public List<QuestionApiDao> getAllVideoQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
@@ -1065,6 +1093,31 @@ public class AstrntSDK {
             }
         } else {
             decreaseQuestionAttempt();
+        }
+    }
+
+    public void decreaseMediaAttempt() {
+
+        QuestionInfo questionInfo = getQuestionInfo();
+        if (questionInfo == null) {
+            updateQuestionInfo(0, 0);
+            questionInfo = getQuestionInfo();
+        }
+
+        if (!realm.isInTransaction() && questionInfo != null) {
+            realm.beginTransaction();
+
+            questionInfo.decreaseMediaAttempt();
+            int mediaAttempt = questionInfo.getMediaAttempt();
+
+            if (mediaAttempt <= 0) {
+                realm.commitTransaction();
+            } else {
+                realm.copyToRealmOrUpdate(questionInfo);
+                realm.commitTransaction();
+            }
+        } else {
+            decreaseMediaAttempt();
         }
     }
 

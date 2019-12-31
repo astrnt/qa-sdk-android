@@ -54,6 +54,25 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().addAttempt(token, map);
     }
 
+    public Observable<BaseApiDao> addMediaAttempt(QuestionApiDao currentQuestion) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        String token = interviewApiDao.getToken();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+        map.put("question_id", String.valueOf(currentQuestion.getId()));
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Add Media Attempt, number " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + currentQuestion.getId()
+                )
+        );
+
+        return mAstronautApi.getApiService().addAttempt(token, map);
+    }
+
     public Observable<BaseApiDao> finishQuestion(QuestionApiDao currentQuestion) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();

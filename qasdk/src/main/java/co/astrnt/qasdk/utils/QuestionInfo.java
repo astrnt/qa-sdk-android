@@ -9,7 +9,6 @@ public class QuestionInfo extends RealmObject {
     private long id;
     private int index;
     private int attempt;
-    private int mediaAttempt;
     private boolean isPractice;
 
     public QuestionInfo() {
@@ -53,14 +52,6 @@ public class QuestionInfo extends RealmObject {
         isPractice = practice;
     }
 
-    public int getMediaAttempt() {
-        return mediaAttempt;
-    }
-
-    public void setMediaAttempt(int mediaAttempt) {
-        this.mediaAttempt = mediaAttempt;
-    }
-
     public void increaseIndex() {
         this.index++;
     }
@@ -75,13 +66,5 @@ public class QuestionInfo extends RealmObject {
 
     public void decreaseAttempt() {
         this.attempt--;
-    }
-
-    public void resetMediaAttempt() {
-        this.mediaAttempt = 0;
-    }
-
-    public void decreaseMediaAttempt() {
-        this.mediaAttempt--;
     }
 }

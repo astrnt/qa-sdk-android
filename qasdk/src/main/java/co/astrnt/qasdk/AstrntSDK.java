@@ -655,30 +655,11 @@ public class AstrntSDK {
     }
 
     public int getMediaAttempt() {
-        QuestionInfo questionInfo = getQuestionInfo();
-        if (questionInfo != null) {
-            return questionInfo.getMediaAttempt();
+        QuestionApiDao currentQuestion = getCurrentQuestion();
+        if (currentQuestion != null) {
+            return currentQuestion.getMediaAttemptLeft();
         } else {
-            if (isSectionInterview()) {
-                SectionApiDao currentSection = getCurrentSection();
-                if (currentSection != null) {
-                    if (currentSection.getSectionQuestions() != null) {
-                        assert currentSection.getSectionQuestions().first() != null;
-                        return currentSection.getSectionQuestions().first().getMediaAttemptLeft();
-                    }
-                    return 1;
-                } else {
-                    return 1;
-                }
-
-            } else {
-                QuestionApiDao currentQuestion = getCurrentQuestion();
-                if (currentQuestion != null) {
-                    return currentQuestion.getMediaAttemptLeft();
-                } else {
-                    return 1;
-                }
-            }
+            return 1;
         }
     }
 
@@ -1098,22 +1079,18 @@ public class AstrntSDK {
 
     public void decreaseMediaAttempt() {
 
-        QuestionInfo questionInfo = getQuestionInfo();
-        if (questionInfo == null) {
-            updateQuestionInfo(0, 0);
-            questionInfo = getQuestionInfo();
-        }
+        QuestionApiDao currentQuestion = getCurrentQuestion();
 
-        if (!realm.isInTransaction() && questionInfo != null) {
+        if (!realm.isInTransaction() && currentQuestion != null) {
             realm.beginTransaction();
 
-            questionInfo.decreaseMediaAttempt();
-            int mediaAttempt = questionInfo.getMediaAttempt();
+            currentQuestion.decreaseMediaAttempt();
+            int mediaAttempt = currentQuestion.getMediaAttemptLeft();
 
             if (mediaAttempt <= 0) {
                 realm.commitTransaction();
             } else {
-                realm.copyToRealmOrUpdate(questionInfo);
+                realm.copyToRealmOrUpdate(currentQuestion);
                 realm.commitTransaction();
             }
         } else {

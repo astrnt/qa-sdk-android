@@ -315,4 +315,12 @@ public class QuestionApiDao extends RealmObject {
     public void setMediaAttemptLeft(int media_attempt_left) {
         this.media_attempt_left = media_attempt_left;
     }
+
+    public void resetMediaAttempt() {
+        this.media_attempt_left = 3;
+    }
+
+    public void decreaseMediaAttempt() {
+        this.media_attempt_left--;
+    }
 }

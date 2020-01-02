@@ -1538,7 +1538,7 @@ public class AstrntSDK {
     public boolean haveMediaToDownload() {
         boolean haveMediaToDownload = false;
         InterviewApiDao interviewApiDao = getCurrentInterview();
-        if (interviewApiDao.getSections() != null) {
+        if (isSectionInterview()) {
             for (SectionApiDao section : interviewApiDao.getSections()) {
                 if (section.getMedia() != null) {
                     if (section.getMedia().getOfflinePath() == null) {
@@ -1551,6 +1551,15 @@ public class AstrntSDK {
                         if (question.getMedia().getOfflinePath() == null) {
                             haveMediaToDownload = true;
                         }
+                    }
+                }
+            }
+        } else {
+
+            for (QuestionApiDao question : interviewApiDao.getQuestions()) {
+                if (question.getMedia() != null) {
+                    if (question.getMedia().getOfflinePath() == null) {
+                        haveMediaToDownload = true;
                     }
                 }
             }

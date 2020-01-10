@@ -179,21 +179,23 @@ public class AstrntSDK {
                                 for (QuestionApiDao question : section.getSectionQuestions()) {
                                     if (newQuestion.getId() == question.getId()) {
 
-                                        if (newQuestion.getMedia() != null) {
-                                            if (question.getMedia() != null) {
-                                                if (newQuestion.getMediaId() == question.getMediaId()) {
-                                                    if (question.getMedia().getOfflinePath() != null) {
-                                                        newQuestion.getMedia().setOfflinePath(question.getMedia().getOfflinePath());
-                                                    }
-                                                }
-                                            }
-                                        }
-
                                         if (newSection.getType().equals(SectionType.INTERVIEW)) {
                                             newQuestion.setUploadStatus(question.getUploadStatus());
                                             newQuestion.setVideoPath(question.getVideoPath());
                                             newQuestion.setUploadProgress(question.getUploadProgress());
                                         } else {
+
+                                            if (newQuestion.getMedia() != null) {
+                                                if (question.getMedia() != null) {
+                                                    if (newQuestion.getMediaId() == question.getMediaId()) {
+                                                        if (question.getMedia().getOfflinePath() != null) {
+                                                            newQuestion.getMedia().setOfflinePath(question.getMedia().getOfflinePath());
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            newQuestion.setMediaAttemptLeft(question.getMediaAttemptLeft());
                                             newQuestion.setSelectedAnswer(question.getSelectedAnswer());
                                             newQuestion.setAnswered(question.isAnswered());
                                         }
@@ -219,6 +221,18 @@ public class AstrntSDK {
                                 newQuestion.setVideoPath(question.getVideoPath());
                                 newQuestion.setUploadProgress(question.getUploadProgress());
                             } else {
+
+                                if (newQuestion.getMedia() != null) {
+                                    if (question.getMedia() != null) {
+                                        if (newQuestion.getMediaId() == question.getMediaId()) {
+                                            if (question.getMedia().getOfflinePath() != null) {
+                                                newQuestion.getMedia().setOfflinePath(question.getMedia().getOfflinePath());
+                                            }
+                                        }
+                                    }
+                                }
+
+                                newQuestion.setMediaAttemptLeft(question.getMediaAttemptLeft());
                                 newQuestion.setSelectedAnswer(question.getSelectedAnswer());
                                 newQuestion.setAnswered(question.isAnswered());
                             }

@@ -123,7 +123,7 @@ public class VideoCompressService extends Service {
                 stopService();
             } else {
 
-                File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), "video");
+                File directory = new File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES) + "/" + currentInterview.getInterviewCode(), "video");
                 if (!directory.exists()) {
                     directory.mkdir();
                 }

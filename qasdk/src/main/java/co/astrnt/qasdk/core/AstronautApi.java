@@ -2,7 +2,6 @@ package co.astrnt.qasdk.core;
 
 import android.content.res.Resources;
 import android.os.Build;
-import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
 import co.astrnt.qasdk.ApiService;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InformationDeserializer;

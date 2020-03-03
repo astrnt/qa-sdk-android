@@ -24,23 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class Track {
-    private long trackId = 0;
-    private ArrayList<Sample> samples = new ArrayList<Sample>();
-    private long duration = 0;
-    private String handler;
-    private AbstractMediaHeaderBox headerBox = null;
-    private SampleDescriptionBox sampleDescriptionBox = null;
-    private LinkedList<Integer> syncSamples = null;
-    private int timeScale;
-    private Date creationTime = new Date();
-    private int height;
-    private int width;
-    private float volume = 0;
-    private ArrayList<Long> sampleDurations = new ArrayList<Long>();
-    private boolean isAudio = false;
     private static Map<Integer, Integer> samplingFrequencyIndexMap = new HashMap<Integer, Integer>();
-    private long lastPresentationTimeUs = 0;
-    private boolean first = true;
 
     static {
         samplingFrequencyIndexMap.put(96000, 0x0);
@@ -57,10 +41,27 @@ public class Track {
         samplingFrequencyIndexMap.put(8000, 0xb);
     }
 
+    private long trackId = 0;
+    private ArrayList<Sample> samples = new ArrayList<Sample>();
+    private long duration = 0;
+    private String handler;
+    private AbstractMediaHeaderBox headerBox = null;
+    private SampleDescriptionBox sampleDescriptionBox = null;
+    private LinkedList<Integer> syncSamples = null;
+    private int timeScale;
+    private Date creationTime = new Date();
+    private int height;
+    private int width;
+    private float volume = 0;
+    private ArrayList<Long> sampleDurations = new ArrayList<Long>();
+    private boolean isAudio = false;
+    private long lastPresentationTimeUs = 0;
+    private boolean first = true;
+
     public Track(int id, MediaFormat format, boolean isAudio) {
         trackId = id;
         if (!isAudio) {
-            sampleDurations.add((long)3015);
+            sampleDurations.add((long) 3015);
             duration = 3015;
             width = format.getInteger(MediaFormat.KEY_WIDTH);
             height = format.getInteger(MediaFormat.KEY_HEIGHT);
@@ -126,7 +127,7 @@ public class Track {
                 sampleDescriptionBox.addBox(visualSampleEntry);
             }
         } else {
-            sampleDurations.add((long)1024);
+            sampleDurations.add((long) 1024);
             duration = 1024;
             isAudio = true;
             volume = 1;
@@ -157,7 +158,7 @@ public class Track {
 
             AudioSpecificConfig audioSpecificConfig = new AudioSpecificConfig();
             audioSpecificConfig.setAudioObjectType(2);
-            audioSpecificConfig.setSamplingFrequencyIndex(samplingFrequencyIndexMap.get((int)audioSampleEntry.getSampleRate()));
+            audioSpecificConfig.setSamplingFrequencyIndex(samplingFrequencyIndexMap.get((int) audioSampleEntry.getSampleRate()));
             audioSpecificConfig.setChannelConfiguration(audioSampleEntry.getChannelCount());
             decoderConfigDescriptor.setAudioSpecificInfo(audioSpecificConfig);
 

@@ -51,6 +51,13 @@ public class MP4Builder {
     private HashMap<Track, long[]> track2SampleSizes = new HashMap<>();
     private ByteBuffer sizeBuffer = null;
 
+    public static long gcd(long a, long b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+
     public MP4Builder createMovie(Mp4Movie mp4Movie) throws Exception {
         currentMp4Movie = mp4Movie;
 
@@ -151,78 +158,6 @@ public class MP4Builder {
         minorBrands.add("isom");
         minorBrands.add("3gp4");
         return new FileTypeBox("isom", 0, minorBrands);
-    }
-
-    private class InterleaveChunkMdat implements Box {
-        private Container parent;
-        private long contentSize = 1024 * 1024 * 1024;
-        private long dataOffset = 0;
-
-        public Container getParent() {
-            return parent;
-        }
-
-        public long getOffset() {
-            return dataOffset;
-        }
-
-        public void setDataOffset(long offset) {
-            dataOffset = offset;
-        }
-
-        public void setParent(Container parent) {
-            this.parent = parent;
-        }
-
-        public void setContentSize(long contentSize) {
-            this.contentSize = contentSize;
-        }
-
-        public long getContentSize() {
-            return contentSize;
-        }
-
-        public String getType() {
-            return "mdat";
-        }
-
-        public long getSize() {
-            return 16 + contentSize;
-        }
-
-        private boolean isSmallBox(long contentSize) {
-            return (contentSize + 8) < 4294967296L;
-        }
-
-        @Override
-        public void parse(DataSource dataSource, ByteBuffer header, long contentSize, BoxParser boxParser) {
-
-        }
-
-        public void getBox(WritableByteChannel writableByteChannel) throws IOException {
-            ByteBuffer bb = ByteBuffer.allocate(16);
-            long size = getSize();
-            if (isSmallBox(size)) {
-                IsoTypeWriter.writeUInt32(bb, size);
-            } else {
-                IsoTypeWriter.writeUInt32(bb, 1);
-            }
-            bb.put(IsoFile.fourCCtoBytes("mdat"));
-            if (isSmallBox(size)) {
-                bb.put(new byte[8]);
-            } else {
-                IsoTypeWriter.writeUInt64(bb, size);
-            }
-            bb.rewind();
-            writableByteChannel.write(bb);
-        }
-    }
-
-    public static long gcd(long a, long b) {
-        if (b == 0) {
-            return a;
-        }
-        return gcd(b, a % b);
     }
 
     public long getTimescale(Mp4Movie mp4Movie) {
@@ -430,5 +365,70 @@ public class MP4Builder {
         StaticChunkOffsetBox stco = new StaticChunkOffsetBox();
         stco.setChunkOffsets(chunkOffsetsLong);
         stbl.addBox(stco);
+    }
+
+    private class InterleaveChunkMdat implements Box {
+        private Container parent;
+        private long contentSize = 1024 * 1024 * 1024;
+        private long dataOffset = 0;
+
+        public Container getParent() {
+            return parent;
+        }
+
+        public void setParent(Container parent) {
+            this.parent = parent;
+        }
+
+        public long getOffset() {
+            return dataOffset;
+        }
+
+        public void setDataOffset(long offset) {
+            dataOffset = offset;
+        }
+
+        public long getContentSize() {
+            return contentSize;
+        }
+
+        public void setContentSize(long contentSize) {
+            this.contentSize = contentSize;
+        }
+
+        public String getType() {
+            return "mdat";
+        }
+
+        public long getSize() {
+            return 16 + contentSize;
+        }
+
+        private boolean isSmallBox(long contentSize) {
+            return (contentSize + 8) < 4294967296L;
+        }
+
+        @Override
+        public void parse(DataSource dataSource, ByteBuffer header, long contentSize, BoxParser boxParser) {
+
+        }
+
+        public void getBox(WritableByteChannel writableByteChannel) throws IOException {
+            ByteBuffer bb = ByteBuffer.allocate(16);
+            long size = getSize();
+            if (isSmallBox(size)) {
+                IsoTypeWriter.writeUInt32(bb, size);
+            } else {
+                IsoTypeWriter.writeUInt32(bb, 1);
+            }
+            bb.put(IsoFile.fourCCtoBytes("mdat"));
+            if (isSmallBox(size)) {
+                bb.put(new byte[8]);
+            } else {
+                IsoTypeWriter.writeUInt64(bb, size);
+            }
+            bb.rewind();
+            writableByteChannel.write(bb);
+        }
     }
 }

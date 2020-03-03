@@ -57,7 +57,7 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("v2/media/attempt")
     Observable<BaseApiDao> addMediaAttempt(@Header("token") String token,
-                                      @FieldMap HashMap<String, String> data);
+                                           @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
     @POST("v2/question/answer")

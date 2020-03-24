@@ -31,6 +31,16 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 } else {
                     astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), isContinue);
                 }
+
+                InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+                if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Response API",
+                                    "Success, move to Continue Interview"
+                            )
+                    );
+                }
+
                 onContinueInterview();
                 break;
             default:
@@ -41,8 +51,8 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 }
                 if (currentInterview != null && currentInterview.getInterviewCode() != null) {
                     LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                            new LogDao("Continue",
-                                    "Hit API Error " + resultApiDao.getMessage()
+                            new LogDao("Continue Response API",
+                                    "Error : " + resultApiDao.getMessage()
                             )
                     );
                 }

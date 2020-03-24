@@ -58,7 +58,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                    new LogDao("Hit API",
+                    new LogDao("Response API",
                             "Response Error : " + message
                     )
             );
@@ -69,6 +69,16 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     public final void onNext(T t) {
         if (t == null) {
             onApiResultError("", "Failed connect to server", "error");
+
+            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+            if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Response API",
+                                "Error : Failed connect to server"
+                        )
+                );
+            }
+
             return;
         }
         if (t.getStatus() != null && t.getStatus().contains("error")) {
@@ -84,23 +94,42 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                         );
                         astrntSDK.saveInterview(interviewApiDao, data.getToken(), data.getInterview_code());
                     }
-                }
 
-                if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
-                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                            new LogDao("Hit API",
-                                    "Response Error : " + t.getMessage()
-                            )
-                    );
+                    if (interviewApiDao.getInterviewCode() != null) {
+                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                new LogDao("Response API",
+                                        "Error : " + t.getMessage()
+                                )
+                        );
+                    }
                 }
-
             }
             if (t.getTitle() != null) {
                 onApiResultError(t.getTitle(), t.getMessage(), "error");
             } else {
                 onApiResultError("", t.getMessage(), "error");
             }
+
+            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+            if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Response API",
+                                "Error : " + t.getMessage()
+                        )
+                );
+            }
+
         } else {
+
+            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+            if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        new LogDao("Response API",
+                                "Success : " + t.getMessage()
+                        )
+                );
+            }
+
             onApiResultOk(t);
         }
     }

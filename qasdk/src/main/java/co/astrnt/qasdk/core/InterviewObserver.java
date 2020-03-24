@@ -2,6 +2,8 @@ package co.astrnt.qasdk.core;
 
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.LogDao;
+import co.astrnt.qasdk.utils.LogUtil;
 
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW_PROFILE;
@@ -23,18 +25,47 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
 
             if (resultApiDao.getInterview().getType().contains(OPEN)) {
+
+                if (data.getInterviewCode() != null) {
+                    LogUtil.addNewLog(data.getInterviewCode(),
+                            new LogDao("Response API",
+                                    "Success, will move to Register"
+                            )
+                    );
+                }
                 onNeedToRegister(data);
             } else {
                 astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:
                     case CLOSE_INTERVIEW_PROFILE:
+                        if (data.getInterviewCode() != null) {
+                            LogUtil.addNewLog(data.getInterviewCode(),
+                                    new LogDao("Response API",
+                                            "Success, will move to Video Interview"
+                                    )
+                            );
+                        }
                         onInterviewType(data);
                         break;
                     case CLOSE_TEST:
+                        if (data.getInterviewCode() != null) {
+                            LogUtil.addNewLog(data.getInterviewCode(),
+                                    new LogDao("Response API",
+                                            "Success, will move to MCQ Interview"
+                                    )
+                            );
+                        }
                         onTestType(data);
                         break;
                     case CLOSE_SECTION:
+                        if (data.getInterviewCode() != null) {
+                            LogUtil.addNewLog(data.getInterviewCode(),
+                                    new LogDao("Response API",
+                                            "Success, will move to Section Interview"
+                                    )
+                            );
+                        }
                         onSectionType(data);
                         break;
                     default:
@@ -42,6 +73,14 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                             onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
                         } else {
                             onApiResultError("", resultApiDao.getMessage(), "error");
+                        }
+
+                        if (data.getInterviewCode() != null) {
+                            LogUtil.addNewLog(data.getInterviewCode(),
+                                    new LogDao("Enter Code Response API",
+                                            "Error : " + resultApiDao.getMessage()
+                                    )
+                            );
                         }
                         break;
                 }

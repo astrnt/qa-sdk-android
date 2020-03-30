@@ -17,4 +17,5 @@ public class PreferenceKey {
     public static final String KEY_IS_SOURCING = "IsSourcing";
     public static final String KEY_UNAUTHORIZED = "IsUnauthorized";
     public static final String KEY_IS_PROFILE = "IsProfile";
+    public static final String KEY_INTERVIEW_CODE = "InterviewCode";
 }

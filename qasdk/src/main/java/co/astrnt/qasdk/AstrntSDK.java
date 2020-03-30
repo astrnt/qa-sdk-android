@@ -109,14 +109,18 @@ public class AstrntSDK {
 
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
 
-        if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
+        InterviewApiDao newInterview = resultApiDao.getInterview();
+
+        if (newInterview.getJob().getRecruitmentType().equals("sourcing")) {
             saveSourcing(true);
         } else {
             saveSourcing(false);
         }
 
-        boolean isProfile = resultApiDao.getInterview().getType().contains(PROFILE);
+        boolean isProfile = newInterview.getType().contains(PROFILE);
         saveIsProfile(isProfile);
+
+        saveInterviewCode(newInterview.getInterviewCode());
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -137,8 +141,8 @@ public class AstrntSDK {
                 updateSectionOrQuestionInfo(interviewApiDao);
             } else {
 
-                saveInterview(resultApiDao.getInterview(), resultApiDao.getToken(), resultApiDao.getInterview_code());
-                updateSectionOrQuestionInfo(resultApiDao.getInterview());
+                saveInterview(newInterview, resultApiDao.getToken(), resultApiDao.getInterview_code());
+                updateSectionOrQuestionInfo(newInterview);
             }
             InterviewApiDao currentInterview = getCurrentInterview();
             if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
@@ -1720,6 +1724,14 @@ public class AstrntSDK {
 
     public void saveIsProfile(boolean value) {
         Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
+    }
+
+    public void saveInterviewCode(String interviewCode) {
+        Hawk.put(PreferenceKey.KEY_INTERVIEW_CODE, interviewCode);
+    }
+
+    public String getInterviewCode() {
+        return Hawk.get(PreferenceKey.KEY_INTERVIEW_CODE);
     }
 
     private void removeHawkSaved() {

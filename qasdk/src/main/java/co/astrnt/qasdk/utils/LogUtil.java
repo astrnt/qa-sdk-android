@@ -15,16 +15,25 @@ import co.astrnt.qasdk.dao.LogDao;
 
 public class LogUtil {
 
-    public static void addNewLog(String key, LogDao itemLog) {
-        List<LogDao> logDaoList = Hawk.get(key, new ArrayList<>());
-        logDaoList.add(itemLog);
+    public static void addNewLog(String interviewCode, LogDao itemLog) {
+        List<LogDao> logDaoList = Hawk.get(interviewCode, new ArrayList<>());
+        if (logDaoList.isEmpty()) {
+            logDaoList.add(itemLog);
+        } else {
+            LogDao lastItem = logDaoList.get(logDaoList.size() - 1);
+            if (!lastItem.getMessage().equals(itemLog.getMessage()) &&
+                    (!lastItem.getEvent().equals(itemLog.getEvent())) &&
+                    (!lastItem.getLog_time().equals(itemLog.getLog_time()))) {
+                logDaoList.add(itemLog);
+            }
+        }
         Set<LogDao> set = new LinkedHashSet<>(logDaoList);
         List<LogDao> logWithoutDuplicates = new ArrayList<>(set);
-        Hawk.put(key, logWithoutDuplicates);
+        Hawk.put(interviewCode, logWithoutDuplicates);
     }
 
-    public static List<LogDao> getLog(String key) {
-        return Hawk.get(key);
+    public static List<LogDao> getLog(String interviewCode) {
+        return Hawk.get(interviewCode);
     }
 
     public static String getTimeZone() {
@@ -32,4 +41,9 @@ public class LogUtil {
         String timeZone = new SimpleDateFormat("Z").format(calendar.getTime());
         return timeZone.substring(0, 3) + ":" + timeZone.substring(3, 5);
     }
+
+    public static void clearLog(String interviewCode) {
+        Hawk.delete(interviewCode);
+    }
+
 }

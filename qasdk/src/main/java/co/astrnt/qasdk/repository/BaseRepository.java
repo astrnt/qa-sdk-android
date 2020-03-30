@@ -97,7 +97,7 @@ public class BaseRepository {
                             public void onApiResultOk(BaseApiDao apiDao) {
                                 Timber.d(apiDao.getMessage());
 
-                                Hawk.delete(interviewCode);
+                                LogUtil.clearLog(interviewCode);
                             }
                         });
             }

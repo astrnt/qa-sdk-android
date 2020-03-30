@@ -1315,14 +1315,18 @@ public class AstrntSDK {
     public void clearVideoFile(Context context) {
         File filesDir = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
 
-        if (filesDir != null) {
-            File[] files = filesDir.listFiles();
+        try {
+            if (filesDir != null) {
+                File[] files = filesDir.listFiles();
 
-            if (files != null) {
-                for (File file : files) {
-                    deleteRecursive(file);
+                if (files != null) {
+                    for (File file : files) {
+                        deleteRecursive(file);
+                    }
                 }
             }
+        } catch (Exception e) {
+            Timber.e(e.getMessage());
         }
     }
 

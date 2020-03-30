@@ -13,10 +13,10 @@ public class LogDao {
     private String message;
 
     public LogDao(String event, String message) {
-        long yourmilliseconds = System.currentTimeMillis();
+        long yourMilliSeconds = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date resultdate = new Date(yourmilliseconds);
-        String logTime = sdf.format(resultdate);
+        Date resultDate = new Date(yourMilliSeconds);
+        String logTime = sdf.format(resultDate);
 
         this.event = event;
         this.log_time = logTime;

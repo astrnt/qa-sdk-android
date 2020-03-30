@@ -1,6 +1,8 @@
 package co.astrnt.qasdk.repository;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.orhanobut.hawk.Hawk;
 
@@ -48,7 +50,7 @@ public class BaseRepository {
 
         HashMap<String, String> map = new HashMap<>();
 
-        List<LogDao> logDaos = LogUtil.getLog(interviewApiDao.getInterviewCode());
+        List<LogDao> logDaos = LogUtil.getLog(interviewCode);
 
         if (logDaos != null) {
 
@@ -88,7 +90,7 @@ public class BaseRepository {
                             @Override
                             public void onApiResultError(String title, String message, String code) {
                                 Timber.e(message);
-                                sendLog();
+                                createHandlerForReSendLog();
                             }
 
                             @Override
@@ -101,5 +103,27 @@ public class BaseRepository {
             }
         }
 
+    }
+
+    private void createHandlerForReSendLog() {
+        Thread thread = new Thread() {
+            public void run() {
+                Looper.prepare();
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do Work
+                        sendLog();
+                        handler.removeCallbacks(this);
+                        Looper.myLooper().quit();
+                    }
+                }, 2000);
+
+                Looper.loop();
+            }
+        };
+        thread.start();
     }
 }

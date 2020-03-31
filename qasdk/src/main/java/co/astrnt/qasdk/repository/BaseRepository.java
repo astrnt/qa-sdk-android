@@ -36,23 +36,22 @@ public class BaseRepository {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
 
         final String interviewCode = interviewApiDao.getInterviewCode();
-        String token = interviewApiDao.getToken();
-
-        String manufacturer = Build.MANUFACTURER;
-        String model = Build.MODEL;
-        String version = String.format("%s %s", manufacturer, model);
-        String os = "Android " + Build.VERSION.RELEASE;
-        String appVersion = Hawk.get("versionCode") + " / " + Hawk.get("versionName");
-
-        //TODO: get imei
-        String imei = "-";
-        String timeZone = LogUtil.getTimeZone();
-
         HashMap<String, String> map = new HashMap<>();
 
         List<LogDao> logDaos = LogUtil.getLog(interviewCode);
 
         if (logDaos != null) {
+            String token = interviewApiDao.getToken();
+
+            String manufacturer = Build.MANUFACTURER;
+            String model = Build.MODEL;
+            String version = String.format("%s %s", manufacturer, model);
+            String os = "Android " + Build.VERSION.RELEASE;
+            String appVersion = Hawk.get("versionCode") + " / " + Hawk.get("versionName");
+
+            //TODO: get imei is restricted since Android 10
+            String imei = "-";
+            String timeZone = LogUtil.getTimeZone();
 
             for (int i = 0; i < logDaos.size(); i++) {
                 LogDao logDao = logDaos.get(i);

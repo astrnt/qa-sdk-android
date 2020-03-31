@@ -67,7 +67,6 @@ public class SectionRepository extends BaseRepository {
                 )
         );
 
-        sendLog();
         return mAstronautApi.getApiService().stopSection(token, map);
     }
 

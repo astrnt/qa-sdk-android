@@ -17,16 +17,7 @@ public class LogUtil {
 
     public static void addNewLog(String interviewCode, LogDao itemLog) {
         List<LogDao> logDaoList = Hawk.get(interviewCode, new ArrayList<>());
-        if (logDaoList.isEmpty()) {
-            logDaoList.add(itemLog);
-        } else {
-            LogDao lastItem = logDaoList.get(logDaoList.size() - 1);
-            if (!lastItem.getMessage().equals(itemLog.getMessage()) &&
-                    (!lastItem.getEvent().equals(itemLog.getEvent())) &&
-                    (!lastItem.getLog_time().equals(itemLog.getLog_time()))) {
-                logDaoList.add(itemLog);
-            }
-        }
+        logDaoList.add(itemLog);
         Set<LogDao> set = new LinkedHashSet<>(logDaoList);
         List<LogDao> logWithoutDuplicates = new ArrayList<>(set);
         Hawk.put(interviewCode, logWithoutDuplicates);

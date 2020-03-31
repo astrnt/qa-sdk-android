@@ -174,7 +174,7 @@ public class VideoCompressService extends Service {
                         long fileSizeInMb = outputFile.length() / 1000;
 
                         Timber.d("Video Compress compress output File size %d", outputFile.length());
-                        if (fileSizeInMb < 0.200) {
+                        if (fileSizeInMb < 0.150) {
 
                             LogUtil.addNewLog(currentInterview.getInterviewCode(),
                                     new LogDao("Video Compress (Fail)",

@@ -12,24 +12,12 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import co.astrnt.qasdk.dao.LogDao;
-import timber.log.Timber;
 
 public class LogUtil {
 
     public static void addNewLog(String interviewCode, LogDao itemLog) {
         List<LogDao> logDaoList = getLog(interviewCode);
-        if (logDaoList.isEmpty()) {
-            Timber.e(">>> Log saved %s %s", itemLog.getEvent(), itemLog.getMessage());
-            logDaoList.add(itemLog);
-        } else {
-            LogDao lastItem = logDaoList.get(logDaoList.size() - 1);
-            if (!lastItem.getMessage().equals(itemLog.getMessage()) &&
-                    (!lastItem.getEvent().equals(itemLog.getEvent())) &&
-                    (!lastItem.getLog_time().equals(itemLog.getLog_time()))) {
-                Timber.e(">>> Log saved %s %s", itemLog.getEvent(), itemLog.getMessage());
-                logDaoList.add(itemLog);
-            }
-        }
+        logDaoList.add(itemLog);
         Set<LogDao> set = new LinkedHashSet<>(logDaoList);
         List<LogDao> logWithoutDuplicates = new ArrayList<>(set);
         Hawk.put(interviewCode, logWithoutDuplicates);

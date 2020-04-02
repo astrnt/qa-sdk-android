@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
+import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.dao.LogDao;
 
 public class LogUtil {
@@ -41,6 +42,14 @@ public class LogUtil {
         List<LogDao> logDaoList = getLog(interviewCode);
         logDaoList.removeAll(sentLog);
         Hawk.put(interviewCode, logDaoList);
+    }
+
+    public static int getLastLogIndex() {
+        return Hawk.get(PreferenceKey.KEY_LAST_LOG_INDEX, 0);
+    }
+
+    public static void saveLastLogIndex(int index) {
+        Hawk.put(PreferenceKey.KEY_LAST_LOG_INDEX, index);
     }
 
 }

@@ -23,7 +23,6 @@ public class LogDao {
         this.event = event;
         this.log_time = logTime;
         this.message = message;
-        this.message = message;
     }
 
     public String getEvent() {
@@ -58,8 +57,7 @@ public class LogDao {
             return false;
         } else {
             return (((LogDao) o).getEvent().equals(this.event))
-                    && (((LogDao) o).getMessage().equals(this.message))
-                    && (((LogDao) o).getLog_time().equals(this.log_time));
+                    && (((LogDao) o).getMessage().equals(this.message));
         }
     }
 }

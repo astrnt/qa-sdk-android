@@ -112,6 +112,8 @@ public class SendLogService extends Service {
             String imei = "-";
             String timeZone = LogUtil.getTimeZone();
 
+            int lastLogIndex = LogUtil.getLastLogIndex();
+
             for (int i = 0; i < logDaoList.size(); i++) {
                 LogDao logDao = logDaoList.get(i);
                 sentLog.add(logDao);
@@ -130,6 +132,9 @@ public class SendLogService extends Service {
                 map.put("logs[" + i + "][version]", version);
                 map.put("logs[" + i + "][os]", os);
                 map.put("logs[" + i + "][app_version]", appVersion);
+
+                int index = lastLogIndex + i;
+                LogUtil.saveLastLogIndex(index);
             }
         }
 
@@ -178,6 +183,7 @@ public class SendLogService extends Service {
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
                         mNotifyManager.cancel(mNotificationId);
                         LogUtil.clearSentLog(interviewCode, sentLog);
+                        stopService();
                     }
                 });
     }

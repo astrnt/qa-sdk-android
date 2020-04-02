@@ -184,31 +184,36 @@ public class VideoCompressService extends Service {
                             );
 
                             astrntSDK.markNotAnswer(currentQuestion);
-                            stopSelf();
-                            return;
-                        }
 
-                        LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                new LogDao("Video Compress (Success)",
-                                        "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
-                                )
-                        );
+                            mBuilder.setContentText("Video Compress (Success), but file is corrupt or too small")
+                                    .setProgress(0, 0, false)
+                                    .setOngoing(false)
+                                    .setAutoCancel(true);
 
-                        inputFile.delete();
-                        astrntSDK.updateVideoPath(currentQuestion, outputPath);
-
-                        if (astrntSDK.isShowUpload()) {
-                            EventBus.getDefault().post(new CompressEvent());
                         } else {
-                            if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                                SingleVideoUploadService.start(context, questionId);
-                            }
-                        }
 
-                        mBuilder.setContentText("Compress completed")
-                                .setProgress(0, 0, false)
-                                .setOngoing(false)
-                                .setAutoCancel(true);
+                            LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                    new LogDao("Video Compress (Success)",
+                                            "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
+                                    )
+                            );
+
+                            inputFile.delete();
+                            astrntSDK.updateVideoPath(currentQuestion, outputPath);
+
+                            if (astrntSDK.isShowUpload()) {
+                                EventBus.getDefault().post(new CompressEvent());
+                            } else {
+                                if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                    SingleVideoUploadService.start(context, questionId);
+                                }
+                            }
+
+                            mBuilder.setContentText("Compress completed")
+                                    .setProgress(0, 0, false)
+                                    .setOngoing(false)
+                                    .setAutoCancel(true);
+                        }
 
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
                         mNotifyManager.cancel(mNotificationId);

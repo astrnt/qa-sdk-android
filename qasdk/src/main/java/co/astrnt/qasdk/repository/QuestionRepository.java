@@ -162,8 +162,8 @@ public class QuestionRepository extends BaseRepository {
 
         String token = interviewApiDao.getToken();
 
-        final String interviewCode = interviewApiDao.getInterviewCode();
-        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+        final String interviewCode = astrntSDK.getInterviewCode();
+        LogUtil.addNewLog(interviewCode,
                 new LogDao("Hit API",
                         "Update Elapsed Time, type =  " + type +
                                 ", number " + (astrntSDK.getQuestionIndex() + 1)

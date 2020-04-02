@@ -49,8 +49,10 @@ public class LogUtil {
         return timeZone.substring(0, 3) + ":" + timeZone.substring(3, 5);
     }
 
-    public static void clearSentLog(String interviewCode) {
-        Hawk.delete(interviewCode);
+    public static void clearSentLog(String interviewCode, List<LogDao> sentLog) {
+        List<LogDao> logDaoList = getLog(interviewCode);
+        logDaoList.removeAll(sentLog);
+        Hawk.put(interviewCode, logDaoList);
     }
 
 }

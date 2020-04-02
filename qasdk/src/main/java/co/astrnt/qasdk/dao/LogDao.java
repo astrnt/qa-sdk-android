@@ -1,5 +1,7 @@
 package co.astrnt.qasdk.dao;
 
+import androidx.annotation.Nullable;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -46,5 +48,18 @@ public class LogDao {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (o == null) {
+            return false;
+        } else if (!(o instanceof LogDao)) {
+            return false;
+        } else {
+            return (((LogDao) o).getEvent().equals(this.event))
+                    && (((LogDao) o).getMessage().equals(this.message))
+                    && (((LogDao) o).getLog_time().equals(this.log_time));
+        }
     }
 }

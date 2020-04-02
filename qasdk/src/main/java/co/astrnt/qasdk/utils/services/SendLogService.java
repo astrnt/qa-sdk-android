@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.orhanobut.hawk.Hawk;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -93,6 +94,7 @@ public class SendLogService extends Service {
         HashMap<String, String> map = new HashMap<>();
 
         List<LogDao> logDaoList = LogUtil.getLog(interviewCode);
+        List<LogDao> sentLog = new ArrayList<>();
         if (logDaoList.isEmpty()) {
             stopService();
         } else {
@@ -112,6 +114,7 @@ public class SendLogService extends Service {
 
             for (int i = 0; i < logDaoList.size(); i++) {
                 LogDao logDao = logDaoList.get(i);
+                sentLog.add(logDao);
 
                 map.put("logs[" + i + "][candidate_id]", candidateId);
                 map.put("logs[" + i + "][company_id]", companyId);
@@ -174,7 +177,7 @@ public class SendLogService extends Service {
 
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
                         mNotifyManager.cancel(mNotificationId);
-                        LogUtil.clearSentLog(interviewCode);
+                        LogUtil.clearSentLog(interviewCode, sentLog);
                     }
                 });
     }

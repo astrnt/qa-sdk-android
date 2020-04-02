@@ -21,6 +21,7 @@ public class LogDao {
         this.event = event;
         this.log_time = logTime;
         this.message = message;
+        this.message = message;
     }
 
     public String getEvent() {

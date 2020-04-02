@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 
+import androidx.annotation.NonNull;
+
 import com.downloader.PRDownloader;
 import com.orhanobut.hawk.Hawk;
 
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import androidx.annotation.NonNull;
 import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
@@ -120,7 +121,9 @@ public class AstrntSDK {
         boolean isProfile = newInterview.getType().contains(PROFILE);
         saveIsProfile(isProfile);
 
-        saveInterviewCode(newInterview.getInterviewCode());
+        if (newInterview.getToken() != null) {
+            Hawk.put(PreferenceKey.KEY_TOKEN, newInterview.getToken());
+        }
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -148,6 +151,21 @@ public class AstrntSDK {
             if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
+
+            if (currentInterview.getInterviewCode() != null) {
+                saveInterviewCode(currentInterview.getInterviewCode());
+            }
+
+            if (currentInterview.getCompany() != null) {
+                Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
+            }
+            if (currentInterview.getCandidate() != null) {
+                Hawk.put(PreferenceKey.KEY_CANDIDATE_ID, String.valueOf(currentInterview.getCandidate().getId()));
+            }
+            if (currentInterview.getJob() != null) {
+                Hawk.put(PreferenceKey.KEY_JOB_ID, String.valueOf(currentInterview.getJob().getId()));
+            }
+
         } else {
             saveInterviewResult(resultApiDao, interviewApiDao, isContinue);
         }

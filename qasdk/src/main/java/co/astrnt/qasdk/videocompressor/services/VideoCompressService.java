@@ -30,6 +30,7 @@ import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.utils.FileUtils;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.ServiceUtils;
+import co.astrnt.qasdk.utils.services.SendLogService;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -242,7 +243,6 @@ public class VideoCompressService extends Service {
                         mBuilder.setProgress(100, (int) percent, false);
                         // Displays the progress bar for the first time.
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
-//                    Timber.w("Video Compress progress %s", percent);
                     }
                 });
             }
@@ -292,7 +292,12 @@ public class VideoCompressService extends Service {
         mNotifyManager.notify(mNotificationId, mBuilder.build());
     }
 
+    private void sendLog() {
+        SendLogService.start(context);
+    }
+
     public void stopService() {
+        sendLog();
         mTimer.cancel();
         if (mNotifyManager != null) mNotifyManager.cancelAll();
         stopSelf();

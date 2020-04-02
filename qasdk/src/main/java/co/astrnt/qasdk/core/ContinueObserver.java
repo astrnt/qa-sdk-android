@@ -36,7 +36,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
                     LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                             new LogDao("Response API",
-                                    "Success, move to Continue Interview"
+                                    "Success, move to Section Info"
                             )
                     );
                 }

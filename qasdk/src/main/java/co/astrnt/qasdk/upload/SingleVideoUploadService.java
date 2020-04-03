@@ -10,6 +10,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+
 import com.google.gson.Gson;
 
 import net.gotev.uploadservice.ServerResponse;
@@ -18,26 +21,23 @@ import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
-import co.astrnt.qasdk.event.UploadEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.FileUploadHelper;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.UploadNotifConfig;
+import co.astrnt.qasdk.utils.services.SendLogService;
+import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
 import timber.log.Timber;
 
 public class SingleVideoUploadService extends Service {
@@ -155,7 +155,7 @@ public class SingleVideoUploadService extends Service {
 
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                         new LogDao("Background Upload",
-                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                                String.format("Upload file path  not found. Mark not answer for Question Id : %d", currentQuestion.getId())
                         )
                 );
 
@@ -170,12 +170,11 @@ public class SingleVideoUploadService extends Service {
 
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                         new LogDao("Background Upload",
-                                String.format("Upload file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
+                                String.format("Upload file path not found. Mark not answer for Question Id : %d", currentQuestion.getId())
                         )
                 );
 
                 astrntSDK.markNotAnswer(currentQuestion);
-                EventBus.getDefault().post(new UploadEvent());
 
                 stopService();
 
@@ -184,7 +183,12 @@ public class SingleVideoUploadService extends Service {
                 if (currentQuestion.getVideoPath().contains("_raw.mp4")) {
                     astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
 
-                    EventBus.getDefault().post(new UploadEvent());
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Pending)",
+                                    "Video Still RAW File, will start compress first")
+                    );
+
+                    VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
 
                     stopService();
 
@@ -194,6 +198,11 @@ public class SingleVideoUploadService extends Service {
                         stopService();
                         return;
                     }
+
+                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                            new LogDao("Background Upload (Upload)",
+                                    "Video Still Starting Upload")
+                    );
 
                     List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
 
@@ -231,27 +240,28 @@ public class SingleVideoUploadService extends Service {
                                 public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
                                     astrntSDK.removeUploadId();
                                     Timber.e("Video Upload Error : ");
+                                    String message = "";
                                     if (exception != null) {
-                                        Timber.e("Video Upload Error : %s", exception.getMessage());
+                                        message = exception.getMessage();
                                     } else {
                                         if (serverResponse != null && serverResponse.getBody() != null) {
-                                            String message;
                                             try {
                                                 BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
                                                 message = baseApiDao.getMessage();
                                                 Timber.e(baseApiDao.getMessage());
                                             } catch (Exception e) {
-                                                Timber.e("Video Upload Error : %s", e.getMessage());
                                                 message = e.getMessage();
                                             }
-
-                                            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                                    new LogDao("Single Video Upload Services (Error)",
-                                                            "Error " + message
-                                                    )
-                                            );
                                         }
                                     }
+
+                                    Timber.e("Video Upload Error : %s", message);
+                                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                            new LogDao("Background Upload (Error)",
+                                                    "Error " + message
+                                            )
+                                    );
+
                                     astrntSDK.markAsCompressed(currentQuestion);
                                     stopService();
                                 }
@@ -262,7 +272,7 @@ public class SingleVideoUploadService extends Service {
                                     astrntSDK.markUploaded(currentQuestion);
 
                                     LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                            new LogDao("Single Video Upload Services (Complete)",
+                                            new LogDao("Background Upload (Complete)",
                                                     "Success uploaded for question id " + currentQuestion.getId()
                                             )
                                     );
@@ -276,7 +286,7 @@ public class SingleVideoUploadService extends Service {
                                     astrntSDK.markAsCompressed(currentQuestion);
 
                                     LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                                            new LogDao("Single Video Upload Services (Cancelled)",
+                                            new LogDao("Background Upload (Cancelled)",
                                                     "Cancelled"
                                             )
                                     );
@@ -291,11 +301,22 @@ public class SingleVideoUploadService extends Service {
             }
         } catch (Exception exc) {
             Timber.d("SingleVideoUploadService %s", exc.getMessage());
+
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Background Upload (Exc)",
+                            exc.getMessage())
+            );
+            stopService();
         }
 
     }
 
+    private void sendLog() {
+        SendLogService.start(context);
+    }
+
     public void stopService() {
+        sendLog();
         if (mTimer != null) mTimer.cancel();
         if (mNotifyManager != null) mNotifyManager.cancelAll();
         stopSelf();

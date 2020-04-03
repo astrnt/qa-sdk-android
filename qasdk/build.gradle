@@ -10,8 +10,10 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 14
-        versionName "1.9.3"
+        versionCode 15
+        versionName "1.9.4"
+
+        vectorDrawables.useSupportLibrary = true
     }
 
     lintOptions {
@@ -34,7 +36,7 @@ android {
 configurations.all {
     resolutionStrategy {
         force 'com.squareup.okio:okio:2.4.3'
-        force 'com.squareup.okhttp3:okhttp:3.14.6'
+        force 'com.squareup.okhttp3:okhttp:4.3.1'
         force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     }
 }
@@ -42,7 +44,7 @@ configurations.all {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
 
-    api 'io.reactivex.rxjava2:rxjava:2.2.17'
+    api 'io.reactivex.rxjava2:rxjava:2.2.19'
     api 'androidx.core:core:1.2.0'
     api 'androidx.legacy:legacy-support-core-utils:1.0.0'
     api 'androidx.media:media:1.1.0'
@@ -51,7 +53,7 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     api "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     api "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    api 'com.squareup.okhttp3:logging-interceptor:3.14.6'
+    api 'com.squareup.okhttp3:logging-interceptor:4.3.1'
     api 'com.jakewharton.timber:timber:4.7.1'
 
     def uploadServiceVersion = "3.5.2"

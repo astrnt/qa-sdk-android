@@ -32,7 +32,7 @@ public class FileUploadHelper {
 
         return new MultipartUploadRequest(context, url)
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .addHeader("Accept", "applicaton/json")
+                .addHeader("Accept", "application/json")
                 .addHeader("token", token)
                 .addParameter("interview_code", interviewCode)
                 .addParameter("candidate_id", candidateId)

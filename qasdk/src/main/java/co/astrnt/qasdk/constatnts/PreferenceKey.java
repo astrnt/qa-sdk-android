@@ -17,4 +17,10 @@ public class PreferenceKey {
     public static final String KEY_IS_SOURCING = "IsSourcing";
     public static final String KEY_UNAUTHORIZED = "IsUnauthorized";
     public static final String KEY_IS_PROFILE = "IsProfile";
+    public static final String KEY_INTERVIEW_CODE = "InterviewCode";
+    public static final String KEY_TOKEN = "Token";
+    public static final String KEY_JOB_ID = "JobId";
+    public static final String KEY_CANDIDATE_ID = "CandidateId";
+    public static final String KEY_COMPANY_ID = "CompanyId";
+    public static final String KEY_LAST_LOG_INDEX = "LastLogIndex";
 }

@@ -67,7 +67,6 @@ public class SectionRepository extends BaseRepository {
                 )
         );
 
-        sendLog();
         return mAstronautApi.getApiService().stopSection(token, map);
     }
 
@@ -83,6 +82,7 @@ public class SectionRepository extends BaseRepository {
 
     private void updateElapsedTime(@ElapsedTime String type, long refId) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        final String interviewCode = astrntSDK.getInterviewCode();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
@@ -91,8 +91,7 @@ public class SectionRepository extends BaseRepository {
 
         String token = interviewApiDao.getToken();
 
-        final String interviewCode = interviewApiDao.getInterviewCode();
-        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+        LogUtil.addNewLog(interviewCode,
                 new LogDao("Hit API",
                         "Update Elapsed Time Section, type = " + type +
                                 ", number " + (astrntSDK.getSectionIndex() + 1)

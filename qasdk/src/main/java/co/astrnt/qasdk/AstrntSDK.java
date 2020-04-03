@@ -6,6 +6,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 
+import androidx.annotation.NonNull;
+
 import com.downloader.PRDownloader;
 import com.orhanobut.hawk.Hawk;
 
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import androidx.annotation.NonNull;
 import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
@@ -109,14 +110,20 @@ public class AstrntSDK {
 
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
 
-        if (resultApiDao.getInterview().getJob().getRecruitmentType().equals("sourcing")) {
+        InterviewApiDao newInterview = resultApiDao.getInterview();
+
+        if (newInterview.getJob().getRecruitmentType().equals("sourcing")) {
             saveSourcing(true);
         } else {
             saveSourcing(false);
         }
 
-        boolean isProfile = resultApiDao.getInterview().getType().contains(PROFILE);
+        boolean isProfile = newInterview.getType().contains(PROFILE);
         saveIsProfile(isProfile);
+
+        if (newInterview.getToken() != null) {
+            Hawk.put(PreferenceKey.KEY_TOKEN, newInterview.getToken());
+        }
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -137,13 +144,28 @@ public class AstrntSDK {
                 updateSectionOrQuestionInfo(interviewApiDao);
             } else {
 
-                saveInterview(resultApiDao.getInterview(), resultApiDao.getToken(), resultApiDao.getInterview_code());
-                updateSectionOrQuestionInfo(resultApiDao.getInterview());
+                saveInterview(newInterview, resultApiDao.getToken(), resultApiDao.getInterview_code());
+                updateSectionOrQuestionInfo(newInterview);
             }
             InterviewApiDao currentInterview = getCurrentInterview();
             if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
+
+            if (currentInterview.getInterviewCode() != null) {
+                saveInterviewCode(currentInterview.getInterviewCode());
+            }
+
+            if (currentInterview.getCompany() != null) {
+                Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
+            }
+            if (currentInterview.getCandidate() != null) {
+                Hawk.put(PreferenceKey.KEY_CANDIDATE_ID, String.valueOf(currentInterview.getCandidate().getId()));
+            }
+            if (currentInterview.getJob() != null) {
+                Hawk.put(PreferenceKey.KEY_JOB_ID, String.valueOf(currentInterview.getJob().getId()));
+            }
+
         } else {
             saveInterviewResult(resultApiDao, interviewApiDao, isContinue);
         }
@@ -1311,14 +1333,18 @@ public class AstrntSDK {
     public void clearVideoFile(Context context) {
         File filesDir = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
 
-        if (filesDir != null) {
-            File[] files = filesDir.listFiles();
+        try {
+            if (filesDir != null) {
+                File[] files = filesDir.listFiles();
 
-            if (files != null) {
-                for (File file : files) {
-                    deleteRecursive(file);
+                if (files != null) {
+                    for (File file : files) {
+                        deleteRecursive(file);
+                    }
                 }
             }
+        } catch (Exception e) {
+            Timber.e(e.getMessage());
         }
     }
 
@@ -1720,6 +1746,14 @@ public class AstrntSDK {
 
     public void saveIsProfile(boolean value) {
         Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
+    }
+
+    public void saveInterviewCode(String interviewCode) {
+        Hawk.put(PreferenceKey.KEY_INTERVIEW_CODE, interviewCode);
+    }
+
+    public String getInterviewCode() {
+        return Hawk.get(PreferenceKey.KEY_INTERVIEW_CODE);
     }
 
     private void removeHawkSaved() {

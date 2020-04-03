@@ -1,5 +1,7 @@
 package co.astrnt.qasdk.dao;
 
+import androidx.annotation.Nullable;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -13,10 +15,10 @@ public class LogDao {
     private String message;
 
     public LogDao(String event, String message) {
-        long yourmilliseconds = System.currentTimeMillis();
+        long yourMilliSeconds = System.currentTimeMillis();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date resultdate = new Date(yourmilliseconds);
-        String logTime = sdf.format(resultdate);
+        Date resultDate = new Date(yourMilliSeconds);
+        String logTime = sdf.format(resultDate);
 
         this.event = event;
         this.log_time = logTime;
@@ -45,5 +47,17 @@ public class LogDao {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (o == null) {
+            return false;
+        } else if (!(o instanceof LogDao)) {
+            return false;
+        } else {
+            return (((LogDao) o).getEvent().equals(this.event))
+                    && (((LogDao) o).getMessage().equals(this.message));
+        }
     }
 }

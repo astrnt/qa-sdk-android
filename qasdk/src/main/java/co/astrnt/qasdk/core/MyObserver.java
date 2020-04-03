@@ -13,6 +13,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observer;
 import okhttp3.ResponseBody;
+import retrofit2.HttpException;
 
 /**
  * Created by deni rohimat on 06/04/18.
@@ -29,30 +30,44 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
     @Override
     public final void onError(Throwable e) {
         onComplete();
-        String message = e.getMessage();
+        String message;
         if (e instanceof retrofit2.HttpException) {
             try {
-                ResponseBody body = ((retrofit2.HttpException) e).response().errorBody();
-                assert body != null;
-                BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
-                message = apiDao.getMessage();
-                if (apiDao.getTitle() != null) {
-                    onApiResultError(apiDao.getTitle(), apiDao.getMessage(), "error");
+                HttpException httpException = (HttpException) e;
+                if (httpException.code() == 429) {
+                    message = httpException.getMessage();
+                    onApiResultError("", message, "error");
                 } else {
-                    onApiResultError("", apiDao.getMessage(), "error");
+                    ResponseBody body = ((retrofit2.HttpException) e).response().errorBody();
+                    if (body != null) {
+                        BaseApiDao apiDao = new Gson().fromJson(body.string(), BaseApiDao.class);
+                        message = apiDao.getMessage();
+                        if (apiDao.getTitle() != null) {
+                            onApiResultError(apiDao.getTitle(), message, "error");
+                        } else {
+                            onApiResultError("", message, "error");
+                        }
+                    } else {
+                        message = e.getMessage();
+                        onApiResultError("", message, "error");
+                    }
                 }
             } catch (Exception e2) {
                 e2.printStackTrace();
-                onApiResultError("", e.getMessage(), "exception");
+                message = e2.getMessage();
+                onApiResultError("", message, "exception");
             }
         } else if (e instanceof UnknownHostException) {
-            onApiResultError("", e.getMessage(), "exception");
+            message = e.getMessage();
+            onApiResultError("", message, "exception");
         } else if (e instanceof SocketTimeoutException) {
-            onApiResultError("", e.getMessage(), "exception");
+            message = e.getMessage();
+            onApiResultError("", message, "exception");
         } else {
-            System.err.println(e.getMessage());
+            message = e.getMessage();
+            System.err.println(message);
             e.printStackTrace();
-            onApiResultError("", e.getMessage(), "exception");
+            onApiResultError("", message, "exception");
         }
 
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
@@ -96,36 +111,50 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                     }
 
                     if (interviewApiDao.getInterviewCode() != null) {
+                        String message = "";
+                        if (t.getMessage() != null) {
+                            message = t.getMessage();
+                        }
                         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                                 new LogDao("Response API",
-                                        "Error : " + t.getMessage()
+                                        "Error : " + message
                                 )
                         );
                     }
                 }
             }
+            String message = "";
+            if (t.getMessage() != null) {
+                message = t.getMessage();
+            }
             if (t.getTitle() != null) {
-                onApiResultError(t.getTitle(), t.getMessage(), "error");
+                onApiResultError(t.getTitle(), message, "error");
             } else {
-                onApiResultError("", t.getMessage(), "error");
+                onApiResultError("", message, "error");
             }
 
             InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
             if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+                if (t.getMessage() != null) {
+                    message = t.getMessage();
+                }
                 LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                         new LogDao("Response API",
-                                "Error : " + t.getMessage()
+                                "Error : " + message
                         )
                 );
             }
 
         } else {
-
-            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-            if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+            String message = "";
+            if (t.getMessage() != null) {
+                message = t.getMessage();
+            }
+            String interviewCode = astrntSDK.getInterviewCode();
+            if (interviewCode != null) {
+                LogUtil.addNewLog(interviewCode,
                         new LogDao("Response API",
-                                "Success : " + t.getMessage()
+                                "Success : " + message
                         )
                 );
             }

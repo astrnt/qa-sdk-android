@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 15
-        versionName "1.9.4"
+        versionCode 16
+        versionName "1.9.5"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -35,8 +35,8 @@ android {
 
 configurations.all {
     resolutionStrategy {
-        force 'com.squareup.okio:okio:2.4.3'
-        force 'com.squareup.okhttp3:okhttp:4.3.1'
+        force 'com.squareup.okio:okio:2.5.0'
+        force 'com.squareup.okhttp3:okhttp:4.5.0'
         force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     }
 }
@@ -49,11 +49,11 @@ dependencies {
     api 'androidx.legacy:legacy-support-core-utils:1.0.0'
     api 'androidx.media:media:1.1.0'
 
-    def retrofitVersion = "2.7.1"
+    def retrofitVersion = "2.8.1"
     api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     api "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     api "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    api 'com.squareup.okhttp3:logging-interceptor:4.3.1'
+    api 'com.squareup.okhttp3:logging-interceptor:4.5.0'
     api 'com.jakewharton.timber:timber:4.7.1'
 
     def uploadServiceVersion = "3.5.2"
@@ -64,7 +64,7 @@ dependencies {
     api 'com.mindorks.android:prdownloader:0.6.0'
 
     //    Event Bus for Broadcast Receiver
-    api 'org.greenrobot:eventbus:3.1.1'
+    api 'org.greenrobot:eventbus:3.2.0'
 
     api 'com.orhanobut:hawk:2.0.1'
 }

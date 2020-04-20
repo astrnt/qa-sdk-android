@@ -6,8 +6,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 
-import androidx.annotation.NonNull;
-
 import com.downloader.PRDownloader;
 import com.orhanobut.hawk.Hawk;
 
@@ -19,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
 import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.GdprDao;
@@ -1073,6 +1072,7 @@ public class AstrntSDK {
             realm.commitTransaction();
         } else {
             increaseSectionIndex();
+            return;
         }
 
         SectionApiDao nextSection = getNextSection();

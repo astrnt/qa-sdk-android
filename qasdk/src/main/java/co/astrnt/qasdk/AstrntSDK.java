@@ -15,6 +15,7 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,7 @@ import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.utils.HawkUtils;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
 import io.realm.Realm;
@@ -47,7 +49,7 @@ import timber.log.Timber;
 
 import static co.astrnt.qasdk.type.InterviewType.PROFILE;
 
-public class AstrntSDK {
+public class AstrntSDK extends HawkUtils {
 
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
@@ -151,18 +153,18 @@ public class AstrntSDK {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
 
-            if (currentInterview.getInterviewCode() != null) {
+            if (currentInterview != null && currentInterview.getInterviewCode() != null) {
                 saveInterviewCode(currentInterview.getInterviewCode());
-            }
 
-            if (currentInterview.getCompany() != null) {
-                Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
-            }
-            if (currentInterview.getCandidate() != null) {
-                Hawk.put(PreferenceKey.KEY_CANDIDATE_ID, String.valueOf(currentInterview.getCandidate().getId()));
-            }
-            if (currentInterview.getJob() != null) {
-                Hawk.put(PreferenceKey.KEY_JOB_ID, String.valueOf(currentInterview.getJob().getId()));
+                if (currentInterview.getCompany() != null) {
+                    Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
+                }
+                if (currentInterview.getCandidate() != null) {
+                    Hawk.put(PreferenceKey.KEY_CANDIDATE_ID, String.valueOf(currentInterview.getCandidate().getId()));
+                }
+                if (currentInterview.getJob() != null) {
+                    Hawk.put(PreferenceKey.KEY_JOB_ID, String.valueOf(currentInterview.getJob().getId()));
+                }
             }
 
         } else {
@@ -848,14 +850,6 @@ public class AstrntSDK {
         }
     }
 
-    public boolean isCanContinue() {
-        if (isSectionInterview()) {
-            return isNotLastSection() && isNotLastQuestion();
-        } else {
-            return isNotLastQuestion();
-        }
-    }
-
     private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setTakesCount(3);
@@ -878,7 +872,7 @@ public class AstrntSDK {
         }
     }
 
-    public SectionApiDao getSectionByIndex(int sectionIndex) {
+    private SectionApiDao getSectionByIndex(int sectionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
             if (sectionIndex < interviewApiDao.getSections().size()) {
@@ -1102,12 +1096,12 @@ public class AstrntSDK {
             questionInfo.decreaseAttempt();
             int attempt = questionInfo.getAttempt();
 
-            if (attempt <= 0) {
-                realm.commitTransaction();
-            } else {
-                realm.copyToRealmOrUpdate(questionInfo);
-                realm.commitTransaction();
-            }
+//            if (attempt <= 0) {
+//                realm.commitTransaction();
+//            } else {
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+//            }
         } else {
             decreaseQuestionAttempt();
         }
@@ -1123,12 +1117,12 @@ public class AstrntSDK {
             currentQuestion.decreaseMediaAttempt();
             int mediaAttempt = currentQuestion.getMediaAttemptLeft();
 
-            if (mediaAttempt <= 0) {
-                realm.commitTransaction();
-            } else {
-                realm.copyToRealmOrUpdate(currentQuestion);
-                realm.commitTransaction();
-            }
+//            if (mediaAttempt <= 0) {
+//                realm.commitTransaction();
+//            } else {
+            realm.copyToRealmOrUpdate(currentQuestion);
+            realm.commitTransaction();
+//            }
         } else {
             decreaseMediaAttempt();
         }
@@ -1344,18 +1338,22 @@ public class AstrntSDK {
                 }
             }
         } catch (Exception e) {
-            Timber.e(e.getMessage());
+            Timber.e(e);
         }
     }
 
     private void deleteRecursive(File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            for (File child : fileOrDirectory.listFiles()) {
-                deleteRecursive(child);
+        if (fileOrDirectory != null && fileOrDirectory.exists()) {
+            if (fileOrDirectory.isDirectory()) {
+                if (fileOrDirectory.listFiles() != null) {
+                    for (File child : Objects.requireNonNull(fileOrDirectory.listFiles())) {
+                        deleteRecursive(child);
+                    }
+                }
             }
-        }
 
-        fileOrDirectory.deleteOnExit();
+            fileOrDirectory.deleteOnExit();
+        }
     }
 
     public boolean isPractice() {
@@ -1612,161 +1610,6 @@ public class AstrntSDK {
         }
 
         return haveMediaToDownload;
-    }
-
-
-    public boolean isContinueInterview() {
-        return Hawk.get(PreferenceKey.KEY_CONTINUE, false);
-    }
-
-    public void setContinueInterview(boolean isContinue) {
-        Hawk.put(PreferenceKey.KEY_CONTINUE, isContinue);
-    }
-
-    public boolean isShowUpload() {
-        return Hawk.get(PreferenceKey.KEY_SHOW_UPLOAD, false);
-    }
-
-    public void setShowUpload(boolean showUpload) {
-        Hawk.put(PreferenceKey.KEY_SHOW_UPLOAD, showUpload);
-    }
-
-    public boolean isFinishInterview() {
-        return Hawk.get(PreferenceKey.KEY_FINISH_INTERVIEW, true);
-    }
-
-    public void setFinishInterview(boolean isFinish) {
-        Hawk.put(PreferenceKey.KEY_FINISH_INTERVIEW, isFinish);
-    }
-
-    public boolean isGdprComplied() {
-        GdprDao gdprDao = Hawk.get(PreferenceKey.KEY_GDPR);
-        return gdprDao.isGdprComplied();
-    }
-
-    public GdprDao getGdprDao() {
-        return Hawk.get(PreferenceKey.KEY_GDPR);
-    }
-
-    public void saveGdprDao(GdprDao gdprDao) {
-        Hawk.put(PreferenceKey.KEY_GDPR, gdprDao);
-    }
-
-    public String getUploadId() {
-        return Hawk.get(PreferenceKey.KEY_UPLOAD_ID);
-    }
-
-    public void saveUploadId(String uploadId) {
-        Hawk.put(PreferenceKey.KEY_UPLOAD_ID, uploadId);
-    }
-
-    public void removeUploadId() {
-        Hawk.delete(PreferenceKey.KEY_UPLOAD_ID);
-    }
-
-    public WelcomeVideoDao getWelcomeVideoDao() {
-        return Hawk.get(PreferenceKey.KEY_WELCOME_VIDEO);
-    }
-
-    public void saveWelcomeVideoDao(WelcomeVideoDao welcomeVideoDao) {
-        Hawk.put(PreferenceKey.KEY_WELCOME_VIDEO, welcomeVideoDao);
-    }
-
-    public boolean isFinishWatchWelcomeVideo() {
-        return Hawk.get(PreferenceKey.KEY_WATCH_WELCOME_VIDEO, false);
-    }
-
-    public void saveFinishWatchWelcomeVideo(boolean finished) {
-        Hawk.put(PreferenceKey.KEY_WATCH_WELCOME_VIDEO, finished);
-    }
-
-    public String getWelcomeVideoUri() {
-        return Hawk.get(PreferenceKey.KEY_WELCOME_VIDEO_URI, "");
-    }
-
-    public void saveWelcomeVideoUri(String videoUri) {
-        Hawk.put(PreferenceKey.KEY_WELCOME_VIDEO_URI, videoUri);
-    }
-
-    public int getDownloadId() {
-        return Hawk.get(PreferenceKey.KEY_DOWNLOAD_ID, 0);
-    }
-
-    public void saveDownloadId(int downloadId) {
-        Hawk.put(PreferenceKey.KEY_DOWNLOAD_ID, downloadId);
-    }
-
-    public void removeDownloadId() {
-        Hawk.delete(PreferenceKey.KEY_DOWNLOAD_ID);
-    }
-
-    public boolean isShowRating() {
-        return Hawk.get(PreferenceKey.KEY_SHOW_RATING, false);
-    }
-
-    public void saveShowRating(boolean value) {
-        Hawk.put(PreferenceKey.KEY_SHOW_RATING, value);
-    }
-
-    public boolean isFirstOpen() {
-        return Hawk.get(PreferenceKey.KEY_FIRST_OPEN, true);
-    }
-
-    public void saveFirstOpen(boolean value) {
-        Hawk.put(PreferenceKey.KEY_FIRST_OPEN, value);
-    }
-
-    public boolean isNeedRegister() {
-        return Hawk.get(PreferenceKey.KEY_NEED_REGISTER, true);
-    }
-
-    public void saveNeedRegister(boolean value) {
-        Hawk.put(PreferenceKey.KEY_NEED_REGISTER, value);
-    }
-
-    public boolean isSourcing() {
-        return Hawk.get(PreferenceKey.KEY_IS_SOURCING, true);
-    }
-
-    public void saveSourcing(boolean value) {
-        Hawk.put(PreferenceKey.KEY_IS_SOURCING, value);
-    }
-
-    public boolean isUnauthorized() {
-        return Hawk.get(PreferenceKey.KEY_UNAUTHORIZED, false);
-    }
-
-    public void saveUnauthorized(boolean value) {
-        Hawk.put(PreferenceKey.KEY_UNAUTHORIZED, value);
-    }
-
-    public boolean isProfile() {
-        return Hawk.get(PreferenceKey.KEY_IS_PROFILE, false);
-    }
-
-    public void saveIsProfile(boolean value) {
-        Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
-    }
-
-    public void saveInterviewCode(String interviewCode) {
-        Hawk.put(PreferenceKey.KEY_INTERVIEW_CODE, interviewCode);
-    }
-
-    public String getInterviewCode() {
-        return Hawk.get(PreferenceKey.KEY_INTERVIEW_CODE);
-    }
-
-    private void removeHawkSaved() {
-        Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
-        Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);
-        Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO_URI);
-        Hawk.delete(PreferenceKey.KEY_GDPR);
-        Hawk.delete(PreferenceKey.KEY_CONTINUE);
-        Hawk.delete(PreferenceKey.KEY_SHOW_UPLOAD);
-        Hawk.delete(PreferenceKey.KEY_FINISH_INTERVIEW);
-        Hawk.delete(PreferenceKey.KEY_UNAUTHORIZED);
-        removeDownloadId();
-        removeUploadId();
     }
 
 }

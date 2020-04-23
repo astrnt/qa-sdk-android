@@ -10,8 +10,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
-import androidx.core.app.NotificationCompat;
-
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
@@ -19,6 +17,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -298,7 +297,9 @@ public class VideoCompressService extends Service {
     }
 
     private void sendLog() {
-        SendLogService.start(context);
+        if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
+            SendLogService.start(context);
+        }
     }
 
     public void stopService() {

@@ -10,9 +10,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-
 import com.google.gson.Gson;
 
 import net.gotev.uploadservice.ServerResponse;
@@ -26,6 +23,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.BaseApiDao;
@@ -35,6 +34,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.FileUploadHelper;
 import co.astrnt.qasdk.utils.LogUtil;
+import co.astrnt.qasdk.utils.ServiceUtils;
 import co.astrnt.qasdk.utils.UploadNotifConfig;
 import co.astrnt.qasdk.utils.services.SendLogService;
 import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
@@ -312,7 +312,9 @@ public class SingleVideoUploadService extends Service {
     }
 
     private void sendLog() {
-        SendLogService.start(context);
+        if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
+            SendLogService.start(context);
+        }
     }
 
     public void stopService() {

@@ -11,8 +11,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-import androidx.core.app.NotificationCompat;
-
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
@@ -21,6 +19,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.constatnts.PreferenceKey;
@@ -173,7 +172,11 @@ public class SendLogService extends Service {
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
                         mNotifyManager.cancel(mNotificationId);
 
-                        createHandlerForReSendLog();
+                        if (astrntSDK.isShowUpload()) {
+                            createHandlerForReSendLog();
+                        } else {
+                            stopService();
+                        }
                     }
 
                     @Override

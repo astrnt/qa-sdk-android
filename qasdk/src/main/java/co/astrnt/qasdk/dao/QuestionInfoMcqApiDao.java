@@ -15,6 +15,7 @@ public class QuestionInfoMcqApiDao extends RealmObject {
     @PrimaryKey
     private long id;
     private RealmList<Integer> answer_ids;
+    private String freetext_answer;
 
     public long getId() {
         return id;
@@ -30,5 +31,13 @@ public class QuestionInfoMcqApiDao extends RealmObject {
 
     public void setAnswer_ids(RealmList<Integer> answer_ids) {
         this.answer_ids = answer_ids;
+    }
+
+    public String getFreetext_answer() {
+        return freetext_answer;
+    }
+
+    public void setFreetext_answer(String freetext_answer) {
+        this.freetext_answer = freetext_answer;
     }
 }

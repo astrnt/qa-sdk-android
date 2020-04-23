@@ -22,12 +22,15 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
         if (data == null) {
             onApiResultError("", "Code not found or interview already finished", "error");
         } else {
+
+            String interviewCode = data.getInterviewCode();
+
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
 
             if (resultApiDao.getInterview().getType().contains(OPEN)) {
 
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to Register"
                             )
@@ -35,12 +38,12 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                 }
                 onNeedToRegister(data);
             } else {
-                astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
+                astrntSDK.saveInterview(data, data.getToken(), interviewCode);
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:
                     case CLOSE_INTERVIEW_PROFILE:
-                        if (data.getInterviewCode() != null) {
-                            LogUtil.addNewLog(data.getInterviewCode(),
+                        if (interviewCode != null) {
+                            LogUtil.addNewLog(interviewCode,
                                     new LogDao("Response API",
                                             "Success, will move to Video Interview"
                                     )
@@ -49,8 +52,8 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                         onInterviewType(data);
                         break;
                     case CLOSE_TEST:
-                        if (data.getInterviewCode() != null) {
-                            LogUtil.addNewLog(data.getInterviewCode(),
+                        if (interviewCode != null) {
+                            LogUtil.addNewLog(interviewCode,
                                     new LogDao("Response API",
                                             "Success, will move to MCQ Interview"
                                     )
@@ -59,8 +62,8 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                         onTestType(data);
                         break;
                     case CLOSE_SECTION:
-                        if (data.getInterviewCode() != null) {
-                            LogUtil.addNewLog(data.getInterviewCode(),
+                        if (interviewCode != null) {
+                            LogUtil.addNewLog(interviewCode,
                                     new LogDao("Response API",
                                             "Success, will move to Section Interview"
                                     )
@@ -75,8 +78,8 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                             onApiResultError("", resultApiDao.getMessage(), "error");
                         }
 
-                        if (data.getInterviewCode() != null) {
-                            LogUtil.addNewLog(data.getInterviewCode(),
+                        if (interviewCode != null) {
+                            LogUtil.addNewLog(interviewCode,
                                     new LogDao("Enter Code Response API",
                                             "Error : " + resultApiDao.getMessage()
                                     )

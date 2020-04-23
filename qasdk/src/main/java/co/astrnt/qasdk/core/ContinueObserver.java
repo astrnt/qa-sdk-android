@@ -18,28 +18,27 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
     @Override
     public void onApiResultOk(InterviewResultApiDao resultApiDao) {
         InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
-        boolean isContinue = astrntSDK.isContinueInterview();
+
+        String interviewCode = astrntSDK.getInterviewCode();
 
         switch (resultApiDao.getInterview().getType()) {
             case CLOSE_INTERVIEW:
             case CLOSE_SECTION:
             case CLOSE_INTERVIEW_PROFILE:
             case CLOSE_TEST:
-                if (currentInterview.getInterviewCode().equals(resultApiDao.getInterview_code())) {
-                    currentInterview = astrntSDK.updateInterviewData(currentInterview, resultApiDao.getInterview());
-                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview, isContinue);
+                if (interviewCode.equals(resultApiDao.getInterview_code())) {
+                    astrntSDK.updateInterviewData(currentInterview, resultApiDao.getInterview());
+                    currentInterview = astrntSDK.getCurrentInterview();
+                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true);
                 } else {
-                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), isContinue);
+                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), true);
                 }
 
-                InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-                if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
-                    LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                            new LogDao("Response API",
-                                    "Success, move to Section Info"
-                            )
-                    );
-                }
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Response API",
+                                "Success, move to Section Info"
+                        )
+                );
 
                 onContinueInterview();
                 break;
@@ -49,13 +48,11 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 } else {
                     onApiResultError("", resultApiDao.getMessage(), "error");
                 }
-                if (currentInterview != null && currentInterview.getInterviewCode() != null) {
-                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                            new LogDao("Continue Response API",
-                                    "Error : " + resultApiDao.getMessage()
-                            )
-                    );
-                }
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Continue Response API",
+                                "Error : " + resultApiDao.getMessage()
+                        )
+                );
                 break;
         }
     }

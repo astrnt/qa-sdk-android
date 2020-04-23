@@ -23,13 +23,14 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
         astrntSDK = new AstrntSDK();
 
         InterviewApiDao data = resultApiDao.getInterview();
+        String interviewCode = data.getInterviewCode();
         astrntSDK.saveInterviewResult(resultApiDao, data, false);
 
         switch (data.getType()) {
             case CLOSE_INTERVIEW:
             case CLOSE_INTERVIEW_PROFILE:
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to Video Interview"
                             )
@@ -38,8 +39,8 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onInterviewType(data);
                 break;
             case CLOSE_TEST:
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to MCQ Interview"
                             )
@@ -48,8 +49,8 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onTestType(data);
                 break;
             case CLOSE_SECTION:
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to Section Interview"
                             )
@@ -64,8 +65,8 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                     onApiResultError("", resultApiDao.getMessage(), "error");
                 }
 
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Register Response API",
                                     "Error : " + resultApiDao.getMessage()
                             )

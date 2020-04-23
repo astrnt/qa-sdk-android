@@ -70,29 +70,25 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
             onApiResultError("", message, "exception");
         }
 
-        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-        if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
-            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                    new LogDao("Response API",
-                            "Response Error : " + message
-                    )
-            );
-        }
+        String interviewCode = astrntSDK.getInterviewCode();
+        LogUtil.addNewLog(interviewCode,
+                new LogDao("Response API",
+                        "Response Error : " + message
+                )
+        );
     }
 
     @Override
     public final void onNext(T t) {
+        String interviewCode = astrntSDK.getInterviewCode();
         if (t == null) {
             onApiResultError("", "Failed connect to server", "error");
 
-            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-            if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Response API",
-                                "Error : Failed connect to server"
-                        )
-                );
-            }
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Response API",
+                            "Error : Failed connect to server"
+                    )
+            );
 
             return;
         }
@@ -102,7 +98,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
                 if (interviewApiDao != null) {
                     if (data.getToken() != null && !data.getToken().isEmpty()) {
-                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        LogUtil.addNewLog(interviewCode,
                                 new LogDao("Token Changed",
                                         "New Token : " + data.getToken()
                                 )
@@ -110,12 +106,12 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                         astrntSDK.saveInterview(interviewApiDao, data.getToken(), data.getInterview_code());
                     }
 
-                    if (interviewApiDao.getInterviewCode() != null) {
+                    if (interviewCode != null) {
                         String message = "";
                         if (t.getMessage() != null) {
                             message = t.getMessage();
                         }
-                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                        LogUtil.addNewLog(interviewCode,
                                 new LogDao("Response API",
                                         "Error : " + message
                                 )
@@ -133,12 +129,11 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
                 onApiResultError("", message, "error");
             }
 
-            InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-            if (interviewApiDao != null && interviewApiDao.getInterviewCode() != null) {
+            if (interviewCode != null) {
                 if (t.getMessage() != null) {
                     message = t.getMessage();
                 }
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                LogUtil.addNewLog(interviewCode,
                         new LogDao("Response API",
                                 "Error : " + message
                         )
@@ -150,7 +145,6 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
             if (t.getMessage() != null) {
                 message = t.getMessage();
             }
-            String interviewCode = astrntSDK.getInterviewCode();
             if (interviewCode != null) {
                 LogUtil.addNewLog(interviewCode,
                         new LogDao("Response API",

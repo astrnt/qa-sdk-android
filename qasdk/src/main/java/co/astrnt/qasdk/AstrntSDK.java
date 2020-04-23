@@ -34,6 +34,7 @@ import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
+import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.HawkUtils;
@@ -173,7 +174,7 @@ public class AstrntSDK extends HawkUtils {
 
     }
 
-    public InterviewApiDao updateInterviewData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
+    public void updateInterviewData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -271,7 +272,6 @@ public class AstrntSDK extends HawkUtils {
         } else {
             updateInterviewData(currentInterview, newInterview);
         }
-        return newInterview;
     }
 
     private void updateSectionOrQuestionInfo(InterviewApiDao interviewApiDao) {
@@ -376,8 +376,11 @@ public class AstrntSDK extends HawkUtils {
                                         for (QuestionInfoMcqApiDao questionInfoMcqApiDao : informationApiDao.getQuestionsMcqInfo()) {
 
                                             if (question.getId() == questionInfoMcqApiDao.getId()) {
-                                                for (Integer answerId : questionInfoMcqApiDao.getAnswer_ids()) {
-                                                    question = addSelectedAnswer(question, answerId);
+
+                                                if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                                                    question = addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
+                                                } else {
+                                                    question = addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
                                                 }
                                             }
                                         }
@@ -1463,21 +1466,24 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, int answerId) {
+    private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
         RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
-        for (MultipleAnswerApiDao item : multipleAnswer) {
-            if (questionApiDao.isMultipleChoice()) {
-                if (item.getId() == answerId) {
-                    item.setSelected(!item.isSelected());
-                }
-            } else {
-                if (item.getId() == answerId) {
-                    item.setSelected(!item.isSelected());
+
+        for (Integer answerId : answerIds) {
+            for (MultipleAnswerApiDao item : multipleAnswer) {
+                if (questionApiDao.isMultipleChoice()) {
+                    if (item.getId() == answerId) {
+                        item.setSelected(!item.isSelected());
+                    }
                 } else {
-                    item.setSelected(false);
+                    if (item.getId() == answerId) {
+                        item.setSelected(!item.isSelected());
+                    } else {
+                        item.setSelected(false);
+                    }
                 }
             }
         }
@@ -1513,6 +1519,16 @@ public class AstrntSDK extends HawkUtils {
         } else {
             addAnswer(questionApiDao, answer);
         }
+    }
+
+    public QuestionApiDao addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
+        questionApiDao.setAnswer(answer);
+        if (answer.isEmpty()) {
+            questionApiDao.setAnswered(false);
+        } else {
+            questionApiDao.setAnswered(true);
+        }
+        return questionApiDao;
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {

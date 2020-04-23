@@ -28,8 +28,6 @@ public class SectionApiDao extends RealmObject {
     private int media_id;
 
     //additional field
-    private int prepTimeLeft;
-    private int timeLeft;
     private boolean isOnGoing;
 
     public long getId() {
@@ -73,11 +71,7 @@ public class SectionApiDao extends RealmObject {
     }
 
     public int getDuration() {
-        if (getTimeLeft() > 0) {
-            return getTimeLeft();
-        } else {
-            return duration;
-        }
+        return duration;
     }
 
     public void setDuration(int duration) {
@@ -85,11 +79,7 @@ public class SectionApiDao extends RealmObject {
     }
 
     public int getPreparationTime() {
-        if (getPrepTimeLeft() > 0) {
-            return getPrepTimeLeft();
-        } else {
-            return preparation_time;
-        }
+        return preparation_time;
     }
 
     public void setPreparationTime(int preparation_time) {
@@ -175,30 +165,6 @@ public class SectionApiDao extends RealmObject {
     }
 
 // Support Method
-
-    public int getTimerDuration() {
-        if (getPreparationTime() > 0) {
-            return getPreparationTime();
-        } else {
-            return getDuration();
-        }
-    }
-
-    private int getTimeLeft() {
-        return timeLeft;
-    }
-
-    public void setTimeLeft(int timeLeft) {
-        this.timeLeft = timeLeft;
-    }
-
-    private int getPrepTimeLeft() {
-        return prepTimeLeft;
-    }
-
-    public void setPrepTimeLeft(int prepTimeLeft) {
-        this.prepTimeLeft = prepTimeLeft;
-    }
 
     public boolean isOnGoing() {
         return isOnGoing;

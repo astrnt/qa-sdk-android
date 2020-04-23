@@ -335,10 +335,12 @@ public class AstrntSDK extends HawkUtils {
                     if (section != null) {
                         if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
 
-                            section.setPrepTimeLeft(informationApiDao.getPreparationTime());
-                            section.setPreparationTime(informationApiDao.getPreparationTime());
-                            section.setTimeLeft(informationApiDao.getSectionDurationLeft());
-                            section.setDuration(informationApiDao.getSectionDurationLeft());
+                            if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
+                                section.setPreparationTime(informationApiDao.getPreparationTime());
+                            }
+                            if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
+                                section.setDuration(informationApiDao.getSectionDurationLeft());
+                            }
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }
                         if (section.isOnGoing()) {

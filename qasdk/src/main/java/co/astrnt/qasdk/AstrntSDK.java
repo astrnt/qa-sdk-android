@@ -337,7 +337,7 @@ public class AstrntSDK extends HawkUtils {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        Timber.e("Section duration Info " + informationApiDao.toString());
+                        Timber.e("Section duration Info %s", informationApiDao.toString());
 
                         LogUtil.addNewLog(getInterviewCode(),
                                 new LogDao("Resume Information",
@@ -350,13 +350,13 @@ public class AstrntSDK extends HawkUtils {
                             if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
                                 section.setPreparationTime(informationApiDao.getPreparationTime());
                             }
-                            Timber.e("Section duration " + section.getDuration());
+                            Timber.e("Section duration %s", section.getDuration());
                             if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
-                                Timber.e("Section duration using from info " + informationApiDao.getSectionDurationLeft());
+                                Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
                                 section.setDuration(informationApiDao.getSectionDurationLeft());
                             } else {
                                 if (getLastTimer() != -1) {
-                                    Timber.e("Section duration using from last timer " + getLastTimer());
+                                    Timber.e("Section duration using from last timer %s", getLastTimer());
                                     section.setDuration(getLastTimer());
                                 }
                             }
@@ -1133,12 +1133,12 @@ public class AstrntSDK extends HawkUtils {
             questionInfo.decreaseAttempt();
             int attempt = questionInfo.getAttempt();
 
-//            if (attempt <= 0) {
-//                realm.commitTransaction();
-//            } else {
-            realm.copyToRealmOrUpdate(questionInfo);
-            realm.commitTransaction();
-//            }
+            if (attempt <= 0) {
+                realm.commitTransaction();
+            } else {
+                realm.copyToRealmOrUpdate(questionInfo);
+                realm.commitTransaction();
+            }
         } else {
             decreaseQuestionAttempt();
         }
@@ -1154,12 +1154,12 @@ public class AstrntSDK extends HawkUtils {
             currentQuestion.decreaseMediaAttempt();
             int mediaAttempt = currentQuestion.getMediaAttemptLeft();
 
-//            if (mediaAttempt <= 0) {
-//                realm.commitTransaction();
-//            } else {
-            realm.copyToRealmOrUpdate(currentQuestion);
-            realm.commitTransaction();
-//            }
+            if (mediaAttempt <= 0) {
+                realm.commitTransaction();
+            } else {
+                realm.copyToRealmOrUpdate(currentQuestion);
+                realm.commitTransaction();
+            }
         } else {
             decreaseMediaAttempt();
         }
@@ -1172,6 +1172,7 @@ public class AstrntSDK extends HawkUtils {
     public boolean isNotLastQuestion() {
         if (isSectionInterview()) {
             SectionApiDao sectionApiDao = getSectionByIndex(getSectionIndex());
+            assert sectionApiDao != null;
             return getQuestionIndex() < sectionApiDao.getTotalQuestion();
         } else {
             return getQuestionIndex() < getTotalQuestion();
@@ -1553,7 +1554,7 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public QuestionApiDao addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
+    private QuestionApiDao addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
         questionApiDao.setAnswer(answer);
         if (answer.isEmpty()) {
             questionApiDao.setAnswered(false);

@@ -1094,26 +1094,28 @@ public class AstrntSDK extends HawkUtils {
             SectionApiDao nextSection = getNextSection();
             if (nextSection != null) {
                 sectionInfo.increaseIndex();
-
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",
-                                "Section Index Increased, Question Info reset"
+                                "Section Index Increased"
                         )
                 );
-
-                updateQuestionInfo(0, 0);
             } else {
-
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",
-                                "Section Index not Increased, Question Info reset"
+                                "Section Index not Increased"
                         )
                 );
-                updateQuestionInfo(0, 0);
             }
 
             realm.copyToRealmOrUpdate(sectionInfo);
             realm.commitTransaction();
+
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("Section",
+                            "Question Info reset"
+                    )
+            );
+            updateQuestionInfo(0, 0);
         } else {
             increaseSectionIndex();
         }

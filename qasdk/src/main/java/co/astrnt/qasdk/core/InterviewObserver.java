@@ -23,14 +23,12 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
             onApiResultError("", "Code not found or interview already finished", "error");
         } else {
 
-            String interviewCode = data.getInterviewCode();
-
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
 
             if (resultApiDao.getInterview().getType().contains(OPEN)) {
 
-                if (interviewCode != null) {
-                    LogUtil.addNewLog(interviewCode,
+                if (data.getInterviewCode() != null) {
+                    LogUtil.addNewLog(data.getInterviewCode(),
                             new LogDao("Response API",
                                     "Success, will move to Register"
                             )
@@ -38,7 +36,8 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                 }
                 onNeedToRegister(data);
             } else {
-                astrntSDK.saveInterview(data, data.getToken(), interviewCode);
+                astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
+                String interviewCode = astrntSDK.getInterviewCode();
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:
                     case CLOSE_INTERVIEW_PROFILE:

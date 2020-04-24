@@ -40,4 +40,13 @@ public class QuestionInfoMcqApiDao extends RealmObject {
     public void setFreetext_answer(String freetext_answer) {
         this.freetext_answer = freetext_answer;
     }
+
+    @Override
+    public String toString() {
+        return "QuestionInfoMcqApiDao{" +
+                "id=" + id +
+                ", answer_ids=" + answer_ids +
+                ", freetext_answer='" + freetext_answer + '\'' +
+                '}';
+    }
 }

@@ -142,10 +142,11 @@ public class AstrntSDK extends HawkUtils {
                 saveWelcomeVideoDao(resultApiDao.getWelcomeVideo());
             }
             if (interviewApiDao != null) {
+                saveInterviewCode(resultApiDao.getInterview_code());
                 saveInterview(interviewApiDao, resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(interviewApiDao);
             } else {
-
+                saveInterviewCode(resultApiDao.getInterview_code());
                 saveInterview(newInterview, resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(newInterview);
             }
@@ -154,6 +155,7 @@ public class AstrntSDK extends HawkUtils {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
 
+            currentInterview = getCurrentInterview();
             if (currentInterview != null && currentInterview.getInterviewCode() != null) {
                 saveInterviewCode(currentInterview.getInterviewCode());
 

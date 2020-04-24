@@ -1,5 +1,7 @@
 package co.astrnt.qasdk.dao;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -180,6 +182,26 @@ public class InformationApiDao extends RealmObject {
 
     public boolean isOnGoing() {
         return getSectionInfo().equals("ongoing");
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "InformationApiDao{" +
+                "id=" + id +
+                ", finished=" + finished +
+                ", interviewIndex=" + interviewIndex +
+                ", interviewAttempt=" + interviewAttempt +
+                ", status='" + status + '\'' +
+                ", prevQuestStates=" + prevQuestStates +
+                ", section_index=" + section_index +
+                ", preparation_time=" + preparation_time +
+                ", section_duration_left=" + section_duration_left +
+                ", section_info='" + section_info + '\'' +
+                ", message='" + message + '\'' +
+                ", questions_info=" + questions_info +
+                ", questions_mcq_info=" + questions_mcq_info +
+                '}';
     }
 
 }

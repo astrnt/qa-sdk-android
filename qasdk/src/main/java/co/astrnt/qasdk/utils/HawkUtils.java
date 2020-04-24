@@ -149,6 +149,14 @@ public class HawkUtils {
         return Hawk.get(PreferenceKey.KEY_INTERVIEW_CODE);
     }
 
+    protected void saveLastTimeLeft(int lastTimer) {
+        Hawk.put(PreferenceKey.KEY_LAST_TIMER, lastTimer);
+    }
+
+    public int getLastTimer() {
+        return Hawk.get(PreferenceKey.KEY_LAST_TIMER, -1);
+    }
+
     protected void removeHawkSaved() {
         Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);

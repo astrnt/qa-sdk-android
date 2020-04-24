@@ -25,6 +25,7 @@ import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.PrevQuestionStateApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
@@ -38,6 +39,7 @@ import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.HawkUtils;
+import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
 import io.realm.Realm;
@@ -335,13 +337,28 @@ public class AstrntSDK extends HawkUtils {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
+                        Timber.e("Section duration Info " + informationApiDao.toString());
+
+                        LogUtil.addNewLog(getInterviewCode(),
+                                new LogDao("Resume Information",
+                                        informationApiDao.toString()
+                                )
+                        );
+
+                        if (i == informationApiDao.getSectionIndex()) {
 
                             if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
                                 section.setPreparationTime(informationApiDao.getPreparationTime());
                             }
+                            Timber.e("Section duration " + section.getDuration());
                             if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
+                                Timber.e("Section duration using from info " + informationApiDao.getSectionDurationLeft());
                                 section.setDuration(informationApiDao.getSectionDurationLeft());
+                            } else {
+                                if (getLastTimer() != -1) {
+                                    Timber.e("Section duration using from last timer " + getLastTimer());
+                                    section.setDuration(getLastTimer());
+                                }
                             }
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }
@@ -442,6 +459,12 @@ public class AstrntSDK extends HawkUtils {
                 currentSection.setDuration(timeLeft);
                 realm.copyToRealmOrUpdate(currentSection);
                 realm.commitTransaction();
+                if (timeLeft == 0) {
+                    timeLeft = -1;
+                    saveLastTimeLeft(timeLeft);
+                } else {
+                    saveLastTimeLeft(timeLeft);
+                }
             } else {
                 updateSectionTimeLeft(currentSection, timeLeft);
             }

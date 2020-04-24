@@ -1090,25 +1090,32 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             SectionInfo sectionInfo = getSectionInfo();
-            sectionInfo.increaseIndex();
+
+            SectionApiDao nextSection = getNextSection();
+            if (nextSection != null) {
+                sectionInfo.increaseIndex();
+
+                LogUtil.addNewLog(getInterviewCode(),
+                        new LogDao("Section",
+                                "Section Index Increased, Question Info reset"
+                        )
+                );
+
+                updateQuestionInfo(0, 0);
+            } else {
+
+                LogUtil.addNewLog(getInterviewCode(),
+                        new LogDao("Section",
+                                "Section Index not Increased, Question Info reset"
+                        )
+                );
+                updateQuestionInfo(0, 0);
+            }
 
             realm.copyToRealmOrUpdate(sectionInfo);
             realm.commitTransaction();
         } else {
             increaseSectionIndex();
-            return;
-        }
-
-        SectionApiDao nextSection = getNextSection();
-        if (nextSection != null) {
-            if (nextSection.getSectionQuestions() != null) {
-                assert nextSection.getSectionQuestions().first() != null;
-                updateQuestionInfo(0, 0);
-            } else {
-                updateQuestionInfo(0, 0);
-            }
-        } else {
-            updateQuestionInfo(0, 0);
         }
     }
 

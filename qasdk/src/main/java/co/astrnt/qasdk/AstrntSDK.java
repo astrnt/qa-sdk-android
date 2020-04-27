@@ -345,7 +345,7 @@ public class AstrntSDK extends HawkUtils {
                                 )
                         );
 
-                        if (i == informationApiDao.getSectionIndex()) {
+                        if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
 
                             if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
                                 section.setPreparationTime(informationApiDao.getPreparationTime());

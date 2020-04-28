@@ -65,4 +65,17 @@ public class QuestionInfoApiDao extends RealmObject {
     public void setPrevQuestStates(RealmList<PrevQuestionStateApiDao> prevQuestStates) {
         this.prevQuestStates = prevQuestStates;
     }
+
+    @Override
+    public String toString() {
+        return "QuestionInfoApiDao{" +
+                "id=" + id +
+                ", finished=" + finished +
+                ", interviewIndex=" + interviewIndex +
+                ", interviewAttempt=" + interviewAttempt +
+                ", status='" + status + '\'' +
+                ", message='" + message + '\'' +
+                ", prevQuestStates=" + prevQuestStates +
+                '}';
+    }
 }

@@ -23,4 +23,6 @@ public class PreferenceKey {
     public static final String KEY_CANDIDATE_ID = "CandidateId";
     public static final String KEY_COMPANY_ID = "CompanyId";
     public static final String KEY_LAST_LOG_INDEX = "LastLogIndex";
+    public static final String KEY_LAST_TIMER = "LastTimer";
+    public static final String KEY_SELF_PACE = "SelfPace";
 }

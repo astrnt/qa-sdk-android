@@ -23,13 +23,14 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
         astrntSDK = new AstrntSDK();
 
         InterviewApiDao data = resultApiDao.getInterview();
+        String interviewCode = data.getInterviewCode();
         astrntSDK.saveInterviewResult(resultApiDao, data, false);
 
         switch (data.getType()) {
             case CLOSE_INTERVIEW:
             case CLOSE_INTERVIEW_PROFILE:
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to Video Interview"
                             )
@@ -38,8 +39,8 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onInterviewType(data);
                 break;
             case CLOSE_TEST:
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to MCQ Interview"
                             )
@@ -48,8 +49,8 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onTestType(data);
                 break;
             case CLOSE_SECTION:
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
                             new LogDao("Response API",
                                     "Success, will move to Section Interview"
                             )
@@ -58,19 +59,17 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onSectionType(data);
                 break;
             default:
+                String message = resultApiDao.getMessage();
                 if (resultApiDao.getTitle() != null) {
-                    onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                    onApiResultError(resultApiDao.getTitle(), message, "error");
                 } else {
-                    onApiResultError("", resultApiDao.getMessage(), "error");
+                    onApiResultError("", message, "error");
                 }
-
-                if (data.getInterviewCode() != null) {
-                    LogUtil.addNewLog(data.getInterviewCode(),
-                            new LogDao("Register Response API",
-                                    "Error : " + resultApiDao.getMessage()
-                            )
-                    );
-                }
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Register Response API",
+                                "Error : " + message
+                        )
+                );
                 break;
         }
     }

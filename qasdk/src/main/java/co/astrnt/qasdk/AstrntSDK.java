@@ -15,6 +15,7 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.PrevQuestionStateApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
@@ -33,8 +35,11 @@ import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
+import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.utils.HawkUtils;
+import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
 import io.realm.Realm;
@@ -47,7 +52,7 @@ import timber.log.Timber;
 
 import static co.astrnt.qasdk.type.InterviewType.PROFILE;
 
-public class AstrntSDK {
+public class AstrntSDK extends HawkUtils {
 
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
@@ -120,6 +125,8 @@ public class AstrntSDK {
         boolean isProfile = newInterview.getType().contains(PROFILE);
         saveIsProfile(isProfile);
 
+        saveSelfPace(newInterview.isSelfPace());
+
         if (newInterview.getToken() != null) {
             Hawk.put(PreferenceKey.KEY_TOKEN, newInterview.getToken());
         }
@@ -139,10 +146,11 @@ public class AstrntSDK {
                 saveWelcomeVideoDao(resultApiDao.getWelcomeVideo());
             }
             if (interviewApiDao != null) {
+                saveInterviewCode(resultApiDao.getInterview_code());
                 saveInterview(interviewApiDao, resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(interviewApiDao);
             } else {
-
+                saveInterviewCode(resultApiDao.getInterview_code());
                 saveInterview(newInterview, resultApiDao.getToken(), resultApiDao.getInterview_code());
                 updateSectionOrQuestionInfo(newInterview);
             }
@@ -151,18 +159,19 @@ public class AstrntSDK {
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
 
-            if (currentInterview.getInterviewCode() != null) {
+            currentInterview = getCurrentInterview();
+            if (currentInterview != null && currentInterview.getInterviewCode() != null) {
                 saveInterviewCode(currentInterview.getInterviewCode());
-            }
 
-            if (currentInterview.getCompany() != null) {
-                Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
-            }
-            if (currentInterview.getCandidate() != null) {
-                Hawk.put(PreferenceKey.KEY_CANDIDATE_ID, String.valueOf(currentInterview.getCandidate().getId()));
-            }
-            if (currentInterview.getJob() != null) {
-                Hawk.put(PreferenceKey.KEY_JOB_ID, String.valueOf(currentInterview.getJob().getId()));
+                if (currentInterview.getCompany() != null) {
+                    Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
+                }
+                if (currentInterview.getCandidate() != null) {
+                    Hawk.put(PreferenceKey.KEY_CANDIDATE_ID, String.valueOf(currentInterview.getCandidate().getId()));
+                }
+                if (currentInterview.getJob() != null) {
+                    Hawk.put(PreferenceKey.KEY_JOB_ID, String.valueOf(currentInterview.getJob().getId()));
+                }
             }
 
         } else {
@@ -171,7 +180,7 @@ public class AstrntSDK {
 
     }
 
-    public InterviewApiDao updateInterviewData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
+    public void updateInterviewData(InterviewApiDao currentInterview, InterviewApiDao newInterview) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -269,7 +278,6 @@ public class AstrntSDK {
         } else {
             updateInterviewData(currentInterview, newInterview);
         }
-        return newInterview;
     }
 
     private void updateSectionOrQuestionInfo(InterviewApiDao interviewApiDao) {
@@ -331,12 +339,29 @@ public class AstrntSDK {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
+                        Timber.e("Section duration Info %s", informationApiDao.toString());
+
+                        LogUtil.addNewLog(getInterviewCode(),
+                                new LogDao("Resume Information",
+                                        informationApiDao.toString()
+                                )
+                        );
+
                         if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
 
-                            section.setPrepTimeLeft(informationApiDao.getPreparationTime());
-                            section.setPreparationTime(informationApiDao.getPreparationTime());
-                            section.setTimeLeft(informationApiDao.getSectionDurationLeft());
-                            section.setDuration(informationApiDao.getSectionDurationLeft());
+                            if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
+                                section.setPreparationTime(informationApiDao.getPreparationTime());
+                            }
+                            Timber.e("Section duration %s", section.getDuration());
+                            if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
+                                Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
+                                section.setDuration(informationApiDao.getSectionDurationLeft());
+                            } else {
+                                if (getLastTimer() != -1) {
+                                    Timber.e("Section duration using from last timer %s", getLastTimer());
+                                    section.setDuration(getLastTimer());
+                                }
+                            }
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }
                         if (section.isOnGoing()) {
@@ -372,8 +397,11 @@ public class AstrntSDK {
                                         for (QuestionInfoMcqApiDao questionInfoMcqApiDao : informationApiDao.getQuestionsMcqInfo()) {
 
                                             if (question.getId() == questionInfoMcqApiDao.getId()) {
-                                                for (Integer answerId : questionInfoMcqApiDao.getAnswer_ids()) {
-                                                    question = addSelectedAnswer(question, answerId);
+
+                                                if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                                                    question = addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
+                                                } else {
+                                                    question = addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
                                                 }
                                             }
                                         }
@@ -433,6 +461,12 @@ public class AstrntSDK {
                 currentSection.setDuration(timeLeft);
                 realm.copyToRealmOrUpdate(currentSection);
                 realm.commitTransaction();
+                if (timeLeft == 0) {
+                    timeLeft = -1;
+                    saveLastTimeLeft(timeLeft);
+                } else {
+                    saveLastTimeLeft(timeLeft);
+                }
             } else {
                 updateSectionTimeLeft(currentSection, timeLeft);
             }
@@ -848,14 +882,6 @@ public class AstrntSDK {
         }
     }
 
-    public boolean isCanContinue() {
-        if (isSectionInterview()) {
-            return isNotLastSection() && isNotLastQuestion();
-        } else {
-            return isNotLastQuestion();
-        }
-    }
-
     private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setTakesCount(3);
@@ -878,7 +904,7 @@ public class AstrntSDK {
         }
     }
 
-    public SectionApiDao getSectionByIndex(int sectionIndex) {
+    private SectionApiDao getSectionByIndex(int sectionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
             if (sectionIndex < interviewApiDao.getSections().size()) {
@@ -1066,25 +1092,34 @@ public class AstrntSDK {
             realm.beginTransaction();
 
             SectionInfo sectionInfo = getSectionInfo();
-            sectionInfo.increaseIndex();
+
+            SectionApiDao nextSection = getNextSection();
+            if (nextSection != null) {
+                sectionInfo.increaseIndex();
+                LogUtil.addNewLog(getInterviewCode(),
+                        new LogDao("Section",
+                                "Section Index Increased"
+                        )
+                );
+            } else {
+                LogUtil.addNewLog(getInterviewCode(),
+                        new LogDao("Section",
+                                "Section Index not Increased"
+                        )
+                );
+            }
 
             realm.copyToRealmOrUpdate(sectionInfo);
             realm.commitTransaction();
+
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("Section",
+                            "Question Info reset"
+                    )
+            );
+            updateQuestionInfo(0, 0);
         } else {
             increaseSectionIndex();
-            return;
-        }
-
-        SectionApiDao nextSection = getNextSection();
-        if (nextSection != null) {
-            if (nextSection.getSectionQuestions() != null) {
-                assert nextSection.getSectionQuestions().first() != null;
-                updateQuestionInfo(0, 0);
-            } else {
-                updateQuestionInfo(0, 0);
-            }
-        } else {
-            updateQuestionInfo(0, 0);
         }
     }
 
@@ -1141,6 +1176,7 @@ public class AstrntSDK {
     public boolean isNotLastQuestion() {
         if (isSectionInterview()) {
             SectionApiDao sectionApiDao = getSectionByIndex(getSectionIndex());
+            assert sectionApiDao != null;
             return getQuestionIndex() < sectionApiDao.getTotalQuestion();
         } else {
             return getQuestionIndex() < getTotalQuestion();
@@ -1344,18 +1380,22 @@ public class AstrntSDK {
                 }
             }
         } catch (Exception e) {
-            Timber.e(e.getMessage());
+            Timber.e(e);
         }
     }
 
     private void deleteRecursive(File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            for (File child : fileOrDirectory.listFiles()) {
-                deleteRecursive(child);
+        if (fileOrDirectory != null && fileOrDirectory.exists()) {
+            if (fileOrDirectory.isDirectory()) {
+                if (fileOrDirectory.listFiles() != null) {
+                    for (File child : Objects.requireNonNull(fileOrDirectory.listFiles())) {
+                        deleteRecursive(child);
+                    }
+                }
             }
-        }
 
-        fileOrDirectory.deleteOnExit();
+            fileOrDirectory.deleteOnExit();
+        }
     }
 
     public boolean isPractice() {
@@ -1463,21 +1503,24 @@ public class AstrntSDK {
         }
     }
 
-    private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, int answerId) {
+    private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
         RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
-        for (MultipleAnswerApiDao item : multipleAnswer) {
-            if (questionApiDao.isMultipleChoice()) {
-                if (item.getId() == answerId) {
-                    item.setSelected(!item.isSelected());
-                }
-            } else {
-                if (item.getId() == answerId) {
-                    item.setSelected(!item.isSelected());
+
+        for (Integer answerId : answerIds) {
+            for (MultipleAnswerApiDao item : multipleAnswer) {
+                if (questionApiDao.isMultipleChoice()) {
+                    if (item.getId() == answerId) {
+                        item.setSelected(!item.isSelected());
+                    }
                 } else {
-                    item.setSelected(false);
+                    if (item.getId() == answerId) {
+                        item.setSelected(!item.isSelected());
+                    } else {
+                        item.setSelected(false);
+                    }
                 }
             }
         }
@@ -1513,6 +1556,16 @@ public class AstrntSDK {
         } else {
             addAnswer(questionApiDao, answer);
         }
+    }
+
+    private QuestionApiDao addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
+        questionApiDao.setAnswer(answer);
+        if (answer.isEmpty()) {
+            questionApiDao.setAnswered(false);
+        } else {
+            questionApiDao.setAnswered(true);
+        }
+        return questionApiDao;
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {
@@ -1612,161 +1665,6 @@ public class AstrntSDK {
         }
 
         return haveMediaToDownload;
-    }
-
-
-    public boolean isContinueInterview() {
-        return Hawk.get(PreferenceKey.KEY_CONTINUE, false);
-    }
-
-    public void setContinueInterview(boolean isContinue) {
-        Hawk.put(PreferenceKey.KEY_CONTINUE, isContinue);
-    }
-
-    public boolean isShowUpload() {
-        return Hawk.get(PreferenceKey.KEY_SHOW_UPLOAD, false);
-    }
-
-    public void setShowUpload(boolean showUpload) {
-        Hawk.put(PreferenceKey.KEY_SHOW_UPLOAD, showUpload);
-    }
-
-    public boolean isFinishInterview() {
-        return Hawk.get(PreferenceKey.KEY_FINISH_INTERVIEW, true);
-    }
-
-    public void setFinishInterview(boolean isFinish) {
-        Hawk.put(PreferenceKey.KEY_FINISH_INTERVIEW, isFinish);
-    }
-
-    public boolean isGdprComplied() {
-        GdprDao gdprDao = Hawk.get(PreferenceKey.KEY_GDPR);
-        return gdprDao.isGdprComplied();
-    }
-
-    public GdprDao getGdprDao() {
-        return Hawk.get(PreferenceKey.KEY_GDPR);
-    }
-
-    public void saveGdprDao(GdprDao gdprDao) {
-        Hawk.put(PreferenceKey.KEY_GDPR, gdprDao);
-    }
-
-    public String getUploadId() {
-        return Hawk.get(PreferenceKey.KEY_UPLOAD_ID);
-    }
-
-    public void saveUploadId(String uploadId) {
-        Hawk.put(PreferenceKey.KEY_UPLOAD_ID, uploadId);
-    }
-
-    public void removeUploadId() {
-        Hawk.delete(PreferenceKey.KEY_UPLOAD_ID);
-    }
-
-    public WelcomeVideoDao getWelcomeVideoDao() {
-        return Hawk.get(PreferenceKey.KEY_WELCOME_VIDEO);
-    }
-
-    public void saveWelcomeVideoDao(WelcomeVideoDao welcomeVideoDao) {
-        Hawk.put(PreferenceKey.KEY_WELCOME_VIDEO, welcomeVideoDao);
-    }
-
-    public boolean isFinishWatchWelcomeVideo() {
-        return Hawk.get(PreferenceKey.KEY_WATCH_WELCOME_VIDEO, false);
-    }
-
-    public void saveFinishWatchWelcomeVideo(boolean finished) {
-        Hawk.put(PreferenceKey.KEY_WATCH_WELCOME_VIDEO, finished);
-    }
-
-    public String getWelcomeVideoUri() {
-        return Hawk.get(PreferenceKey.KEY_WELCOME_VIDEO_URI, "");
-    }
-
-    public void saveWelcomeVideoUri(String videoUri) {
-        Hawk.put(PreferenceKey.KEY_WELCOME_VIDEO_URI, videoUri);
-    }
-
-    public int getDownloadId() {
-        return Hawk.get(PreferenceKey.KEY_DOWNLOAD_ID, 0);
-    }
-
-    public void saveDownloadId(int downloadId) {
-        Hawk.put(PreferenceKey.KEY_DOWNLOAD_ID, downloadId);
-    }
-
-    public void removeDownloadId() {
-        Hawk.delete(PreferenceKey.KEY_DOWNLOAD_ID);
-    }
-
-    public boolean isShowRating() {
-        return Hawk.get(PreferenceKey.KEY_SHOW_RATING, false);
-    }
-
-    public void saveShowRating(boolean value) {
-        Hawk.put(PreferenceKey.KEY_SHOW_RATING, value);
-    }
-
-    public boolean isFirstOpen() {
-        return Hawk.get(PreferenceKey.KEY_FIRST_OPEN, true);
-    }
-
-    public void saveFirstOpen(boolean value) {
-        Hawk.put(PreferenceKey.KEY_FIRST_OPEN, value);
-    }
-
-    public boolean isNeedRegister() {
-        return Hawk.get(PreferenceKey.KEY_NEED_REGISTER, true);
-    }
-
-    public void saveNeedRegister(boolean value) {
-        Hawk.put(PreferenceKey.KEY_NEED_REGISTER, value);
-    }
-
-    public boolean isSourcing() {
-        return Hawk.get(PreferenceKey.KEY_IS_SOURCING, true);
-    }
-
-    public void saveSourcing(boolean value) {
-        Hawk.put(PreferenceKey.KEY_IS_SOURCING, value);
-    }
-
-    public boolean isUnauthorized() {
-        return Hawk.get(PreferenceKey.KEY_UNAUTHORIZED, false);
-    }
-
-    public void saveUnauthorized(boolean value) {
-        Hawk.put(PreferenceKey.KEY_UNAUTHORIZED, value);
-    }
-
-    public boolean isProfile() {
-        return Hawk.get(PreferenceKey.KEY_IS_PROFILE, false);
-    }
-
-    public void saveIsProfile(boolean value) {
-        Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
-    }
-
-    public void saveInterviewCode(String interviewCode) {
-        Hawk.put(PreferenceKey.KEY_INTERVIEW_CODE, interviewCode);
-    }
-
-    public String getInterviewCode() {
-        return Hawk.get(PreferenceKey.KEY_INTERVIEW_CODE);
-    }
-
-    private void removeHawkSaved() {
-        Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
-        Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);
-        Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO_URI);
-        Hawk.delete(PreferenceKey.KEY_GDPR);
-        Hawk.delete(PreferenceKey.KEY_CONTINUE);
-        Hawk.delete(PreferenceKey.KEY_SHOW_UPLOAD);
-        Hawk.delete(PreferenceKey.KEY_FINISH_INTERVIEW);
-        Hawk.delete(PreferenceKey.KEY_UNAUTHORIZED);
-        removeDownloadId();
-        removeUploadId();
     }
 
 }

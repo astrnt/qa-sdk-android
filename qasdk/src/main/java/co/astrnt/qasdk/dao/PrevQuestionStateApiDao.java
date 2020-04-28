@@ -71,4 +71,16 @@ public class PrevQuestionStateApiDao extends RealmObject {
             this.status_finish = 0;
         }
     }
+
+    @Override
+    public String toString() {
+        return "PrevQuestionStateApiDao{" +
+                "id=" + id +
+                ", duration_left_in_second=" + duration_left_in_second +
+                ", question_id=" + question_id +
+                ", start_time='" + start_time + '\'' +
+                ", status_answered=" + status_answered +
+                ", status_finish=" + status_finish +
+                '}';
+    }
 }

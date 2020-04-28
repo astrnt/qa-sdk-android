@@ -25,6 +25,7 @@ public class InterviewApiDao extends RealmObject {
     private RealmList<QuestionApiDao> questions;
     private String lang;
     private boolean finished;
+    private int self_pace;
     //this temporary for save code
     private String temp_code;
     private String token;
@@ -190,5 +191,13 @@ public class InterviewApiDao extends RealmObject {
 
     public void setTotalVideoQuestion(int total_video_question) {
         this.total_video_question = total_video_question;
+    }
+
+    public boolean isSelfPace() {
+        return self_pace == 1;
+    }
+
+    public void setSelfPace(int selfPace) {
+        this.self_pace = selfPace;
     }
 }

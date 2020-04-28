@@ -125,6 +125,8 @@ public class AstrntSDK extends HawkUtils {
         boolean isProfile = newInterview.getType().contains(PROFILE);
         saveIsProfile(isProfile);
 
+        saveSelfPace(newInterview.isSelfPace());
+
         if (newInterview.getToken() != null) {
             Hawk.put(PreferenceKey.KEY_TOKEN, newInterview.getToken());
         }

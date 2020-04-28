@@ -2,170 +2,199 @@ package co.astrnt.qasdk.utils;
 
 import com.orhanobut.hawk.Hawk;
 
-import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
+
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CONTINUE;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_DOWNLOAD_ID;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FINISH_INTERVIEW;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FIRST_OPEN;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_GDPR;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_INTERVIEW_CODE;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_PROFILE;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_SOURCING;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_LAST_TIMER;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_NEED_REGISTER;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SELF_PACE;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SHOW_RATING;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SHOW_UPLOAD;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_UNAUTHORIZED;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_UPLOAD_ID;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_WATCH_WELCOME_VIDEO;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_WELCOME_VIDEO;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_WELCOME_VIDEO_URI;
 
 public class HawkUtils {
 
     public boolean isContinueInterview() {
-        return Hawk.get(PreferenceKey.KEY_CONTINUE, false);
+        return Hawk.get(KEY_CONTINUE, false);
     }
 
     public void setContinueInterview(boolean isContinue) {
-        Hawk.put(PreferenceKey.KEY_CONTINUE, isContinue);
+        Hawk.put(KEY_CONTINUE, isContinue);
     }
 
     public boolean isShowUpload() {
-        return Hawk.get(PreferenceKey.KEY_SHOW_UPLOAD, false);
+        return Hawk.get(KEY_SHOW_UPLOAD, false);
     }
 
     public void setShowUpload(boolean showUpload) {
-        Hawk.put(PreferenceKey.KEY_SHOW_UPLOAD, showUpload);
+        Hawk.put(KEY_SHOW_UPLOAD, showUpload);
     }
 
     public boolean isFinishInterview() {
-        return Hawk.get(PreferenceKey.KEY_FINISH_INTERVIEW, true);
+        return Hawk.get(KEY_FINISH_INTERVIEW, true);
     }
 
     public void setFinishInterview(boolean isFinish) {
-        Hawk.put(PreferenceKey.KEY_FINISH_INTERVIEW, isFinish);
+        Hawk.put(KEY_FINISH_INTERVIEW, isFinish);
     }
 
     public boolean isGdprComplied() {
-        GdprDao gdprDao = Hawk.get(PreferenceKey.KEY_GDPR);
+        GdprDao gdprDao = Hawk.get(KEY_GDPR);
         return gdprDao.isGdprComplied();
     }
 
     public GdprDao getGdprDao() {
-        return Hawk.get(PreferenceKey.KEY_GDPR);
+        return Hawk.get(KEY_GDPR);
     }
 
     protected void saveGdprDao(GdprDao gdprDao) {
-        Hawk.put(PreferenceKey.KEY_GDPR, gdprDao);
+        Hawk.put(KEY_GDPR, gdprDao);
     }
 
     public String getUploadId() {
-        return Hawk.get(PreferenceKey.KEY_UPLOAD_ID);
+        return Hawk.get(KEY_UPLOAD_ID);
     }
 
     public void saveUploadId(String uploadId) {
-        Hawk.put(PreferenceKey.KEY_UPLOAD_ID, uploadId);
+        Hawk.put(KEY_UPLOAD_ID, uploadId);
     }
 
     public void removeUploadId() {
-        Hawk.delete(PreferenceKey.KEY_UPLOAD_ID);
+        Hawk.delete(KEY_UPLOAD_ID);
     }
 
     public WelcomeVideoDao getWelcomeVideoDao() {
-        return Hawk.get(PreferenceKey.KEY_WELCOME_VIDEO);
+        return Hawk.get(KEY_WELCOME_VIDEO);
     }
 
     protected void saveWelcomeVideoDao(WelcomeVideoDao welcomeVideoDao) {
-        Hawk.put(PreferenceKey.KEY_WELCOME_VIDEO, welcomeVideoDao);
+        Hawk.put(KEY_WELCOME_VIDEO, welcomeVideoDao);
     }
 
     public boolean isFinishWatchWelcomeVideo() {
-        return Hawk.get(PreferenceKey.KEY_WATCH_WELCOME_VIDEO, false);
+        return Hawk.get(KEY_WATCH_WELCOME_VIDEO, false);
     }
 
     public void saveFinishWatchWelcomeVideo(boolean finished) {
-        Hawk.put(PreferenceKey.KEY_WATCH_WELCOME_VIDEO, finished);
+        Hawk.put(KEY_WATCH_WELCOME_VIDEO, finished);
     }
 
     public String getWelcomeVideoUri() {
-        return Hawk.get(PreferenceKey.KEY_WELCOME_VIDEO_URI, "");
+        return Hawk.get(KEY_WELCOME_VIDEO_URI, "");
     }
 
     public void saveWelcomeVideoUri(String videoUri) {
-        Hawk.put(PreferenceKey.KEY_WELCOME_VIDEO_URI, videoUri);
+        Hawk.put(KEY_WELCOME_VIDEO_URI, videoUri);
     }
 
     public int getDownloadId() {
-        return Hawk.get(PreferenceKey.KEY_DOWNLOAD_ID, 0);
+        return Hawk.get(KEY_DOWNLOAD_ID, 0);
     }
 
     public void saveDownloadId(int downloadId) {
-        Hawk.put(PreferenceKey.KEY_DOWNLOAD_ID, downloadId);
+        Hawk.put(KEY_DOWNLOAD_ID, downloadId);
     }
 
     public void removeDownloadId() {
-        Hawk.delete(PreferenceKey.KEY_DOWNLOAD_ID);
+        Hawk.delete(KEY_DOWNLOAD_ID);
     }
 
     public boolean isShowRating() {
-        return Hawk.get(PreferenceKey.KEY_SHOW_RATING, false);
+        return Hawk.get(KEY_SHOW_RATING, false);
     }
 
     public void saveShowRating(boolean value) {
-        Hawk.put(PreferenceKey.KEY_SHOW_RATING, value);
+        Hawk.put(KEY_SHOW_RATING, value);
     }
 
     public boolean isFirstOpen() {
-        return Hawk.get(PreferenceKey.KEY_FIRST_OPEN, true);
+        return Hawk.get(KEY_FIRST_OPEN, true);
     }
 
     public void saveFirstOpen(boolean value) {
-        Hawk.put(PreferenceKey.KEY_FIRST_OPEN, value);
+        Hawk.put(KEY_FIRST_OPEN, value);
     }
 
     public boolean isNeedRegister() {
-        return Hawk.get(PreferenceKey.KEY_NEED_REGISTER, true);
+        return Hawk.get(KEY_NEED_REGISTER, true);
     }
 
     public void saveNeedRegister(boolean value) {
-        Hawk.put(PreferenceKey.KEY_NEED_REGISTER, value);
+        Hawk.put(KEY_NEED_REGISTER, value);
     }
 
     public boolean isSourcing() {
-        return Hawk.get(PreferenceKey.KEY_IS_SOURCING, true);
+        return Hawk.get(KEY_IS_SOURCING, true);
     }
 
     protected void saveSourcing(boolean value) {
-        Hawk.put(PreferenceKey.KEY_IS_SOURCING, value);
+        Hawk.put(KEY_IS_SOURCING, value);
     }
 
     public boolean isUnauthorized() {
-        return Hawk.get(PreferenceKey.KEY_UNAUTHORIZED, false);
+        return Hawk.get(KEY_UNAUTHORIZED, false);
     }
 
     public void saveUnauthorized(boolean value) {
-        Hawk.put(PreferenceKey.KEY_UNAUTHORIZED, value);
+        Hawk.put(KEY_UNAUTHORIZED, value);
     }
 
     public boolean isProfile() {
-        return Hawk.get(PreferenceKey.KEY_IS_PROFILE, false);
+        return Hawk.get(KEY_IS_PROFILE, false);
     }
 
     public void saveIsProfile(boolean value) {
-        Hawk.put(PreferenceKey.KEY_IS_PROFILE, value);
+        Hawk.put(KEY_IS_PROFILE, value);
     }
 
     protected void saveInterviewCode(String interviewCode) {
-        Hawk.put(PreferenceKey.KEY_INTERVIEW_CODE, interviewCode);
+        Hawk.put(KEY_INTERVIEW_CODE, interviewCode);
     }
 
     public String getInterviewCode() {
-        return Hawk.get(PreferenceKey.KEY_INTERVIEW_CODE);
+        return Hawk.get(KEY_INTERVIEW_CODE);
     }
 
     protected void saveLastTimeLeft(int lastTimer) {
-        Hawk.put(PreferenceKey.KEY_LAST_TIMER, lastTimer);
+        Hawk.put(KEY_LAST_TIMER, lastTimer);
     }
 
     public int getLastTimer() {
-        return Hawk.get(PreferenceKey.KEY_LAST_TIMER, -1);
+        return Hawk.get(KEY_LAST_TIMER, -1);
+    }
+
+    protected void saveSelfPace(boolean isSelfPace) {
+        Hawk.put(KEY_SELF_PACE, isSelfPace);
+    }
+
+    public boolean isSelfPace() {
+        return Hawk.get(KEY_SELF_PACE, false);
     }
 
     protected void removeHawkSaved() {
-        Hawk.delete(PreferenceKey.KEY_WATCH_WELCOME_VIDEO);
-        Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO);
-        Hawk.delete(PreferenceKey.KEY_WELCOME_VIDEO_URI);
-        Hawk.delete(PreferenceKey.KEY_GDPR);
-        Hawk.delete(PreferenceKey.KEY_CONTINUE);
-        Hawk.delete(PreferenceKey.KEY_SHOW_UPLOAD);
-        Hawk.delete(PreferenceKey.KEY_FINISH_INTERVIEW);
-        Hawk.delete(PreferenceKey.KEY_UNAUTHORIZED);
+        Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
+        Hawk.delete(KEY_WELCOME_VIDEO);
+        Hawk.delete(KEY_WELCOME_VIDEO_URI);
+        Hawk.delete(KEY_GDPR);
+        Hawk.delete(KEY_CONTINUE);
+        Hawk.delete(KEY_SHOW_UPLOAD);
+        Hawk.delete(KEY_FINISH_INTERVIEW);
+        Hawk.delete(KEY_UNAUTHORIZED);
+        Hawk.delete(KEY_IS_PROFILE);
+        Hawk.delete(KEY_LAST_TIMER);
+        Hawk.delete(KEY_SELF_PACE);
         removeDownloadId();
         removeUploadId();
     }

@@ -24,8 +24,7 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
         } else {
 
             astrntSDK.saveInterviewResult(resultApiDao, data, false);
-
-            if (resultApiDao.getInterview().getType().contains(OPEN)) {
+            if (data.getType().contains(OPEN)) {
 
                 if (data.getInterviewCode() != null) {
                     LogUtil.addNewLog(data.getInterviewCode(),

@@ -59,19 +59,17 @@ public abstract class RegisterObserver extends MyObserver<InterviewResultApiDao>
                 onSectionType(data);
                 break;
             default:
+                String message = resultApiDao.getMessage();
                 if (resultApiDao.getTitle() != null) {
-                    onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                    onApiResultError(resultApiDao.getTitle(), message, "error");
                 } else {
-                    onApiResultError("", resultApiDao.getMessage(), "error");
+                    onApiResultError("", message, "error");
                 }
-
-                if (interviewCode != null) {
-                    LogUtil.addNewLog(interviewCode,
-                            new LogDao("Register Response API",
-                                    "Error : " + resultApiDao.getMessage()
-                            )
-                    );
-                }
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Register Response API",
+                                "Error : " + message
+                        )
+                );
                 break;
         }
     }

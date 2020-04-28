@@ -20,18 +20,19 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
         InterviewApiDao currentInterview = astrntSDK.getCurrentInterview();
 
         String interviewCode = astrntSDK.getInterviewCode();
+        InterviewApiDao newInterview = resultApiDao.getInterview();
 
-        switch (resultApiDao.getInterview().getType()) {
+        switch (newInterview.getType()) {
             case CLOSE_INTERVIEW:
             case CLOSE_SECTION:
             case CLOSE_INTERVIEW_PROFILE:
             case CLOSE_TEST:
                 if (interviewCode.equals(resultApiDao.getInterview_code())) {
-                    astrntSDK.updateInterviewData(currentInterview, resultApiDao.getInterview());
+                    astrntSDK.updateInterviewData(currentInterview, newInterview);
                     currentInterview = astrntSDK.getCurrentInterview();
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true);
                 } else {
-                    astrntSDK.saveInterviewResult(resultApiDao, resultApiDao.getInterview(), true);
+                    astrntSDK.saveInterviewResult(resultApiDao, newInterview, true);
                 }
 
                 LogUtil.addNewLog(interviewCode,
@@ -43,14 +44,15 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 onContinueInterview();
                 break;
             default:
+                String message = resultApiDao.getMessage();
                 if (resultApiDao.getTitle() != null) {
-                    onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                    onApiResultError(resultApiDao.getTitle(), message, "error");
                 } else {
-                    onApiResultError("", resultApiDao.getMessage(), "error");
+                    onApiResultError("", message, "error");
                 }
                 LogUtil.addNewLog(interviewCode,
                         new LogDao("Continue Response API",
-                                "Error : " + resultApiDao.getMessage()
+                                "Error : " + message
                         )
                 );
                 break;

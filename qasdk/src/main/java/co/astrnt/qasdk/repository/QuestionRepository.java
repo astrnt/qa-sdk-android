@@ -75,7 +75,7 @@ public class QuestionRepository extends BaseRepository {
                 )
         );
 
-        return mAstronautApi.getApiService().addAttempt(token, map);
+        return mAstronautApi.getApiService().addMediaAttempt(token, map);
     }
 
     public Observable<BaseApiDao> finishQuestion(QuestionApiDao currentQuestion) {

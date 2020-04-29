@@ -201,4 +201,24 @@ public class QuestionRepository extends BaseRepository {
                     }
                 });
     }
+
+    public Observable<BaseApiDao> addLastSeen(QuestionApiDao currentQuestion) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        String token = interviewApiDao.getToken();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("question_id", String.valueOf(currentQuestion.getId()));
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Add Last Seen, number " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + currentQuestion.getId()
+                )
+        );
+
+        return mAstronautApi.getApiService().addLastSeen(token, map);
+    }
+
+
 }

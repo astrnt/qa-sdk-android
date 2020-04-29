@@ -106,4 +106,9 @@ public interface ApiService {
     @POST("v2/user/gdpr_complied")
     Observable<BaseApiDao> gdprComplied(@Header("token") String token,
                                         @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
+    @POST("v2/question/last_seen")
+    Observable<BaseApiDao> addLastSeen(@Header("token") String token,
+                                       @FieldMap HashMap<String, String> data);
 }

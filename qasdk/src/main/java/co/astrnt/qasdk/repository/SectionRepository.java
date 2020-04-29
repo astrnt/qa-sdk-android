@@ -36,7 +36,9 @@ public class SectionRepository extends BaseRepository {
         map.put("section_id", String.valueOf(sectionApiDao.getId()));
         String token = interviewApiDao.getToken();
 
-        updateElapsedTime(ElapsedTimeType.PREPARATION, sectionApiDao.getId());
+        if (!astrntSDK.isSelfPace()) {
+            updateElapsedTime(ElapsedTimeType.PREPARATION, sectionApiDao.getId());
+        }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",
@@ -58,7 +60,9 @@ public class SectionRepository extends BaseRepository {
         map.put("section_id", String.valueOf(sectionApiDao.getId()));
         String token = interviewApiDao.getToken();
 
-        updateElapsedTime(ElapsedTimeType.SECTION, sectionApiDao.getId());
+        if (!astrntSDK.isSelfPace()) {
+            updateElapsedTime(ElapsedTimeType.SECTION, sectionApiDao.getId());
+        }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API",

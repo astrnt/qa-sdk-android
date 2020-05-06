@@ -118,7 +118,11 @@ public class QuestionRepository extends BaseRepository {
 
         if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
             map.put("type", "1");
-            map.put("text_answer", currentQuestion.getAnswer());
+            String currentAnswer = currentQuestion.getAnswer();
+            if (currentAnswer == null) {
+                currentAnswer = "";
+            }
+            map.put("text_answer", currentAnswer);
 
         } else {
             map.put("type", "0");

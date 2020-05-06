@@ -487,6 +487,20 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void updateSectionOnGoing(SectionApiDao currentSection, boolean onGoing) {
+        currentSection = getSectionById(currentSection.getId());
+        if (currentSection != null) {
+            if (!realm.isInTransaction()) {
+                realm.beginTransaction();
+                currentSection.setOnGoing(onGoing);
+                realm.copyToRealmOrUpdate(currentSection);
+                realm.commitTransaction();
+            } else {
+                updateSectionOnGoing(currentSection, onGoing);
+            }
+        }
+    }
+
     public void updateQuestionTimeLeft(QuestionApiDao currentQuestion, int timeLeft) {
         currentQuestion = getQuestionById(currentQuestion.getId());
         if (currentQuestion != null) {
@@ -1093,14 +1107,23 @@ public class AstrntSDK extends HawkUtils {
 
             SectionInfo sectionInfo = getSectionInfo();
 
+            SectionApiDao currentSection = getCurrentSection();
             SectionApiDao nextSection = getNextSection();
             if (nextSection != null) {
-                sectionInfo.increaseIndex();
-                LogUtil.addNewLog(getInterviewCode(),
-                        new LogDao("Section",
-                                "Section Index Increased"
-                        )
-                );
+                if (currentSection.isOnGoing()) {
+                    sectionInfo.increaseIndex();
+                    LogUtil.addNewLog(getInterviewCode(),
+                            new LogDao("Section",
+                                    "Section Index Increased"
+                            )
+                    );
+                } else {
+                    LogUtil.addNewLog(getInterviewCode(),
+                            new LogDao("Section",
+                                    "Section Index Failed to Increased, because not started"
+                            )
+                    );
+                }
             } else {
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",

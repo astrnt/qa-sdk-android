@@ -945,6 +945,21 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    private SectionApiDao getNextSection() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+
+            int sectionIndex = getSectionIndex();
+            if (sectionIndex < interviewApiDao.getSections().size()) {
+                return interviewApiDao.getSections().get(sectionIndex);
+            } else {
+                return interviewApiDao.getSections().last();
+            }
+        } else {
+            return null;
+        }
+    }
+
     public QuestionApiDao getCurrentQuestion() {
         if (isPractice()) {
             return getPracticeQuestion();
@@ -1050,8 +1065,8 @@ public class AstrntSDK extends HawkUtils {
             QuestionInfo questionInfo = getQuestionInfo();
 
             QuestionApiDao nextQuestion = getNextQuestion();
-            questionInfo.increaseIndex();
             if (nextQuestion != null) {
+                questionInfo.increaseIndex();
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
             } else {
                 questionInfo.resetAttempt();
@@ -1092,20 +1107,27 @@ public class AstrntSDK extends HawkUtils {
 
             SectionInfo sectionInfo = getSectionInfo();
 
-            boolean successIncreased = false;
             SectionApiDao currentSection = getCurrentSection();
-            if (currentSection.isOnGoing()) {
-                sectionInfo.increaseIndex();
-                successIncreased = true;
-                LogUtil.addNewLog(getInterviewCode(),
-                        new LogDao("Section",
-                                "Section Index Increased"
-                        )
-                );
+            SectionApiDao nextSection = getNextSection();
+            if (nextSection != null) {
+                if (currentSection.isOnGoing()) {
+                    sectionInfo.increaseIndex();
+                    LogUtil.addNewLog(getInterviewCode(),
+                            new LogDao("Section",
+                                    "Section Index Increased"
+                            )
+                    );
+                } else {
+                    LogUtil.addNewLog(getInterviewCode(),
+                            new LogDao("Section",
+                                    "Section Index Failed to Increased, because not started"
+                            )
+                    );
+                }
             } else {
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",
-                                "Section Index Failed to Increased, because not started"
+                                "Section Index not Increased"
                         )
                 );
             }
@@ -1113,14 +1135,12 @@ public class AstrntSDK extends HawkUtils {
             realm.copyToRealmOrUpdate(sectionInfo);
             realm.commitTransaction();
 
-            if (successIncreased) {
-                LogUtil.addNewLog(getInterviewCode(),
-                        new LogDao("Section",
-                                "Question Info reset"
-                        )
-                );
-                updateQuestionInfo(0, 0);
-            }
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("Section",
+                            "Question Info reset"
+                    )
+            );
+            updateQuestionInfo(0, 0);
         } else {
             increaseSectionIndex();
         }

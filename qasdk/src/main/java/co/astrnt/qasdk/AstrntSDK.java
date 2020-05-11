@@ -332,6 +332,14 @@ public class AstrntSDK extends HawkUtils {
 
             if (isSectionInterview()) {
 
+                Timber.e("Section duration Info %s", informationApiDao.toString());
+
+                LogUtil.addNewLog(getInterviewCode(),
+                        new LogDao("Resume Information",
+                                informationApiDao.toString()
+                        )
+                );
+
                 RealmList<SectionApiDao> sectionList = new RealmList<>();
 
                 for (int i = 0; i < interview.getSections().size(); i++) {
@@ -339,13 +347,6 @@ public class AstrntSDK extends HawkUtils {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        Timber.e("Section duration Info %s", informationApiDao.toString());
-
-                        LogUtil.addNewLog(getInterviewCode(),
-                                new LogDao("Resume Information",
-                                        informationApiDao.toString()
-                                )
-                        );
 
                         if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
 
@@ -353,12 +354,27 @@ public class AstrntSDK extends HawkUtils {
                                 section.setPreparationTime(informationApiDao.getPreparationTime());
                             }
                             Timber.e("Section duration %s", section.getDuration());
+                            LogUtil.addNewLog(getInterviewCode(),
+                                    new LogDao("Resume Information",
+                                            "Section duration " + section.getDuration()
+                                    )
+                            );
                             if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
                                 Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
+                                LogUtil.addNewLog(getInterviewCode(),
+                                        new LogDao("Resume Information",
+                                                "Section duration using from info " + informationApiDao.getSectionDurationLeft()
+                                        )
+                                );
                                 section.setDuration(informationApiDao.getSectionDurationLeft());
                             } else {
                                 if (getLastTimer() != -1) {
                                     Timber.e("Section duration using from last timer %s", getLastTimer());
+                                    LogUtil.addNewLog(getInterviewCode(),
+                                            new LogDao("Resume Information",
+                                                    "Section duration using from last timer " + getLastTimer()
+                                            )
+                                    );
                                     section.setDuration(getLastTimer());
                                 }
                             }

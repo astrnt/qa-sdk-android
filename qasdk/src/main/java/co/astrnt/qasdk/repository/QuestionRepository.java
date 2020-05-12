@@ -75,7 +75,7 @@ public class QuestionRepository extends BaseRepository {
                 )
         );
 
-        return mAstronautApi.getApiService().addAttempt(token, map);
+        return mAstronautApi.getApiService().addMediaAttempt(token, map);
     }
 
     public Observable<BaseApiDao> finishQuestion(QuestionApiDao currentQuestion) {
@@ -118,7 +118,11 @@ public class QuestionRepository extends BaseRepository {
 
         if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
             map.put("type", "1");
-            map.put("text_answer", currentQuestion.getAnswer());
+            String currentAnswer = currentQuestion.getAnswer();
+            if (currentAnswer == null) {
+                currentAnswer = "";
+            }
+            map.put("text_answer", currentAnswer);
 
         } else {
             map.put("type", "0");
@@ -201,4 +205,24 @@ public class QuestionRepository extends BaseRepository {
                     }
                 });
     }
+
+    public Observable<BaseApiDao> addLastSeen(QuestionApiDao currentQuestion) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        String token = interviewApiDao.getToken();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("question_id", String.valueOf(currentQuestion.getId()));
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API",
+                        "Add Last Seen, number " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + currentQuestion.getId()
+                )
+        );
+
+        return mAstronautApi.getApiService().addLastSeen(token, map);
+    }
+
+
 }

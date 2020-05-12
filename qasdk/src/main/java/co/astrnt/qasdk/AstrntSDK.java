@@ -330,7 +330,15 @@ public class AstrntSDK extends HawkUtils {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("API Resume Information",
+                            informationApiDao.toString()
+                    )
+            );
+
             if (isSectionInterview()) {
+
+                Timber.e("Section duration Info %s", informationApiDao.toString());
 
                 RealmList<SectionApiDao> sectionList = new RealmList<>();
 
@@ -339,13 +347,6 @@ public class AstrntSDK extends HawkUtils {
                     RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
 
                     if (section != null) {
-                        Timber.e("Section duration Info %s", informationApiDao.toString());
-
-                        LogUtil.addNewLog(getInterviewCode(),
-                                new LogDao("Resume Information",
-                                        informationApiDao.toString()
-                                )
-                        );
 
                         if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
 
@@ -353,61 +354,74 @@ public class AstrntSDK extends HawkUtils {
                                 section.setPreparationTime(informationApiDao.getPreparationTime());
                             }
                             Timber.e("Section duration %s", section.getDuration());
+                            LogUtil.addNewLog(getInterviewCode(),
+                                    new LogDao("Resume Information",
+                                            "Section duration " + section.getDuration()
+                                    )
+                            );
                             if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
                                 Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
+                                LogUtil.addNewLog(getInterviewCode(),
+                                        new LogDao("Resume Information",
+                                                "Section duration using from info " + informationApiDao.getSectionDurationLeft()
+                                        )
+                                );
                                 section.setDuration(informationApiDao.getSectionDurationLeft());
                             } else {
                                 if (getLastTimer() != -1) {
                                     Timber.e("Section duration using from last timer %s", getLastTimer());
+                                    LogUtil.addNewLog(getInterviewCode(),
+                                            new LogDao("Resume Information",
+                                                    "Section duration using from last timer " + getLastTimer()
+                                            )
+                                    );
                                     section.setDuration(getLastTimer());
                                 }
                             }
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }
-                        if (section.isOnGoing()) {
 
-                            if (section.getType().equals(InterviewType.INTERVIEW)) {
+                        if (section.getType().equals(InterviewType.INTERVIEW)) {
 
-                                for (QuestionApiDao question : section.getSectionQuestions()) {
+                            for (QuestionApiDao question : section.getSectionQuestions()) {
 
-                                    if (informationApiDao.getQuestionsInfo() != null && !informationApiDao.getQuestionsInfo().isEmpty()) {
-                                        for (QuestionInfoApiDao questionInfoApiDao : informationApiDao.getQuestionsInfo()) {
+                                if (informationApiDao.getQuestionsInfo() != null && !informationApiDao.getQuestionsInfo().isEmpty()) {
+                                    for (QuestionInfoApiDao questionInfoApiDao : informationApiDao.getQuestionsInfo()) {
 
-                                            if (questionInfoApiDao.getPrevQuestStates() != null) {
-                                                for (PrevQuestionStateApiDao questionState : questionInfoApiDao.getPrevQuestStates()) {
+                                        if (questionInfoApiDao.getPrevQuestStates() != null) {
+                                            for (PrevQuestionStateApiDao questionState : questionInfoApiDao.getPrevQuestStates()) {
 
-                                                    if (question.getId() == questionState.getQuestionId()) {
-                                                        if (questionState.isAnswered()) {
-                                                            question.setAnswered(true);
-                                                        } else {
-                                                            question.setAnswered(false);
-                                                        }
-                                                        question.setTimeLeft(questionState.getDurationLeft());
+                                                if (question.getId() == questionState.getQuestionId()) {
+                                                    if (questionState.isAnswered()) {
+                                                        question.setAnswered(true);
+                                                    } else {
+                                                        question.setAnswered(false);
                                                     }
+                                                    question.setTimeLeft(questionState.getDurationLeft());
                                                 }
                                             }
                                         }
                                     }
-                                    questionApiDaos.add(question);
                                 }
-                            } else {
-                                for (QuestionApiDao question : section.getSectionQuestions()) {
+                                questionApiDaos.add(question);
+                            }
+                        } else {
+                            for (QuestionApiDao question : section.getSectionQuestions()) {
 
-                                    if (informationApiDao.getQuestionsMcqInfo() != null && !informationApiDao.getQuestionsMcqInfo().isEmpty()) {
-                                        for (QuestionInfoMcqApiDao questionInfoMcqApiDao : informationApiDao.getQuestionsMcqInfo()) {
+                                if (informationApiDao.getQuestionsMcqInfo() != null && !informationApiDao.getQuestionsMcqInfo().isEmpty()) {
+                                    for (QuestionInfoMcqApiDao questionInfoMcqApiDao : informationApiDao.getQuestionsMcqInfo()) {
 
-                                            if (question.getId() == questionInfoMcqApiDao.getId()) {
+                                        if (question.getId() == questionInfoMcqApiDao.getId()) {
 
-                                                if (question.getType_child().equals(TestType.FREE_TEXT)) {
-                                                    question = addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
-                                                } else {
-                                                    question = addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
-                                                }
+                                            if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                                                question = addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
+                                            } else {
+                                                question = addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
                                             }
                                         }
                                     }
-                                    questionApiDaos.add(question);
                                 }
+                                questionApiDaos.add(question);
                             }
                         }
 
@@ -483,6 +497,20 @@ public class AstrntSDK extends HawkUtils {
                 realm.commitTransaction();
             } else {
                 updateSectionPrepTimeLeft(currentSection, timeLeft);
+            }
+        }
+    }
+
+    public void updateSectionOnGoing(SectionApiDao currentSection, boolean onGoing) {
+        currentSection = getSectionById(currentSection.getId());
+        if (currentSection != null) {
+            if (!realm.isInTransaction()) {
+                realm.beginTransaction();
+                currentSection.setOnGoing(onGoing);
+                realm.copyToRealmOrUpdate(currentSection);
+                realm.commitTransaction();
+            } else {
+                updateSectionOnGoing(currentSection, onGoing);
             }
         }
     }
@@ -576,9 +604,13 @@ public class AstrntSDK extends HawkUtils {
     public boolean isResume() {
         InformationApiDao informationApiDao = getInformation();
         if (isSectionInterview()) {
-            return getCurrentSection().isOnGoing() || informationApiDao.getSectionDurationLeft() > 0;
+            if (isSelfPace()) {
+                return getCurrentSection().isOnGoing() || isContinueInterview();
+            } else {
+                return getCurrentSection().isOnGoing() || informationApiDao.getSectionDurationLeft() > 0 || isContinueInterview();
+            }
         } else {
-            return informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty();
+            return (informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty()) || isContinueInterview();
         }
     }
 
@@ -1093,14 +1125,23 @@ public class AstrntSDK extends HawkUtils {
 
             SectionInfo sectionInfo = getSectionInfo();
 
+            SectionApiDao currentSection = getCurrentSection();
             SectionApiDao nextSection = getNextSection();
             if (nextSection != null) {
-                sectionInfo.increaseIndex();
-                LogUtil.addNewLog(getInterviewCode(),
-                        new LogDao("Section",
-                                "Section Index Increased"
-                        )
-                );
+                if (currentSection.isOnGoing()) {
+                    sectionInfo.increaseIndex();
+                    LogUtil.addNewLog(getInterviewCode(),
+                            new LogDao("Section",
+                                    "Section Index Increased"
+                            )
+                    );
+                } else {
+                    LogUtil.addNewLog(getInterviewCode(),
+                            new LogDao("Section",
+                                    "Section Index Failed to Increased, because not started"
+                            )
+                    );
+                }
             } else {
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",

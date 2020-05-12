@@ -349,35 +349,8 @@ public class AstrntSDK extends HawkUtils {
                     if (section != null) {
 
                         if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
-
-                            if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
-                                section.setPreparationTime(informationApiDao.getPreparationTime());
-                            }
-                            Timber.e("Section duration %s", section.getDuration());
-                            LogUtil.addNewLog(getInterviewCode(),
-                                    new LogDao("Resume Information",
-                                            "Section duration " + section.getDuration()
-                                    )
-                            );
-                            if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
-                                Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
-                                LogUtil.addNewLog(getInterviewCode(),
-                                        new LogDao("Resume Information",
-                                                "Section duration using from info " + informationApiDao.getSectionDurationLeft()
-                                        )
-                                );
-                                section.setDuration(informationApiDao.getSectionDurationLeft());
-                            } else {
-                                if (getLastTimer() != -1) {
-                                    Timber.e("Section duration using from last timer %s", getLastTimer());
-                                    LogUtil.addNewLog(getInterviewCode(),
-                                            new LogDao("Resume Information",
-                                                    "Section duration using from last timer " + getLastTimer()
-                                            )
-                                    );
-                                    section.setDuration(getLastTimer());
-                                }
-                            }
+                            section.setPreparationTime(informationApiDao.getPreparationTime());
+                            section.setDuration(informationApiDao.getSectionDurationLeft());
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }
 

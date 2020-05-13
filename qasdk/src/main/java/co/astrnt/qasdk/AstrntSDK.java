@@ -359,6 +359,16 @@ public class AstrntSDK extends HawkUtils {
                                             "Section Device duration " + section.getDuration()
                                     )
                             );
+                            LogUtil.addNewLog(getInterviewCode(),
+                                    new LogDao("Resume Information",
+                                            "Section API info duration " + informationApiDao.getSectionDurationLeft()
+                                    )
+                            );
+                            LogUtil.addNewLog(getInterviewCode(),
+                                    new LogDao("Resume Information",
+                                            "Section background timer duration " + getLastTimer()
+                                    )
+                            );
                             if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
                                 Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
                                 LogUtil.addNewLog(getInterviewCode(),

@@ -350,16 +350,28 @@ public class AstrntSDK extends HawkUtils {
 
                         if (i == informationApiDao.getSectionIndex() && !informationApiDao.getSectionInfo().equals("start")) {
 
-                            if (section.getPreparationTime() > informationApiDao.getPreparationTime()) {
+                            if (section.getPreparationTime() >= informationApiDao.getPreparationTime()) {
                                 section.setPreparationTime(informationApiDao.getPreparationTime());
                             }
-                            Timber.e("Section duration %s", section.getDuration());
+
+                            Timber.e("Section Device duration %s", section.getDuration());
                             LogUtil.addNewLog(getInterviewCode(),
                                     new LogDao("Resume Information",
-                                            "Section duration " + section.getDuration()
+                                            "Section Device duration " + section.getDuration()
                                     )
                             );
-                            if (section.getDuration() > informationApiDao.getSectionDurationLeft()) {
+                            LogUtil.addNewLog(getInterviewCode(),
+                                    new LogDao("Resume Information",
+                                            "Section API info duration " + informationApiDao.getSectionDurationLeft()
+                                    )
+                            );
+                            LogUtil.addNewLog(getInterviewCode(),
+                                    new LogDao("Resume Information",
+                                            "Section background timer duration " + getLastTimer()
+                                    )
+                            );
+
+                            if (section.getDuration() >= informationApiDao.getSectionDurationLeft()) {
                                 Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
                                 LogUtil.addNewLog(getInterviewCode(),
                                         new LogDao("Resume Information",
@@ -367,16 +379,15 @@ public class AstrntSDK extends HawkUtils {
                                         )
                                 );
                                 section.setDuration(informationApiDao.getSectionDurationLeft());
-                            } else {
-                                if (getLastTimer() != -1) {
-                                    Timber.e("Section duration using from last timer %s", getLastTimer());
-                                    LogUtil.addNewLog(getInterviewCode(),
-                                            new LogDao("Resume Information",
-                                                    "Section duration using from last timer " + getLastTimer()
-                                            )
-                                    );
-                                    section.setDuration(getLastTimer());
-                                }
+                            }
+                            if (section.getDuration() >= getLastTimer()) {
+                                Timber.e("Section duration using from background timer %s", getLastTimer());
+                                LogUtil.addNewLog(getInterviewCode(),
+                                        new LogDao("Resume Information",
+                                                "Section duration using from background timer " + getLastTimer()
+                                        )
+                                );
+                                section.setDuration(getLastTimer());
                             }
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }

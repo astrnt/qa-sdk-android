@@ -50,6 +50,7 @@ import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
+import static co.astrnt.qasdk.type.InterviewType.ASTRONAUT_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.PROFILE;
 
 public class AstrntSDK extends HawkUtils {
@@ -115,6 +116,10 @@ public class AstrntSDK extends HawkUtils {
     public void saveInterviewResult(InterviewResultApiDao resultApiDao, InterviewApiDao interviewApiDao, boolean isContinue) {
 
         InterviewApiDao newInterview = resultApiDao.getInterview();
+
+        if (newInterview.getType().equals(ASTRONAUT_PROFILE)) {
+            return;
+        }
 
         if (newInterview.getJob().getRecruitmentType().equals("sourcing")) {
             saveSourcing(true);
@@ -293,6 +298,10 @@ public class AstrntSDK extends HawkUtils {
     }
 
     public void saveInterview(InterviewApiDao interview, String token, String interviewCode) {
+
+        if (interview.getType().equals(ASTRONAUT_PROFILE)) {
+            return;
+        }
 
         if (interview.getJob().getRecruitmentType().equals("sourcing")) {
             saveSourcing(true);

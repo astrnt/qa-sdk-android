@@ -24,8 +24,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     ndkVersion "21.0.6113669"
     buildToolsVersion = '29.0.3'
@@ -34,12 +37,14 @@ android {
 configurations.all {
     resolutionStrategy {
         force 'com.squareup.okio:okio:2.5.0'
-        force 'com.squareup.okhttp3:okhttp:4.5.0'
+        force 'com.squareup.okhttp3:okhttp:4.7.2'
         force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     }
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+
     api fileTree(dir: 'libs', include: ['*.jar'])
 
     api 'io.reactivex.rxjava2:rxjava:2.2.19'

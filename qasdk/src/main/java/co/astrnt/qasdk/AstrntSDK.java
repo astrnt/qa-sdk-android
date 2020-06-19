@@ -623,14 +623,18 @@ public class AstrntSDK extends HawkUtils {
 
     public boolean isResume() {
         InformationApiDao informationApiDao = getInformation();
-        if (isSectionInterview()) {
-            if (isSelfPace()) {
-                return getCurrentSection().isOnGoing() || isContinueInterview();
-            } else {
-                return getCurrentSection().isOnGoing() || informationApiDao.getSectionDurationLeft() > 0 || isContinueInterview();
-            }
+        if (informationApiDao == null) {
+            return false;
         } else {
-            return (informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty()) || isContinueInterview();
+            if (isSectionInterview()) {
+                if (isSelfPace()) {
+                    return getCurrentSection().isOnGoing() || isContinueInterview();
+                } else {
+                    return getCurrentSection().isOnGoing() || informationApiDao.getSectionDurationLeft() > 0 || isContinueInterview();
+                }
+            } else {
+                return (informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty()) || isContinueInterview();
+            }
         }
     }
 

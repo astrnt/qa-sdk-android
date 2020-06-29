@@ -17,6 +17,7 @@ import co.astrnt.qasdk.dao.LogDao;
 public class LogUtil {
 
     public static void addNewLog(String interviewCode, LogDao itemLog) {
+        if (interviewCode == null) return;
         List<LogDao> logDaoList = getLog(interviewCode);
         logDaoList.add(itemLog);
         Set<LogDao> set = new LinkedHashSet<>(logDaoList);
@@ -25,11 +26,15 @@ public class LogUtil {
     }
 
     public static List<LogDao> getLog(String interviewCode) {
-        List<LogDao> logDaoList = Hawk.get(interviewCode, new ArrayList<>());
-        Set<LogDao> set = new LinkedHashSet<>(logDaoList);
-        List<LogDao> logWithoutDuplicates = new ArrayList<>(set);
-        Hawk.put(interviewCode, logWithoutDuplicates);
-        return logWithoutDuplicates;
+        if (interviewCode == null) {
+            return new ArrayList<>();
+        } else {
+            List<LogDao> logDaoList = Hawk.get(interviewCode, new ArrayList<>());
+            Set<LogDao> set = new LinkedHashSet<>(logDaoList);
+            List<LogDao> logWithoutDuplicates = new ArrayList<>(set);
+            Hawk.put(interviewCode, logWithoutDuplicates);
+            return logWithoutDuplicates;
+        }
     }
 
     public static String getTimeZone() {

@@ -5,6 +5,7 @@ import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.utils.LogUtil;
 
+import static co.astrnt.qasdk.type.InterviewType.ASTRONAUT_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_SECTION;
@@ -43,6 +44,16 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
                 onContinueInterview();
                 break;
+            case ASTRONAUT_PROFILE:
+                if (interviewCode != null) {
+                    LogUtil.addNewLog(interviewCode,
+                            new LogDao("Response API",
+                                    "Success, will move to Astronaut Profile"
+                            )
+                    );
+                }
+                onAstronautProfileType(newInterview);
+                break;
             default:
                 String message = resultApiDao.getMessage();
                 if (resultApiDao.getTitle() != null) {
@@ -61,4 +72,5 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
     public abstract void onContinueInterview();
 
+    public abstract void onAstronautProfileType(InterviewApiDao interview);
 }

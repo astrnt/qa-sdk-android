@@ -45,7 +45,7 @@ public class QuestionRepository extends BaseRepository {
         }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/question/attempt)",
                         "Add Question Attempt, number " + (astrntSDK.getQuestionIndex() + 1) +
                                 ", questionId = " + currentQuestion.getId()
                 )
@@ -69,7 +69,7 @@ public class QuestionRepository extends BaseRepository {
         }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/media/attempt)",
                         "Add Media Attempt, number " + (astrntSDK.getQuestionIndex() + 1) +
                                 ", questionId = " + currentQuestion.getId()
                 )
@@ -97,7 +97,7 @@ public class QuestionRepository extends BaseRepository {
         }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/question/finish)",
                         "Finish Question, number " + (astrntSDK.getQuestionIndex() + 1) +
                                 ", questionId = " + currentQuestion.getId()
                 )
@@ -147,7 +147,7 @@ public class QuestionRepository extends BaseRepository {
         }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/question/answer)",
                         "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
                                 ", questionId = " + currentQuestion.getId()
                 )
@@ -168,7 +168,7 @@ public class QuestionRepository extends BaseRepository {
 
         final String interviewCode = astrntSDK.getInterviewCode();
         LogUtil.addNewLog(interviewCode,
-                new LogDao("Hit API",
+                new LogDao("Hit API (/interview/update/elapsedTime)",
                         "Update Elapsed Time, type =  " + type +
                                 ", number " + (astrntSDK.getQuestionIndex() + 1)
                                 + ", refId = " + refId
@@ -215,7 +215,7 @@ public class QuestionRepository extends BaseRepository {
         map.put("question_id", String.valueOf(currentQuestion.getId()));
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/question/last_seen)",
                         "Add Last Seen, number " + (astrntSDK.getQuestionIndex() + 1) +
                                 ", questionId = " + currentQuestion.getId()
                 )

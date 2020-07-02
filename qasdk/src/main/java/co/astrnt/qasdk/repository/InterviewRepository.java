@@ -65,7 +65,7 @@ public class InterviewRepository extends BaseRepository {
         String token = interviewApiDao.getToken();
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/interview/start)",
                         "Start Interview"
                 )
         );
@@ -82,7 +82,7 @@ public class InterviewRepository extends BaseRepository {
         String token = interviewApiDao.getToken();
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/interview/finish)",
                         "Finish Interview"
                 )
         );
@@ -102,7 +102,7 @@ public class InterviewRepository extends BaseRepository {
         String token = interviewApiDao.getToken();
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/cv/status)",
                         "CV Status"
                 )
         );
@@ -121,7 +121,7 @@ public class InterviewRepository extends BaseRepository {
         String token = interviewApiDao.getToken();
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API",
+                new LogDao("Hit API (/cv/start)",
                         "CV Start"
                 )
         );
@@ -146,6 +146,12 @@ public class InterviewRepository extends BaseRepository {
     public Observable<BaseApiDao> gdprComplied(String interviewCode) {
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewCode);
+
+        LogUtil.addNewLog(interviewCode,
+                new LogDao("Hit API (/user/gdpr_complied)",
+                        "GDPR Complied"
+                )
+        );
 
         return mAstronautApi.getApiService().gdprComplied("", map);
     }

@@ -90,7 +90,7 @@ public class AstrntSDK extends HawkUtils {
         this.realm = Realm.getInstance(getRealmConfig());
     }
 
-    private static RealmConfiguration getRealmConfig() {
+    public static RealmConfiguration getRealmConfig() {
         return new RealmConfiguration.Builder()
                 .name("astrntdb")
                 .schemaVersion(BuildConfig.VERSION_CODE)

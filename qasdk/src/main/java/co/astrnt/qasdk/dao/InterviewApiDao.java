@@ -156,7 +156,7 @@ public class InterviewApiDao extends RealmObject {
         int totalTime = 0;
 
         for (QuestionApiDao item : getQuestions()) {
-            totalTime += item.getMaxTime() + 30;
+            totalTime += item.getMaxTime();
         }
         return totalTime;
     }

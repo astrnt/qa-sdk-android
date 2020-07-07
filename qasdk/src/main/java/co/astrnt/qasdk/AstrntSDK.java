@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
+import co.astrnt.qasdk.dao.CustomFieldApiDao;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -1637,6 +1638,46 @@ public class AstrntSDK extends HawkUtils {
         } else {
             markAnswered(questionApiDao);
             Timber.e("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
+        }
+    }
+
+    public CustomFieldApiDao getCustomFieldById(long fieldId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            for (CustomFieldApiDao fieldApiDao : interviewApiDao.getCustom_fields().getFields()) {
+                if (fieldApiDao.getId() == fieldId) {
+                    return fieldApiDao;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void addCustomFieldAnswer(CustomFieldApiDao field, String answer) {
+        if (!realm.isInTransaction()) {
+
+            realm.beginTransaction();
+
+            RealmList<String> newAnswers = new RealmList<>();
+            RealmList<String> answers = field.getAnswers();
+
+            if (answers.isEmpty()) {
+                newAnswers.add(answer);
+            } else {
+                answers.add(answer);
+
+                if (answers.size() > field.getMaxOptions()) {
+                    answers.remove(0);
+                }
+
+                newAnswers.addAll(answers);
+            }
+
+            field.setAnswers(newAnswers);
+            realm.copyToRealmOrUpdate(field);
+            realm.commitTransaction();
+        } else {
+            addCustomFieldAnswer(field, answer);
         }
     }
 

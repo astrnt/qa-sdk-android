@@ -2,6 +2,8 @@ package co.astrnt.qasdk.dao.post;
 
 import java.util.List;
 
+import co.astrnt.qasdk.type.CustomField;
+
 public class RegisterPost {
 
     private long job_id;
@@ -108,6 +110,8 @@ public class RegisterPost {
 
         private long id;
         private String value;
+        private List<String> values;
+        private @CustomField String inputType;
 
         public long getId() {
             return id;
@@ -123,6 +127,23 @@ public class RegisterPost {
 
         public void setValue(String value) {
             this.value = value;
+        }
+
+        public List<String> getValues() {
+            return values;
+        }
+
+        public void setValues(List<String> values) {
+            this.values = values;
+        }
+
+        public @CustomField
+        String getInputType() {
+            return inputType;
+        }
+
+        public void setInputType(@CustomField String inputType) {
+            this.inputType = inputType;
         }
     }
 }

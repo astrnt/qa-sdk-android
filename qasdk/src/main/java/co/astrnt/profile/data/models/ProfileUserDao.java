@@ -29,6 +29,7 @@ public class ProfileUserDao extends RealmObject {
 
     private RealmList<VideoDao> videos;
     private QuestionDao introductionQuestion;
+    private String token;
 
     public long getId() {
         return id;
@@ -92,5 +93,13 @@ public class ProfileUserDao extends RealmObject {
 
     public void setIntroductionQuestion(QuestionDao introductionQuestion) {
         this.introductionQuestion = introductionQuestion;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

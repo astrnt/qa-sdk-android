@@ -70,7 +70,9 @@ public class InterviewRepository extends BaseRepository {
                 )
         );
 
-        astrntSDK.setContinueInterview(true);
+        if (astrntSDK.isSectionInterview()) {
+            astrntSDK.setContinueInterview(true);
+        }
         astrntSDK.updateInterviewOnGoing(interviewApiDao, true);
         return mAstronautApi.getApiService().startInterview(token, map);
     }

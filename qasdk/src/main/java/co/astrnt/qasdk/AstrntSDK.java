@@ -1664,7 +1664,11 @@ public class AstrntSDK extends HawkUtils {
             if (answers.isEmpty()) {
                 newAnswers.add(answer);
             } else {
-                answers.add(answer);
+                if (answers.contains(answer)) {
+                    answers.remove(answer);
+                } else {
+                    answers.add(answer);
+                }
 
                 if (answers.size() > field.getMaxOptions()) {
                     answers.remove(0);

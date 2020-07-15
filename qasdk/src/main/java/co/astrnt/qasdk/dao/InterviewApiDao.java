@@ -16,6 +16,7 @@ public class InterviewApiDao extends RealmObject {
     private int is_allowed_preview;
     private String first_time;
     private int duration_left;
+    private int estimation_time;
     private int total_video_question;
     private JobApiDao job;
     private CompanyApiDao company;
@@ -69,6 +70,14 @@ public class InterviewApiDao extends RealmObject {
 
     public void setFirst_time(String first_time) {
         this.first_time = first_time;
+    }
+
+    public int getEstimation_time() {
+        return estimation_time;
+    }
+
+    public void setEstimation_time(int estimation_time) {
+        this.estimation_time = estimation_time;
     }
 
     public int getDuration_left() {
@@ -149,16 +158,6 @@ public class InterviewApiDao extends RealmObject {
 
     public int getTotalUpload() {
         return getTotalQuestion() * 5;
-    }
-
-    // in milis
-    public int getEstimatedTime() {
-        int totalTime = 0;
-
-        for (QuestionApiDao item : getQuestions()) {
-            totalTime += item.getMaxTime();
-        }
-        return totalTime;
     }
 
     public String getTemp_code() {

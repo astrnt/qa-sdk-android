@@ -535,6 +535,17 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void updateInterviewOnGoing(InterviewApiDao interviewApiDao, boolean onGoing) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            interviewApiDao.setOnGoing(onGoing);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
+        } else {
+            updateInterviewOnGoing(interviewApiDao, onGoing);
+        }
+    }
+
     public void updateQuestionTimeLeft(QuestionApiDao currentQuestion, int timeLeft) {
         currentQuestion = getQuestionById(currentQuestion.getId());
         if (currentQuestion != null) {

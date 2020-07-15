@@ -32,6 +32,9 @@ public class InterviewApiDao extends RealmObject {
     private String token;
     private String interviewCode;
 
+    //additional field
+    private boolean isOnGoing;
+
     public long getInvite_id() {
         return invite_id;
     }
@@ -198,5 +201,15 @@ public class InterviewApiDao extends RealmObject {
 
     public void setSelfPace(int selfPace) {
         this.self_pace = selfPace;
+    }
+
+// Support Method
+
+    public boolean isOnGoing() {
+        return isOnGoing;
+    }
+
+    public void setOnGoing(boolean onGoing) {
+        isOnGoing = onGoing;
     }
 }

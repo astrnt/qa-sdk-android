@@ -535,6 +535,17 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void updateInterviewOnGoing(InterviewApiDao interviewApiDao, boolean onGoing) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            interviewApiDao.setOnGoing(onGoing);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
+        } else {
+            updateInterviewOnGoing(interviewApiDao, onGoing);
+        }
+    }
+
     public void updateQuestionTimeLeft(QuestionApiDao currentQuestion, int timeLeft) {
         currentQuestion = getQuestionById(currentQuestion.getId());
         if (currentQuestion != null) {
@@ -628,9 +639,9 @@ public class AstrntSDK extends HawkUtils {
         } else {
             if (isSectionInterview()) {
                 if (isSelfPace()) {
-                    return getCurrentSection().isOnGoing() || isContinueInterview();
+                    return (getCurrentSection().isOnGoing() && informationApiDao.isOnGoing()) || isContinueInterview();
                 } else {
-                    return getCurrentSection().isOnGoing() || informationApiDao.getSectionDurationLeft() > 0 || isContinueInterview();
+                    return (getCurrentSection().isOnGoing() && informationApiDao.isOnGoing() && informationApiDao.getSectionDurationLeft() > 0) || isContinueInterview();
                 }
             } else {
                 return (informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty()) || isContinueInterview();

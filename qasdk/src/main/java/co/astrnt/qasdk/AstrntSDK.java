@@ -218,6 +218,7 @@ public class AstrntSDK extends HawkUtils {
                                             newQuestion.setUploadStatus(question.getUploadStatus());
                                             newQuestion.setVideoPath(question.getVideoPath());
                                             newQuestion.setUploadProgress(question.getUploadProgress());
+                                            newQuestion.setRetake(question.isRetake());
                                         } else {
 
                                             if (newQuestion.getMedia() != null) {
@@ -255,6 +256,7 @@ public class AstrntSDK extends HawkUtils {
                                 newQuestion.setUploadStatus(question.getUploadStatus());
                                 newQuestion.setVideoPath(question.getVideoPath());
                                 newQuestion.setUploadProgress(question.getUploadProgress());
+                                newQuestion.setRetake(question.isRetake());
                             } else {
 
                                 if (newQuestion.getMedia() != null) {
@@ -1388,6 +1390,22 @@ public class AstrntSDK extends HawkUtils {
             Timber.d("Video with Question Id %s mark as pending", questionApiDao.getId());
         } else {
             markAsPending(questionApiDao, rawFilePath);
+        }
+    }
+
+    public void markAsRetake(QuestionApiDao questionApiDao) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setRetake(true);
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+
+            Timber.d("Video with Question Id %s mark as retake", questionApiDao.getId());
+        } else {
+            markAsRetake(questionApiDao);
         }
     }
 

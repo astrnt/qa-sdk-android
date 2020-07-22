@@ -434,10 +434,11 @@ public class AstrntSDK extends HawkUtils {
                                         if (question.getId() == questionInfoMcqApiDao.getId()) {
 
                                             if (question.getType_child().equals(TestType.FREE_TEXT)) {
-                                                question = addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
+                                                addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
                                             } else {
-                                                question = addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
+                                                addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
                                             }
+                                            question = getQuestionById(question.getId());
                                         }
                                     }
                                 }
@@ -497,10 +498,8 @@ public class AstrntSDK extends HawkUtils {
                 realm.commitTransaction();
                 if (timeLeft == 0) {
                     timeLeft = -1;
-                    saveLastTimeLeft(timeLeft);
-                } else {
-                    saveLastTimeLeft(timeLeft);
                 }
+                saveLastTimeLeft(timeLeft);
             } else {
                 updateSectionTimeLeft(currentSection, timeLeft);
             }
@@ -709,10 +708,8 @@ public class AstrntSDK extends HawkUtils {
                             }
                         }
 
-                        return information.getInterviewIndex();
-                    } else {
-                        return information.getInterviewIndex();
                     }
+                    return information.getInterviewIndex();
                 }
             }
         }
@@ -771,13 +768,10 @@ public class AstrntSDK extends HawkUtils {
                     if (currentSection != null) {
                         if (currentSection.getSectionQuestions() != null) {
                             assert currentSection.getSectionQuestions().first() != null;
-                            return currentSection.getSectionQuestions().first().getTakesCount();
+                            return Objects.requireNonNull(currentSection.getSectionQuestions().first()).getTakesCount();
                         }
-                        return 1;
-                    } else {
-                        return 1;
                     }
-
+                    return 1;
                 } else {
                     QuestionApiDao currentQuestion = getCurrentQuestion();
                     if (currentQuestion != null) {
@@ -917,28 +911,6 @@ public class AstrntSDK extends HawkUtils {
         return false;
     }
 
-    public boolean isAllUploaded() {
-        InterviewApiDao interviewApiDao = getCurrentInterview();
-        if (interviewApiDao == null) {
-            return true;
-        } else {
-            if (isSectionInterview()) {
-                if (interviewApiDao.getSections().isEmpty()) {
-                    return true;
-                } else {
-                    return getQuestionIndex() >= getCurrentSection().getTotalQuestion() && getQuestionAttempt() == 0;
-                }
-            } else {
-                if (interviewApiDao.getQuestions().isEmpty()) {
-                    return true;
-                } else {
-                    int totalQuestion = getTotalQuestion();
-                    return getQuestionIndex() >= totalQuestion && getQuestionAttempt() == 0;
-                }
-            }
-        }
-    }
-
     public boolean isFinished() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         InformationApiDao informationApiDao = getInformation();
@@ -992,10 +964,8 @@ public class AstrntSDK extends HawkUtils {
                     return item;
                 }
             }
-            return null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     private SectionApiDao getNextSection() {
@@ -1079,10 +1049,8 @@ public class AstrntSDK extends HawkUtils {
                     }
                 }
             }
-            return null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     private QuestionApiDao getNextQuestion() {
@@ -1213,12 +1181,10 @@ public class AstrntSDK extends HawkUtils {
             questionInfo.decreaseAttempt();
             int attempt = questionInfo.getAttempt();
 
-            if (attempt <= 0) {
-                realm.commitTransaction();
-            } else {
+            if (attempt > 0) {
                 realm.copyToRealmOrUpdate(questionInfo);
-                realm.commitTransaction();
             }
+            realm.commitTransaction();
         } else {
             decreaseQuestionAttempt();
         }
@@ -1234,12 +1200,10 @@ public class AstrntSDK extends HawkUtils {
             currentQuestion.decreaseMediaAttempt();
             int mediaAttempt = currentQuestion.getMediaAttemptLeft();
 
-            if (mediaAttempt <= 0) {
-                realm.commitTransaction();
-            } else {
+            if (mediaAttempt > 0) {
                 realm.copyToRealmOrUpdate(currentQuestion);
-                realm.commitTransaction();
             }
+            realm.commitTransaction();
         } else {
             decreaseMediaAttempt();
         }
@@ -1257,10 +1221,6 @@ public class AstrntSDK extends HawkUtils {
         } else {
             return getQuestionIndex() < getTotalQuestion();
         }
-    }
-
-    public boolean isLastQuestion() {
-        return !isNotLastQuestion();
     }
 
     public boolean isNotLastSection() {
@@ -1579,7 +1539,7 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private QuestionApiDao addSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
+    private void addSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
@@ -1614,7 +1574,6 @@ public class AstrntSDK extends HawkUtils {
         } else {
             questionApiDao.setAnswered(true);
         }
-        return questionApiDao;
     }
 
     public void addAnswer(QuestionApiDao questionApiDao, String answer) {
@@ -1634,14 +1593,13 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private QuestionApiDao addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
+    private void addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
         questionApiDao.setAnswer(answer);
         if (answer.isEmpty()) {
             questionApiDao.setAnswered(false);
         } else {
             questionApiDao.setAnswered(true);
         }
-        return questionApiDao;
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {

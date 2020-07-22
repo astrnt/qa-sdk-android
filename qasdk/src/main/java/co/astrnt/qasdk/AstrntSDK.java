@@ -131,6 +131,7 @@ public class AstrntSDK extends HawkUtils {
         saveIsProfile(isProfile);
 
         saveSelfPace(newInterview.isSelfPace());
+        savePracticeRetake(false);
 
         if (newInterview.getToken() != null) {
             Hawk.put(PreferenceKey.KEY_TOKEN, newInterview.getToken());
@@ -927,7 +928,9 @@ public class AstrntSDK extends HawkUtils {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setTakesCount(3);
         questionApiDao.setMaxTime(45);
+        questionApiDao.setPrepTime(10);
         questionApiDao.setTitle("What are your proudest achievements, and why?");
+        questionApiDao.setRetake(isPracticeRetake());
         return questionApiDao;
     }
 

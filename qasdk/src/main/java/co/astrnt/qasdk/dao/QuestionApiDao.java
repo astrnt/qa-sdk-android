@@ -52,6 +52,8 @@ public class QuestionApiDao extends RealmObject {
     private int media_attempt;
     private int media_attempt_left;
 
+    private boolean isRetake;
+
     public long getId() {
         return id;
     }
@@ -322,5 +324,13 @@ public class QuestionApiDao extends RealmObject {
 
     public void decreaseMediaAttempt() {
         this.media_attempt_left--;
+    }
+
+    public boolean isRetake() {
+        return isRetake;
+    }
+
+    public void setRetake(boolean retake) {
+        isRetake = retake;
     }
 }

@@ -15,6 +15,7 @@ import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_PROFILE;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_SOURCING;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_LAST_TIMER;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_NEED_REGISTER;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_PRACTICE_RETAKE;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SELF_PACE;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SHOW_RATING;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SHOW_UPLOAD;
@@ -183,6 +184,14 @@ public class HawkUtils {
         return Hawk.get(KEY_SELF_PACE, false);
     }
 
+    public void savePracticeRetake(boolean isPracticeRetake) {
+        Hawk.put(KEY_PRACTICE_RETAKE, isPracticeRetake);
+    }
+
+    public boolean isPracticeRetake() {
+        return Hawk.get(KEY_PRACTICE_RETAKE, false);
+    }
+
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(KEY_WELCOME_VIDEO);
@@ -195,6 +204,7 @@ public class HawkUtils {
         Hawk.delete(KEY_IS_PROFILE);
         Hawk.delete(KEY_LAST_TIMER);
         Hawk.delete(KEY_SELF_PACE);
+        Hawk.delete(KEY_PRACTICE_RETAKE);
         removeDownloadId();
         removeUploadId();
     }

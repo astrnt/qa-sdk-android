@@ -25,8 +25,29 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
         switch (newInterview.getType()) {
             case CLOSE_INTERVIEW:
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Response API",
+                                "Success, will move to Video Interview"
+                        )
+                );
+                onContinueInterview();
+                break;
             case CLOSE_SECTION:
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Response API",
+                                "Success, will move to Section Interview"
+                        )
+                );
+                onContinueInterview();
+                break;
             case CLOSE_INTERVIEW_PROFILE:
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Response API",
+                                "Success, will move to Astronaut Profile"
+                        )
+                );
+                onContinueInterview();
+                break;
             case CLOSE_TEST:
                 if (interviewCode.equals(resultApiDao.getInterview_code())) {
                     astrntSDK.updateInterviewData(currentInterview, newInterview);
@@ -38,7 +59,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
                 LogUtil.addNewLog(interviewCode,
                         new LogDao("Response API",
-                                "Success, move to Section Info"
+                                "Success, will move to MCQ Interview"
                         )
                 );
 

@@ -38,7 +38,7 @@ public class SendLogService extends Service {
     public static final long NOTIFY_INTERVAL = 60 * 1000;
 
     private Context context;
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private Timer mTimer = null;
     private AstrntSDK astrntSDK;
     private AstronautApi astronautApi;
@@ -248,7 +248,7 @@ public class SendLogService extends Service {
             public void run() {
                 Looper.prepare();
 
-                final Handler handler = new Handler();
+                final Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {

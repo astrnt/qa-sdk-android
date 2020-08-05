@@ -921,7 +921,7 @@ public class AstrntSDK extends HawkUtils {
         if (interviewApiDao == null || informationApiDao == null) {
             return true;
         } else {
-            return (interviewApiDao.isFinished() || informationApiDao.isFinished()) && isFinishInterview();
+            return (interviewApiDao.isFinished() && informationApiDao.isFinished()) && isFinishInterview();
         }
     }
 

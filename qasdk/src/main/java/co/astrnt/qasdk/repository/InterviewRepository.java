@@ -32,19 +32,6 @@ public class InterviewRepository extends BaseRepository {
         return mAstronautApi.getApiService().enterCode("", map);
     }
 
-    public Observable<InterviewResultApiDao> continueEnterCode(String interviewCode, int version) {
-
-        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
-        String token = interviewApiDao.getToken();
-
-        HashMap<String, String> map = new HashMap<>();
-        map.put("interview_code", interviewCode);
-        map.put("device", "android");
-        map.put("version", String.valueOf(version));
-
-        return mAstronautApi.getApiService().enterCode(token, map);
-    }
-
     public Observable<InterviewResultApiDao> registerUser(RegisterPost param) {
         param.setDevice("android");
 

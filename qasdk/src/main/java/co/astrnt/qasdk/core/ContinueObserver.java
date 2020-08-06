@@ -34,27 +34,12 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
         switch (newInterview.getType()) {
             case CLOSE_INTERVIEW:
-                LogUtil.addNewLog(interviewCode,
-                        new LogDao("Response API",
-                                "Success, will move to Video Interview"
-                        )
-                );
             case CLOSE_SECTION:
-                LogUtil.addNewLog(interviewCode,
-                        new LogDao("Response API",
-                                "Success, will move to Section Interview"
-                        )
-                );
             case CLOSE_INTERVIEW_PROFILE:
-                LogUtil.addNewLog(interviewCode,
-                        new LogDao("Response API",
-                                "Success, will move to Astronaut Profile"
-                        )
-                );
             case CLOSE_TEST:
                 LogUtil.addNewLog(interviewCode,
                         new LogDao("Response API",
-                                "Success, will move to MCQ Interview"
+                                "Success, will move to Info"
                         )
                 );
 

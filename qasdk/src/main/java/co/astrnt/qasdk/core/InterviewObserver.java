@@ -36,7 +36,7 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                 }
                 onNeedToRegister(data);
             } else {
-                astrntSDK.saveInterview(data, data.getToken(), data.getInterviewCode());
+                astrntSDK.saveInterview(data, resultApiDao.getToken(), data.getInterviewCode());
                 String interviewCode = astrntSDK.getInterviewCode();
                 switch (data.getType()) {
                     case CLOSE_INTERVIEW:

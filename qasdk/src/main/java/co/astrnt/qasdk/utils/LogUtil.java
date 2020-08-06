@@ -19,6 +19,9 @@ public class LogUtil {
     public static void addNewLog(String interviewCode, LogDao itemLog) {
         if (interviewCode == null) return;
         List<LogDao> logDaoList = getLog(interviewCode);
+        if (itemLog.getEvent().equals("Response API") || itemLog.getEvent().equals("Hit API")) {
+            itemLog.setEvent(itemLog.getEvent() + " " + getLastApiCall());
+        }
         logDaoList.add(itemLog);
         Set<LogDao> set = new LinkedHashSet<>(logDaoList);
         List<LogDao> logWithoutDuplicates = new ArrayList<>(set);
@@ -47,6 +50,10 @@ public class LogUtil {
         List<LogDao> logDaoList = getLog(interviewCode);
         logDaoList.removeAll(sentLog);
         Hawk.put(interviewCode, logDaoList);
+    }
+
+    public static String getLastApiCall() {
+        return Hawk.get(PreferenceKey.KEY_LAST_API_CALL, null);
     }
 
     public static int getLastLogIndex() {

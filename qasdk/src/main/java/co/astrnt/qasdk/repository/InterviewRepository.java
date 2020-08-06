@@ -78,6 +78,8 @@ public class InterviewRepository extends BaseRepository {
                 )
         );
 
+        astrntSDK.saveLastApiCall("(/interview/start)");
+
         if (astrntSDK.isSectionInterview()) {
             astrntSDK.setContinueInterview(true);
         }
@@ -97,6 +99,8 @@ public class InterviewRepository extends BaseRepository {
                         "Finish Interview"
                 )
         );
+
+        astrntSDK.saveLastApiCall("(/interview/finish)");
 
         astrntSDK.setFinishInterview(true);
         return mAstronautApi.getApiService().finishInterview(token, map);
@@ -118,6 +122,8 @@ public class InterviewRepository extends BaseRepository {
                 )
         );
 
+        astrntSDK.saveLastApiCall("(/cv/status)");
+
         return mAstronautApi.getApiService().cvStatus(token, map);
     }
 
@@ -136,6 +142,8 @@ public class InterviewRepository extends BaseRepository {
                         "CV Start"
                 )
         );
+
+        astrntSDK.saveLastApiCall("(/cv/start)");
 
         return mAstronautApi.getApiService().cvStart(token, map);
     }
@@ -163,6 +171,8 @@ public class InterviewRepository extends BaseRepository {
                         "GDPR Complied"
                 )
         );
+
+        astrntSDK.saveLastApiCall("(/user/gdpr_complied)");
 
         return mAstronautApi.getApiService().gdprComplied("", map);
     }

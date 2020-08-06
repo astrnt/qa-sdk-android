@@ -137,6 +137,8 @@ public class SendLogService extends Service {
             }
         }
 
+        astrntSDK.saveLastApiCall("(/candidate/logs)");
+
         astronautApi.getApiService().sendLog(token, map)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())

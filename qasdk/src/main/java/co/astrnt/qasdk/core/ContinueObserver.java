@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.core;
 
+import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.LogDao;
@@ -22,6 +23,14 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
         String interviewCode = astrntSDK.getInterviewCode();
         InterviewApiDao newInterview = resultApiDao.getInterview();
+
+        InformationApiDao information = resultApiDao.getInformation();
+
+        if (information.isFinished()) {
+            astrntSDK.setInterviewFinished();
+            astrntSDK.setFinishInterview(false);
+            astrntSDK.setShowUpload(true);
+        }
 
         switch (newInterview.getType()) {
             case CLOSE_INTERVIEW:

@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.core;
 
+import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.LogDao;
@@ -37,64 +38,70 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                 onNeedToRegister(data);
             } else {
                 astrntSDK.saveInterview(data, resultApiDao.getToken(), data.getInterviewCode());
-                String interviewCode = astrntSDK.getInterviewCode();
-                switch (data.getType()) {
-                    case CLOSE_INTERVIEW:
-                    case CLOSE_INTERVIEW_PROFILE:
-                        if (interviewCode != null) {
-                            LogUtil.addNewLog(interviewCode,
-                                    new LogDao("Response API",
-                                            "Success, will move to Video Interview"
-                                    )
-                            );
-                        }
-                        onInterviewType(data);
-                        break;
-                    case CLOSE_TEST:
-                        if (interviewCode != null) {
-                            LogUtil.addNewLog(interviewCode,
-                                    new LogDao("Response API",
-                                            "Success, will move to MCQ Interview"
-                                    )
-                            );
-                        }
-                        onTestType(data);
-                        break;
-                    case CLOSE_SECTION:
-                        if (interviewCode != null) {
-                            LogUtil.addNewLog(interviewCode,
-                                    new LogDao("Response API",
-                                            "Success, will move to Section Interview"
-                                    )
-                            );
-                        }
-                        onSectionType(data);
-                        break;
-                    case ASTRONAUT_PROFILE:
-                        if (interviewCode != null) {
-                            LogUtil.addNewLog(interviewCode,
-                                    new LogDao("Response API",
-                                            "Success, will move to Astronaut Profile"
-                                    )
-                            );
-                        }
-                        onAstronautProfileType(data);
-                        break;
-                    default:
-                        if (resultApiDao.getTitle() != null) {
-                            onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
-                        } else {
-                            onApiResultError("", resultApiDao.getMessage(), "error");
-                        }
+                InformationApiDao information = resultApiDao.getInformation();
 
-                        if (interviewCode != null) {
-                            LogUtil.addNewLog(interviewCode,
-                                    new LogDao("Enter Code Response API",
-                                            "Error : " + resultApiDao.getMessage()
-                                    )
-                            );
-                        }
-                        break;
+                if (information.isFinished()) {
+                    onApiResultError("", information.getMessage(), "error");
+                } else {
+                    String interviewCode = astrntSDK.getInterviewCode();
+                    switch (data.getType()) {
+                        case CLOSE_INTERVIEW:
+                        case CLOSE_INTERVIEW_PROFILE:
+                            if (interviewCode != null) {
+                                LogUtil.addNewLog(interviewCode,
+                                        new LogDao("Response API",
+                                                "Success, will move to Video Interview"
+                                        )
+                                );
+                            }
+                            onInterviewType(data);
+                            break;
+                        case CLOSE_TEST:
+                            if (interviewCode != null) {
+                                LogUtil.addNewLog(interviewCode,
+                                        new LogDao("Response API",
+                                                "Success, will move to MCQ Interview"
+                                        )
+                                );
+                            }
+                            onTestType(data);
+                            break;
+                        case CLOSE_SECTION:
+                            if (interviewCode != null) {
+                                LogUtil.addNewLog(interviewCode,
+                                        new LogDao("Response API",
+                                                "Success, will move to Section Interview"
+                                        )
+                                );
+                            }
+                            onSectionType(data);
+                            break;
+                        case ASTRONAUT_PROFILE:
+                            if (interviewCode != null) {
+                                LogUtil.addNewLog(interviewCode,
+                                        new LogDao("Response API",
+                                                "Success, will move to Astronaut Profile"
+                                        )
+                                );
+                            }
+                            onAstronautProfileType(data);
+                            break;
+                        default:
+                            if (resultApiDao.getTitle() != null) {
+                                onApiResultError(resultApiDao.getTitle(), resultApiDao.getMessage(), "error");
+                            } else {
+                                onApiResultError("", resultApiDao.getMessage(), "error");
+                            }
+
+                            if (interviewCode != null) {
+                                LogUtil.addNewLog(interviewCode,
+                                        new LogDao("Enter Code Response API",
+                                                "Error : " + resultApiDao.getMessage()
+                                        )
+                                );
+                            }
+                            break;
+                    }
                 }
             }
         }

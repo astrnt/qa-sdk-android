@@ -40,7 +40,7 @@ public abstract class InterviewObserver extends MyObserver<InterviewResultApiDao
                 astrntSDK.saveInterview(data, resultApiDao.getToken(), data.getInterviewCode());
                 InformationApiDao information = resultApiDao.getInformation();
 
-                if (information.isFinished()) {
+                if (information != null && information.isFinished()) {
                     onApiResultError("", information.getMessage(), "error");
                 } else {
                     String interviewCode = astrntSDK.getInterviewCode();

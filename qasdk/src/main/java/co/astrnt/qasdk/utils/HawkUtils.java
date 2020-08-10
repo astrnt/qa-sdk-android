@@ -6,6 +6,7 @@ import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CONTINUE;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CV_START_CALLED;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_DOWNLOAD_ID;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FINISH_INTERVIEW;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FIRST_OPEN;
@@ -201,6 +202,14 @@ public class HawkUtils {
         return Hawk.get(KEY_LAST_API_CALL);
     }
 
+    public boolean isCvStartCalled() {
+        return Hawk.get(KEY_CV_START_CALLED, false);
+    }
+
+    public void saveCvStartCalled(boolean finished) {
+        Hawk.put(KEY_CV_START_CALLED, finished);
+    }
+
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(KEY_WELCOME_VIDEO);
@@ -215,6 +224,7 @@ public class HawkUtils {
         Hawk.delete(KEY_SELF_PACE);
         Hawk.delete(KEY_PRACTICE_RETAKE);
         Hawk.delete(KEY_LAST_API_CALL);
+        Hawk.delete(KEY_CV_START_CALLED);
         removeDownloadId();
         removeUploadId();
     }

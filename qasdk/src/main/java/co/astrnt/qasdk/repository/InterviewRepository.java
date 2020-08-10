@@ -144,7 +144,7 @@ public class InterviewRepository extends BaseRepository {
         );
 
         astrntSDK.saveLastApiCall("(/cv/start)");
-
+        astrntSDK.saveCvStartCalled(true);
         return mAstronautApi.getApiService().cvStart(token, map);
     }
 

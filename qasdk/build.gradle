@@ -8,9 +8,9 @@ android {
     compileSdkVersion 30
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 29
-        versionCode 16
-        versionName "1.9.5"
+        targetSdkVersion 30
+        versionCode 17
+        versionName "1.9.6"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -56,7 +56,7 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     api "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     api "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    api 'com.squareup.okhttp3:logging-interceptor:4.8.0'
+    api 'com.squareup.okhttp3:logging-interceptor:4.8.1'
     api 'com.jakewharton.timber:timber:4.7.1'
 
     def uploadServiceVersion = "3.5.2"

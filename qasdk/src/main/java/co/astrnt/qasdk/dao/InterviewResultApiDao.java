@@ -19,6 +19,7 @@ public class InterviewResultApiDao extends BaseApiDao implements RealmModel {
     private int gdpr_complied;
     private String gdpr_text;
     private String gdpr_aggrement_text;
+    private String compliance;
 
     public long getId() {
         return id;
@@ -98,5 +99,13 @@ public class InterviewResultApiDao extends BaseApiDao implements RealmModel {
 
     public void setGdpr_aggrement_text(String gdpr_aggrement_text) {
         this.gdpr_aggrement_text = gdpr_aggrement_text;
+    }
+
+    public String getCompliance() {
+        return compliance;
+    }
+
+    public void setCompliance(String compliance) {
+        this.compliance = compliance;
     }
 }

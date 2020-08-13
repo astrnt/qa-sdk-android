@@ -10,6 +10,7 @@ import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.SummaryApiDao;
 import co.astrnt.qasdk.dao.post.RegisterPost;
+import co.astrnt.qasdk.type.CustomFiledType;
 import co.astrnt.qasdk.utils.LogUtil;
 import io.reactivex.Observable;
 
@@ -47,10 +48,17 @@ public class InterviewRepository extends BaseRepository {
 
         if (param.getCustom_fields() != null) {
             for (int i = 0; i < param.getCustom_fields().size(); i++) {
-                RegisterPost.CustomFieldsPost customFieldsPost = param.getCustom_fields().get(i);
+                RegisterPost.CustomFieldsPost fieldsPost = param.getCustom_fields().get(i);
 
-                map.put("custom_fields[" + i + "][id]", String.valueOf(customFieldsPost.getId()));
-                map.put("custom_fields[" + i + "][value]", customFieldsPost.getValue());
+                map.put("custom_fields[" + i + "][id]", String.valueOf(fieldsPost.getId()));
+                if (fieldsPost.getInputType().equals(CustomFiledType.CHECK_BOX)) {
+                    for (int j = 0; j < fieldsPost.getValues().size(); j++) {
+                        String item = fieldsPost.getValues().get(j);
+                        map.put("custom_fields[" + i + "][value][" + j + "]", item);
+                    }
+                } else {
+                    map.put("custom_fields[" + i + "][value]", fieldsPost.getValue());
+                }
             }
         }
 

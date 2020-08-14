@@ -31,13 +31,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     ndkVersion "21.0.6113669"
-    buildToolsVersion = '30.0.1'
+    buildToolsVersion '30.0.2'
 }
 
 configurations.all {
     resolutionStrategy {
-        force 'com.squareup.okio:okio:2.5.0'
-        force 'com.squareup.okhttp3:okhttp:4.8.0'
+        force 'com.squareup.okio:okio:2.7.0'
+        force 'com.squareup.okhttp3:okhttp:4.8.1'
         force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     }
 }

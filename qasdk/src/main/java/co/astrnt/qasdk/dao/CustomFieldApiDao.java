@@ -27,6 +27,52 @@ public class CustomFieldApiDao extends RealmObject {
     private String answer;
     private RealmList<String> answers;
 
+    public CustomFieldApiDao() {
+    }
+
+    public CustomFieldApiDao(long id, String label, int is_mandatory, String description, int input_type, String input_name, int minWords, int maxWords, RealmList<String> options, int hasMultiple, int maxOptions) {
+        this.id = id;
+        this.label = label;
+        this.is_mandatory = is_mandatory;
+        this.description = description;
+        this.input_type = input_type;
+        this.input_name = input_name;
+        this.minWords = minWords;
+        this.maxWords = maxWords;
+        this.options = options;
+        this.hasMultiple = hasMultiple;
+        this.maxOptions = maxOptions;
+    }
+
+    public CustomFieldApiDao(long id, String label, int is_mandatory, String description, int input_type, String input_name, int minWords, int maxWords, int hasMultiple, int maxOptions) {
+        this.id = id;
+        this.label = label;
+        this.is_mandatory = is_mandatory;
+        this.description = description;
+        this.input_type = input_type;
+        this.input_name = input_name;
+        this.minWords = minWords;
+        this.maxWords = maxWords;
+        this.hasMultiple = hasMultiple;
+        this.maxOptions = maxOptions;
+    }
+
+    public CustomFieldApiDao(long id, String label, int is_mandatory, String description, int input_type, String input_name, int minWords, int maxWords, RealmList<String> options, int hasMultiple, int maxOptions, String answer, RealmList<String> answers) {
+        this.id = id;
+        this.label = label;
+        this.is_mandatory = is_mandatory;
+        this.description = description;
+        this.input_type = input_type;
+        this.input_name = input_name;
+        this.minWords = minWords;
+        this.maxWords = maxWords;
+        this.options = options;
+        this.hasMultiple = hasMultiple;
+        this.maxOptions = maxOptions;
+        this.answer = answer;
+        this.answers = answers;
+    }
+
     public long getId() {
         return id;
     }

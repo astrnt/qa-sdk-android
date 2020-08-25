@@ -50,6 +50,7 @@ public class QuestionRepository extends BaseRepository {
                                 ", questionId = " + currentQuestion.getId()
                 )
         );
+        astrntSDK.saveLastApiCall("(/question/attempt)");
 
         return mAstronautApi.getApiService().addAttempt(token, map);
     }
@@ -74,6 +75,7 @@ public class QuestionRepository extends BaseRepository {
                                 ", questionId = " + currentQuestion.getId()
                 )
         );
+        astrntSDK.saveLastApiCall("(/media/attempt)");
 
         return mAstronautApi.getApiService().addMediaAttempt(token, map);
     }
@@ -102,6 +104,7 @@ public class QuestionRepository extends BaseRepository {
                                 ", questionId = " + currentQuestion.getId()
                 )
         );
+        astrntSDK.saveLastApiCall("(/question/finish)");
 
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
@@ -152,6 +155,7 @@ public class QuestionRepository extends BaseRepository {
                                 ", questionId = " + currentQuestion.getId()
                 )
         );
+        astrntSDK.saveLastApiCall("(/question/answer)");
 
         return mAstronautApi.getApiService().answerQuestion(token, map);
     }
@@ -175,6 +179,8 @@ public class QuestionRepository extends BaseRepository {
                 )
         );
 
+        astrntSDK.saveLastApiCall("(/interview/update/elapsedTime)");
+
         mAstronautApi.getApiService().updateElapsedTime(token, map)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
@@ -197,6 +203,8 @@ public class QuestionRepository extends BaseRepository {
                                         "Error " + message
                                 )
                         );
+
+                        astrntSDK.saveLastApiCall("(Elapsed Time)");
                     }
 
                     @Override
@@ -220,6 +228,7 @@ public class QuestionRepository extends BaseRepository {
                                 ", questionId = " + currentQuestion.getId()
                 )
         );
+        astrntSDK.saveLastApiCall("(/question/last_seen)");
 
         return mAstronautApi.getApiService().addLastSeen(token, map);
     }

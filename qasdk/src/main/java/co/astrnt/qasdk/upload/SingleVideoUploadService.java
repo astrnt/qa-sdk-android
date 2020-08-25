@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
 import com.google.gson.Gson;
 
@@ -49,7 +50,7 @@ public class SingleVideoUploadService extends Service {
     private long questionId;
 
     private Context context;
-    private Handler mHandler = new Handler();
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private Timer mTimer = null;
     private QuestionApiDao currentQuestion;
     private AstrntSDK astrntSDK;

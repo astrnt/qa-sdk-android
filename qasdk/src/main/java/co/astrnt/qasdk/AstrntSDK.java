@@ -134,9 +134,7 @@ public class AstrntSDK extends HawkUtils {
         saveSelfPace(newInterview.isSelfPace());
         savePracticeRetake(false);
 
-        if (newInterview.getToken() != null) {
-            Hawk.put(PreferenceKey.KEY_TOKEN, newInterview.getToken());
-        }
+        Hawk.put(PreferenceKey.KEY_TOKEN, resultApiDao.getToken());
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -921,7 +919,7 @@ public class AstrntSDK extends HawkUtils {
         if (interviewApiDao == null || informationApiDao == null) {
             return true;
         } else {
-            return (interviewApiDao.isFinished() || informationApiDao.isFinished()) && isFinishInterview();
+            return (interviewApiDao.isFinished() && informationApiDao.isFinished()) && isFinishInterview();
         }
     }
 

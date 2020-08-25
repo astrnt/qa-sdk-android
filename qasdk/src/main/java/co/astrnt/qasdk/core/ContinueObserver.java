@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.core;
 
+import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.LogDao;
@@ -23,11 +24,25 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
         String interviewCode = astrntSDK.getInterviewCode();
         InterviewApiDao newInterview = resultApiDao.getInterview();
 
+        InformationApiDao information = resultApiDao.getInformation();
+
+        if (information.isFinished()) {
+            astrntSDK.setInterviewFinished();
+            astrntSDK.setFinishInterview(false);
+            astrntSDK.setShowUpload(true);
+        }
+
         switch (newInterview.getType()) {
             case CLOSE_INTERVIEW:
             case CLOSE_SECTION:
             case CLOSE_INTERVIEW_PROFILE:
             case CLOSE_TEST:
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Response API",
+                                "Success, will move to Info"
+                        )
+                );
+
                 if (interviewCode.equals(resultApiDao.getInterview_code())) {
                     astrntSDK.updateInterviewData(currentInterview, newInterview);
                     currentInterview = astrntSDK.getCurrentInterview();
@@ -35,12 +50,6 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
                 } else {
                     astrntSDK.saveInterviewResult(resultApiDao, newInterview, true);
                 }
-
-                LogUtil.addNewLog(interviewCode,
-                        new LogDao("Response API",
-                                "Success, move to Section Info"
-                        )
-                );
 
                 onContinueInterview();
                 break;

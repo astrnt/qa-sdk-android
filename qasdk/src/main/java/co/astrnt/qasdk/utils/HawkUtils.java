@@ -6,6 +6,7 @@ import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CONTINUE;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CV_START_CALLED;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_DOWNLOAD_ID;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FINISH_INTERVIEW;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FIRST_OPEN;
@@ -13,6 +14,7 @@ import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_GDPR;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_INTERVIEW_CODE;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_PROFILE;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_SOURCING;
+import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_LAST_API_CALL;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_LAST_TIMER;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_NEED_REGISTER;
 import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_PRACTICE_RETAKE;
@@ -192,6 +194,22 @@ public class HawkUtils {
         return Hawk.get(KEY_PRACTICE_RETAKE, false);
     }
 
+    public void saveLastApiCall(String apiPath) {
+        Hawk.put(KEY_LAST_API_CALL, apiPath);
+    }
+
+    public String getLastApiCall() {
+        return Hawk.get(KEY_LAST_API_CALL);
+    }
+
+    public boolean isCvStartCalled() {
+        return Hawk.get(KEY_CV_START_CALLED, false);
+    }
+
+    public void saveCvStartCalled(boolean finished) {
+        Hawk.put(KEY_CV_START_CALLED, finished);
+    }
+
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(KEY_WELCOME_VIDEO);
@@ -205,6 +223,8 @@ public class HawkUtils {
         Hawk.delete(KEY_LAST_TIMER);
         Hawk.delete(KEY_SELF_PACE);
         Hawk.delete(KEY_PRACTICE_RETAKE);
+        Hawk.delete(KEY_LAST_API_CALL);
+        Hawk.delete(KEY_CV_START_CALLED);
         removeDownloadId();
         removeUploadId();
     }

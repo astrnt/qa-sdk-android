@@ -45,7 +45,9 @@ public class SectionRepository extends BaseRepository {
                         "Start Section, number" + (astrntSDK.getSectionIndex() + 1) +
                                 ", sectionId = " + sectionApiDao.getId()
                 )
+
         );
+        astrntSDK.saveLastApiCall("(/section/start)");
 
         astrntSDK.updateSectionOnGoing(sectionApiDao, true);
         astrntSDK.setContinueInterview(true);
@@ -70,7 +72,9 @@ public class SectionRepository extends BaseRepository {
                         "Finish Section, number " + (astrntSDK.getSectionIndex() + 1) +
                                 ", sectionId = " + sectionApiDao.getId()
                 )
+
         );
+        astrntSDK.saveLastApiCall("(/section/stop)");
 
         return mAstronautApi.getApiService().stopSection(token, map);
     }
@@ -101,8 +105,11 @@ public class SectionRepository extends BaseRepository {
                         "Update Elapsed Time Section, type = " + type +
                                 ", number " + (astrntSDK.getSectionIndex() + 1)
                                 + ", refId = " + refId
+
                 )
         );
+
+        astrntSDK.saveLastApiCall("(/interview/update/elapsedTime)");
 
         mAstronautApi.getApiService().updateElapsedTime(token, map)
                 .subscribeOn(Schedulers.io())
@@ -126,6 +133,8 @@ public class SectionRepository extends BaseRepository {
                                         "Error " + message
                                 )
                         );
+
+                        astrntSDK.saveLastApiCall("(Elapsed Time Section)");
                     }
 
                     @Override

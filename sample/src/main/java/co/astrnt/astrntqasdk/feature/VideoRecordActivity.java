@@ -223,7 +223,7 @@ public class VideoRecordActivity extends BaseActivity implements RecordListener 
 
         txtTimer.setVisibility(View.VISIBLE);
 
-        new Handler().postDelayed(() -> countDownTimer = new CountDownTimer(currentQuestion.getMaxTime() * 1000, 1000) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> countDownTimer = new CountDownTimer(currentQuestion.getMaxTime() * 1000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 long currentProgress = millisUntilFinished / 1000;

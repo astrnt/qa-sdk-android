@@ -80,6 +80,7 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
 
     @Override
     public final void onNext(T t) {
+        onComplete();
         String interviewCode = astrntSDK.getInterviewCode();
         if (t == null) {
             onApiResultError("", "Failed connect to server", "error");

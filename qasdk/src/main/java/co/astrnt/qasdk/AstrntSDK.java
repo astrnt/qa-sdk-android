@@ -1415,7 +1415,7 @@ public class AstrntSDK extends HawkUtils {
         removeHawkSaved();
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            realm.deleteAll();
+            realm.delete(InterviewApiDao.class);
             realm.commitTransaction();
         } else {
             clearDb();

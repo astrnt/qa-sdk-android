@@ -21,12 +21,17 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 import co.astrnt.qasdk.constatnts.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
+import co.astrnt.qasdk.dao.CandidateApiDao;
+import co.astrnt.qasdk.dao.CompanyApiDao;
 import co.astrnt.qasdk.dao.CustomFieldApiDao;
+import co.astrnt.qasdk.dao.CustomFieldResultApiDao;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
+import co.astrnt.qasdk.dao.JobApiDao;
 import co.astrnt.qasdk.dao.LogDao;
+import co.astrnt.qasdk.dao.MediaDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.PrevQuestionStateApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
@@ -90,7 +95,7 @@ public class AstrntSDK extends HawkUtils {
         this.realm = Realm.getInstance(getRealmConfig());
     }
 
-    private static RealmConfiguration getRealmConfig() {
+    public static RealmConfiguration getRealmConfig() {
         return new RealmConfiguration.Builder()
                 .name("astrntdb")
                 .schemaVersion(BuildConfig.VERSION_CODE)
@@ -1415,7 +1420,21 @@ public class AstrntSDK extends HawkUtils {
         removeHawkSaved();
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            realm.deleteAll();
+            realm.delete(CandidateApiDao.class);
+            realm.delete(CompanyApiDao.class);
+            realm.delete(CustomFieldApiDao.class);
+            realm.delete(CustomFieldResultApiDao.class);
+            realm.delete(InformationApiDao.class);
+            realm.delete(InterviewApiDao.class);
+            realm.delete(JobApiDao.class);
+            realm.delete(MediaDao.class);
+            realm.delete(MultipleAnswerApiDao.class);
+            realm.delete(PrevQuestionStateApiDao.class);
+            realm.delete(QuestionApiDao.class);
+            realm.delete(QuestionInfoApiDao.class);
+            realm.delete(QuestionInfo.class);
+            realm.delete(SectionApiDao.class);
+            realm.delete(SectionInfo.class);
             realm.commitTransaction();
         } else {
             clearDb();

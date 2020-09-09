@@ -6,11 +6,12 @@ group = 'com.github.astrnt'
 
 android {
     compileSdkVersion 30
+    buildToolsVersion '30.0.2'
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 17
-        versionName "1.9.6"
+        versionCode 20
+        versionName "2.0"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -31,7 +32,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     ndkVersion "21.0.6113669"
-    buildToolsVersion '30.0.2'
 }
 
 configurations.all {

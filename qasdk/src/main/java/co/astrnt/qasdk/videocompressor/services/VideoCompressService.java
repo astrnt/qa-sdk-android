@@ -116,7 +116,7 @@ public class VideoCompressService extends Service {
 
             if (!inputFile.exists()) {
                 LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                        new LogDao("Compress Video",
+                        new LogDao("Compress Video " + currentQuestion.getId(),
                                 String.format("Compress file not found. Mark not answer for Question Id : %d", currentQuestion.getId())
                         )
                 );
@@ -133,7 +133,7 @@ public class VideoCompressService extends Service {
                 outputPath = outputFile.getAbsolutePath();
 
                 LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                        new LogDao("Compress Video",
+                        new LogDao("Compress Video " + currentQuestion.getId(),
                                 String.format("Start Compress, src file : %s \n output file %s", inputPath, outputPath)
                         )
                 );
@@ -159,7 +159,7 @@ public class VideoCompressService extends Service {
                         astrntSDK.updateCompressing(currentQuestion);
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                new LogDao("Video Compress (Start)",
+                                new LogDao("Video Compress (Start) " + currentQuestion.getId(),
                                         "Available storage " + astrntSDK.getAvailableStorage() + "Mb"
                                 )
                         );
@@ -242,7 +242,7 @@ public class VideoCompressService extends Service {
                         Timber.e(errorMsg);
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                new LogDao("Video Compress (Fail)",
+                                new LogDao("Video Compress (Fail) " + currentQuestion.getId(),
                                         errorMsg
                                 )
                         );

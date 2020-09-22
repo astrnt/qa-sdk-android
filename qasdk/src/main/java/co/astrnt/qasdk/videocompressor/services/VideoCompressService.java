@@ -169,37 +169,42 @@ public class VideoCompressService extends Service {
 
                     @Override
                     public void onSuccess() {
-                        Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
-                        Timber.d("Video Compress compress Available Storage %d", astrntSDK.getAvailableStorage());
+                        long availableStorage = astrntSDK.getAvailableStorage();
 
-                        long fileSizeInMb = outputFile.length() / 1000;
+                        Timber.d("Video Compress compress %s %s %s", inputPath, outputPath, "SUCCESS");
+                        Timber.d("Video Compress compress Available Storage %d", availableStorage);
+
+                        double fileSizeInKb = (double) (outputFile.length() / 1024);
+                        long fileSizeInMb = (long) (fileSizeInKb / 1024);
 
                         Timber.d("Video Compress compress output File size %d", outputFile.length());
-                        if (fileSizeInMb < 0.150) {
+
+                        String message = "Compress completed";
+                        if (fileSizeInKb < 150) {
+
+                            outputFile.delete();
+
 
                             LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                    new LogDao("Video Compress (Fail)",
-                                            "File is corrupt or too small " + fileSizeInMb + "Mb"
+                                    new LogDao("Video Compress (Success) " + currentQuestion.getId(),
+                                            "But, File is corrupt or too small " + fileSizeInKb + "Kb. Compressed file will be deleted."
                                     )
                             );
+                            astrntSDK.markAsPending(currentQuestion, inputPath);
 
-                            astrntSDK.markNotAnswer(currentQuestion);
-
-                            mBuilder.setContentText("Video Compress (Success), but file is corrupt or too small")
-                                    .setProgress(0, 0, false)
-                                    .setOngoing(false)
-                                    .setAutoCancel(true);
+                            message = "Video Compress (Success), but file is corrupt or too small";
 
                         } else {
 
-                            LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                    new LogDao("Video Compress (Success)",
-                                            "Success available storage " + astrntSDK.getAvailableStorage() + "Mb"
-                                    )
-                            );
-
                             inputFile.delete();
                             astrntSDK.updateVideoPath(currentQuestion, outputPath);
+                            LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                    new LogDao("Video Compress (Success) " + currentQuestion.getId(),
+                                            "Success, file compressed size: " + fileSizeInMb + "Mb, available storage "
+                                                    + astrntSDK.getAvailableStorage() + "Mb."
+                                                    + "Raw File has been deleted"
+                                    )
+                            );
 
                             if (astrntSDK.isShowUpload()) {
                                 EventBus.getDefault().post(new CompressEvent());
@@ -208,12 +213,12 @@ public class VideoCompressService extends Service {
                                     SingleVideoUploadService.start(context, questionId);
                                 }
                             }
-
-                            mBuilder.setContentText("Compress completed")
-                                    .setProgress(0, 0, false)
-                                    .setOngoing(false)
-                                    .setAutoCancel(true);
                         }
+
+                        mBuilder.setContentText(message)
+                                .setProgress(0, 0, false)
+                                .setOngoing(false)
+                                .setAutoCancel(true);
 
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
                         mNotifyManager.cancel(mNotificationId);

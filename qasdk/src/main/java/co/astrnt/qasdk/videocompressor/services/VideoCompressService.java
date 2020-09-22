@@ -222,6 +222,8 @@ public class VideoCompressService extends Service {
 
                     @Override
                     public void onFail() {
+                        astrntSDK.markAsPending(currentQuestion, inputPath);
+
                         String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
                         mBuilder.setContentText(errorMsg)

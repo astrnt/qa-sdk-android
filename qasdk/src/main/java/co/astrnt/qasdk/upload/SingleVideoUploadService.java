@@ -242,17 +242,17 @@ public class SingleVideoUploadService extends Service {
                                     astrntSDK.removeUploadId();
                                     Timber.e("Video Upload Error : ");
                                     String message = "";
-                                    if (exception != null) {
-                                        message = exception.getMessage();
+                                    if (serverResponse != null && serverResponse.getBody() != null) {
+                                        try {
+                                            BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                            message = baseApiDao.getMessage();
+                                            Timber.e(baseApiDao.getMessage());
+                                        } catch (Exception e) {
+                                            message = e.getMessage();
+                                        }
                                     } else {
-                                        if (serverResponse != null && serverResponse.getBody() != null) {
-                                            try {
-                                                BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
-                                                message = baseApiDao.getMessage();
-                                                Timber.e(baseApiDao.getMessage());
-                                            } catch (Exception e) {
-                                                message = e.getMessage();
-                                            }
+                                        if (exception != null) {
+                                            message = exception.getMessage();
                                         }
                                     }
 

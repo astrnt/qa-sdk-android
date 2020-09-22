@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
-import co.astrnt.qasdk.constatnts.PreferenceKey;
+import co.astrnt.qasdk.constants.PreferenceKey;
 import co.astrnt.qasdk.dao.LogDao;
 
 public class LogUtil {

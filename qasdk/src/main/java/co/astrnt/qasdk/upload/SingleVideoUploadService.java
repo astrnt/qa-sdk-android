@@ -153,32 +153,15 @@ public class SingleVideoUploadService extends Service {
         try {
 
             if (currentQuestion.getVideoPath() == null) {
-
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload",
-                                String.format("Upload file path  not found. Mark not answer for Question Id : %d", currentQuestion.getId())
-                        )
-                );
-
-                astrntSDK.markNotAnswer(currentQuestion);
-
+                astrntSDK.getVideoFile(context, interviewApiDao.getInterviewCode(), currentQuestion.getId());
                 stopService();
             }
 
             final File file = new File(currentQuestion.getVideoPath());
 
             if (!file.exists()) {
-
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload",
-                                String.format("Upload file path not found. Mark not answer for Question Id : %d", currentQuestion.getId())
-                        )
-                );
-
-                astrntSDK.markNotAnswer(currentQuestion);
-
+                astrntSDK.getVideoFile(context, interviewApiDao.getInterviewCode(), currentQuestion.getId());
                 stopService();
-
             } else {
 
                 if (currentQuestion.getVideoPath().contains("_raw.mp4")) {

@@ -44,10 +44,13 @@ import co.astrnt.qasdk.type.SectionType;
 import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.utils.FileUtils;
 import co.astrnt.qasdk.utils.HawkUtils;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
+import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
@@ -1343,7 +1346,13 @@ public class AstrntSDK extends HawkUtils {
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
 
-            Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("Video Upload Info",
+                            String.format("Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
+                    )
+            );
+
+            Timber.d("Video with Question Id %s is mark not Answer", questionApiDao.getId());
         } else {
             markNotAnswer(questionApiDao);
         }
@@ -1412,6 +1421,33 @@ public class AstrntSDK extends HawkUtils {
             Timber.d("Video with Question Id %s mark as retake", questionApiDao.getId());
         } else {
             markAsRetake(questionApiDao);
+        }
+    }
+
+    public void getVideoFile(Context context, String interviewCode, long questionId) {
+        File directory = FileUtils.makeAndGetSubDirectory(context, interviewCode, "video");
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
+        QuestionApiDao questionApiDao = getQuestionById(questionId);
+
+        File rawFile = new File(directory, questionId + "_raw.mp4");
+        if (rawFile.exists()) {
+            markAsPending(questionApiDao, rawFile.getAbsolutePath());
+            VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId);
+        } else {
+            File compressedFile = new File(directory, questionId + ".mp4");
+            if (compressedFile.exists()) {
+                markAsCompressed(questionApiDao);
+                if (!isShowUpload() && UploadService.getTaskList().isEmpty()) {
+                    if (questionApiDao.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                        SingleVideoUploadService.start(context, questionId);
+                    }
+                }
+            } else {
+                markNotAnswer(questionApiDao);
+            }
         }
     }
 

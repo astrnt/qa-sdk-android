@@ -5,27 +5,27 @@ import com.orhanobut.hawk.Hawk;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CONTINUE;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_CV_START_CALLED;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_DOWNLOAD_ID;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FINISH_INTERVIEW;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_FIRST_OPEN;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_GDPR;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_INTERVIEW_CODE;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_PROFILE;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_IS_SOURCING;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_LAST_API_CALL;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_LAST_TIMER;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_NEED_REGISTER;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_PRACTICE_RETAKE;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SELF_PACE;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SHOW_RATING;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_SHOW_UPLOAD;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_UNAUTHORIZED;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_UPLOAD_ID;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_WATCH_WELCOME_VIDEO;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_WELCOME_VIDEO;
-import static co.astrnt.qasdk.constatnts.PreferenceKey.KEY_WELCOME_VIDEO_URI;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CONTINUE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CV_START_CALLED;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_DOWNLOAD_ID;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_INTERVIEW;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FIRST_OPEN;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_GDPR;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_INTERVIEW_CODE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_PROFILE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_SOURCING;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_LAST_API_CALL;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_LAST_TIMER;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_NEED_REGISTER;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_PRACTICE_RETAKE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SELF_PACE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_RATING;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_UPLOAD;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_UNAUTHORIZED;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_UPLOAD_ID;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_WATCH_WELCOME_VIDEO;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_WELCOME_VIDEO;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_WELCOME_VIDEO_URI;
 
 public class HawkUtils {
 

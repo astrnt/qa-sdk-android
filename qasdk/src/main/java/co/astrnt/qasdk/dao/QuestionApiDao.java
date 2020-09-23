@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.dao;
 
+import co.astrnt.qasdk.constants.Constants;
 import co.astrnt.qasdk.type.MediaTypes;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
@@ -333,4 +334,52 @@ public class QuestionApiDao extends RealmObject {
     public void setRetake(boolean retake) {
         isRetake = retake;
     }
+
+    public int getEstimationUpload() {
+        int totalQuestionStorage = 0;
+
+        if (getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+            return totalQuestionStorage;
+        }
+
+        if (getMaxTime() <= 30) {
+            totalQuestionStorage += Constants.UPLOAD_ESTIMATION_30S;
+        } else if (getMaxTime() <= 45) {
+            totalQuestionStorage += Constants.UPLOAD_ESTIMATION_45S;
+        } else if (getMaxTime() <= 60) {
+            totalQuestionStorage += Constants.UPLOAD_ESTIMATION_60S;
+        } else if (getMaxTime() <= 120) {
+            totalQuestionStorage += Constants.UPLOAD_ESTIMATION_120S;
+        } else {
+            totalQuestionStorage += Constants.UPLOAD_ESTIMATION_BIG;
+        }
+        return totalQuestionStorage;
+    }
+
+    public int getEstimationRawStorage() {
+        int totalQuestionStorage = 0;
+
+        if (getUploadStatus().equals(UploadStatusType.UPLOADED)) {
+            return totalQuestionStorage;
+        }
+
+        if (getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+            return getEstimationUpload();
+        }
+
+        if (getMaxTime() <= 30) {
+            totalQuestionStorage += Constants.RAW_ESTIMATION_30S;
+        } else if (getMaxTime() <= 45) {
+            totalQuestionStorage += Constants.RAW_ESTIMATION_45S;
+        } else if (getMaxTime() <= 60) {
+            totalQuestionStorage += Constants.RAW_ESTIMATION_60S;
+        } else if (getMaxTime() <= 120) {
+            totalQuestionStorage += Constants.RAW_ESTIMATION_120S;
+        } else {
+            totalQuestionStorage += Constants.RAW_ESTIMATION_BIG;
+        }
+        return totalQuestionStorage;
+    }
+
+
 }

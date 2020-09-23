@@ -22,7 +22,7 @@ import java.util.TimerTask;
 import androidx.core.app.NotificationCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
-import co.astrnt.qasdk.constatnts.PreferenceKey;
+import co.astrnt.qasdk.constants.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.core.MyObserver;
 import co.astrnt.qasdk.dao.BaseApiDao;

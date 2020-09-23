@@ -1,4 +1,4 @@
-package co.astrnt.qasdk.constatnts;
+package co.astrnt.qasdk.constants;
 
 public class PreferenceKey {
 

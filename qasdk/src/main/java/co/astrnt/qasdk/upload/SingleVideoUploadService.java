@@ -153,32 +153,15 @@ public class SingleVideoUploadService extends Service {
         try {
 
             if (currentQuestion.getVideoPath() == null) {
-
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload",
-                                String.format("Upload file path  not found. Mark not answer for Question Id : %d", currentQuestion.getId())
-                        )
-                );
-
-                astrntSDK.markNotAnswer(currentQuestion);
-
+                astrntSDK.getVideoFile(context, interviewApiDao.getInterviewCode(), currentQuestion.getId());
                 stopService();
             }
 
             final File file = new File(currentQuestion.getVideoPath());
 
             if (!file.exists()) {
-
-                LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                        new LogDao("Background Upload",
-                                String.format("Upload file path not found. Mark not answer for Question Id : %d", currentQuestion.getId())
-                        )
-                );
-
-                astrntSDK.markNotAnswer(currentQuestion);
-
+                astrntSDK.getVideoFile(context, interviewApiDao.getInterviewCode(), currentQuestion.getId());
                 stopService();
-
             } else {
 
                 if (currentQuestion.getVideoPath().contains("_raw.mp4")) {
@@ -242,17 +225,17 @@ public class SingleVideoUploadService extends Service {
                                     astrntSDK.removeUploadId();
                                     Timber.e("Video Upload Error : ");
                                     String message = "";
-                                    if (exception != null) {
-                                        message = exception.getMessage();
+                                    if (serverResponse != null && serverResponse.getBody() != null) {
+                                        try {
+                                            BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
+                                            message = baseApiDao.getMessage();
+                                            Timber.e(baseApiDao.getMessage());
+                                        } catch (Exception e) {
+                                            message = e.getMessage();
+                                        }
                                     } else {
-                                        if (serverResponse != null && serverResponse.getBody() != null) {
-                                            try {
-                                                BaseApiDao baseApiDao = new Gson().fromJson(serverResponse.getBodyAsString(), BaseApiDao.class);
-                                                message = baseApiDao.getMessage();
-                                                Timber.e(baseApiDao.getMessage());
-                                            } catch (Exception e) {
-                                                message = e.getMessage();
-                                            }
+                                        if (exception != null) {
+                                            message = exception.getMessage();
                                         }
                                     }
 

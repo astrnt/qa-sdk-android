@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 
 import java.io.File;
 
+import co.astrnt.qasdk.constants.Constants;
+
 /**
  * Created by Vincent Woo
  * Date: 2017/8/16
@@ -33,7 +35,7 @@ public class VideoCompress {
     public static void compressVideo(String srcPath, String destPath, CompressListener listener) {
         File file = new File(srcPath);
         int fileSize = Integer.parseInt(String.valueOf(file.length() / 1024)) / 1000;
-        if (fileSize <= 30) {
+        if (fileSize <= Constants.RAW_ESTIMATION_30S) {
             compressVideoMedium(srcPath, destPath, listener);
         } else {
             compressVideoLow(srcPath, destPath, listener);

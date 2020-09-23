@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
-import co.astrnt.qasdk.constatnts.PreferenceKey;
+import co.astrnt.qasdk.constants.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.CandidateApiDao;
 import co.astrnt.qasdk.dao.CompanyApiDao;
@@ -44,16 +44,18 @@ import co.astrnt.qasdk.type.SectionType;
 import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
+import co.astrnt.qasdk.upload.SingleVideoUploadService;
+import co.astrnt.qasdk.utils.FileUtils;
 import co.astrnt.qasdk.utils.HawkUtils;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
+import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 import static co.astrnt.qasdk.type.InterviewType.ASTRONAUT_PROFILE;
@@ -1344,7 +1346,13 @@ public class AstrntSDK extends HawkUtils {
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
 
-            Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("Video Upload Info",
+                            String.format("Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
+                    )
+            );
+
+            Timber.d("Video with Question Id %s is mark not Answer", questionApiDao.getId());
         } else {
             markNotAnswer(questionApiDao);
         }
@@ -1416,6 +1424,33 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void getVideoFile(Context context, String interviewCode, long questionId) {
+        File directory = FileUtils.makeAndGetSubDirectory(context, interviewCode, "video");
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+
+        QuestionApiDao questionApiDao = getQuestionById(questionId);
+
+        File rawFile = new File(directory, questionId + "_raw.mp4");
+        if (rawFile.exists()) {
+            markAsPending(questionApiDao, rawFile.getAbsolutePath());
+            VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId);
+        } else {
+            File compressedFile = new File(directory, questionId + ".mp4");
+            if (compressedFile.exists()) {
+                markAsCompressed(questionApiDao);
+                if (!isShowUpload() && UploadService.getTaskList().isEmpty()) {
+                    if (questionApiDao.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                        SingleVideoUploadService.start(context, questionId);
+                    }
+                }
+            } else {
+                markNotAnswer(questionApiDao);
+            }
+        }
+    }
+
     public void clearDb() {
         removeHawkSaved();
         if (!realm.isInTransaction()) {
@@ -1469,7 +1504,7 @@ public class AstrntSDK extends HawkUtils {
                 }
             }
 
-            fileOrDirectory.deleteOnExit();
+            fileOrDirectory.delete();
         }
     }
 
@@ -1521,19 +1556,125 @@ public class AstrntSDK extends HawkUtils {
         return megAvailable;
     }
 
+    public long getNeededStorage() {
+        long questionsStorage = getTotalQuestionRawStorage();
+        long uploadStorage = getTotalQuestionUpload();
+        long requiredStorage = questionsStorage + uploadStorage;
+        long availableStorage = getAvailableStorage();
+        return availableStorage - requiredStorage;
+    }
+
     public boolean isStorageEnough() {
+        long questionsStorage = getTotalQuestionRawStorage();
+        long uploadStorage = getTotalQuestionUpload();
+        long requiredStorage = questionsStorage + uploadStorage;
+        long availableStorage = getAvailableStorage();
+        boolean isStorageEnough = availableStorage > requiredStorage;
+
+        LogUtil.addNewLog(getInterviewCode(),
+                new LogDao("isStorageEnough()",
+                        "Available Storage : " + availableStorage + "Mb, " +
+                                "Required Storage : " + requiredStorage + "Mb, " +
+                                "Is Practice : " + isPractice()
+                )
+        );
+
         if (isProfile()) {
-            return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+            return isStorageEnough;
         } else {
             if (isSectionInterview()) {
                 if (isSectionHasVideo()) {
-                    return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+                    return isStorageEnough;
                 } else {
                     return true;
                 }
             } else {
-                return getAvailableStorage() > 300 + (getTotalQuestion() * 30);
+                InterviewApiDao currentInterview = getCurrentInterview();
+
+                if (currentInterview.getType().contains(InterviewType.INTERVIEW)) {
+                    return isStorageEnough;
+                } else {
+                    return true;
+                }
             }
+        }
+    }
+
+    public int getTotalQuestionUpload() {
+
+        if (isPractice()) {
+            QuestionApiDao practiceQuestion = getPracticeQuestion();
+            return practiceQuestion.getEstimationUpload();
+        }
+
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            int totalQuestionStorage = 0;
+
+            RealmList<QuestionApiDao> allVideoQuestions = new RealmList<>();
+
+            if (isSectionInterview()) {
+
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+                        allVideoQuestions.addAll(section.getSectionQuestions());
+                    }
+                }
+
+            } else {
+
+                if (interviewApiDao.getType().contains(InterviewType.INTERVIEW)) {
+                    allVideoQuestions.addAll(interviewApiDao.getQuestions());
+                }
+
+            }
+
+            for (QuestionApiDao item : allVideoQuestions) {
+                totalQuestionStorage += item.getEstimationUpload();
+            }
+
+            return totalQuestionStorage;
+        } else {
+            return 0;
+        }
+    }
+
+    public int getTotalQuestionRawStorage() {
+
+        if (isPractice()) {
+            QuestionApiDao practiceQuestion = getPracticeQuestion();
+            return practiceQuestion.getEstimationRawStorage();
+        }
+
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            int totalQuestionStorage = 0;
+
+            RealmList<QuestionApiDao> allVideoQuestions = new RealmList<>();
+
+            if (isSectionInterview()) {
+
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+                        allVideoQuestions.addAll(section.getSectionQuestions());
+                    }
+                }
+
+            } else {
+
+                if (interviewApiDao.getType().contains(InterviewType.INTERVIEW)) {
+                    allVideoQuestions.addAll(interviewApiDao.getQuestions());
+                }
+
+            }
+
+            for (QuestionApiDao item : allVideoQuestions) {
+                totalQuestionStorage += item.getEstimationRawStorage();
+            }
+
+            return totalQuestionStorage;
+        } else {
+            return 0;
         }
     }
 
@@ -1712,13 +1853,6 @@ public class AstrntSDK extends HawkUtils {
         httpClientBuilder.writeTimeout(5, TimeUnit.MINUTES);
         httpClientBuilder.readTimeout(60, TimeUnit.SECONDS);
         httpClientBuilder.connectTimeout(3, TimeUnit.MINUTES);
-
-        if (isDebuggable) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-            httpClientBuilder.addInterceptor(loggingInterceptor);
-        }
 
         final String manufacturer = Build.MANUFACTURER;
         final String model = Build.MODEL;

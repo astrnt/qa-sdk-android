@@ -13,6 +13,8 @@ import co.astrnt.qasdk.dao.CustomFieldApiDao;
 import co.astrnt.qasdk.dao.CustomFieldDeserializer;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InformationDeserializer;
+import co.astrnt.qasdk.dao.SummaryQuestionApiDao;
+import co.astrnt.qasdk.dao.SummaryQuestionDeserializer;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -57,6 +59,7 @@ public class AstronautApi {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(InformationApiDao.class, new InformationDeserializer())
                 .registerTypeAdapter(CustomFieldApiDao.class, new CustomFieldDeserializer())
+                .registerTypeAdapter(SummaryQuestionApiDao.class, new SummaryQuestionDeserializer())
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()

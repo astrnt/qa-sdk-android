@@ -19,6 +19,10 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
         if (json.getAsJsonObject().get("interviewIndex") != null) {
             interviewIndex = json.getAsJsonObject().get("interviewIndex").getAsInt();
         }
+        int interviewSubIndex = 0;
+        if (json.getAsJsonObject().get("interviewSubIndex") != null) {
+            interviewSubIndex = json.getAsJsonObject().get("interviewSubIndex").getAsInt();
+        }
         int interviewAttempt = 0;
         if (json.getAsJsonObject().get("interviewAttempt") != null) {
             interviewAttempt = json.getAsJsonObject().get("interviewAttempt").getAsInt();
@@ -72,7 +76,7 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
         } else {
             //Non Section
             PrevQuestionStateApiDao[] prevQuestionStateApiDaos = context.deserialize(prevQuestionState.getAsJsonArray(), PrevQuestionStateApiDao[].class);
-            return new InformationApiDao(finished, interviewIndex, interviewAttempt, status, message, prevQuestionStateApiDaos);
+            return new InformationApiDao(finished, interviewIndex, interviewSubIndex, interviewAttempt, status, message, prevQuestionStateApiDaos);
         }
     }
 }

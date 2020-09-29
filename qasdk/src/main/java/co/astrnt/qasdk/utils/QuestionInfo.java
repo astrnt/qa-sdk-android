@@ -8,14 +8,16 @@ public class QuestionInfo extends RealmObject {
     @PrimaryKey
     private long id;
     private int index;
+    private int subIndex;
     private int attempt;
     private boolean isPractice;
 
     public QuestionInfo() {
     }
 
-    public QuestionInfo(int index, int attempt, boolean isPractice) {
+    public QuestionInfo(int index, int subIndex, int attempt, boolean isPractice) {
         this.index = index;
+        this.subIndex = subIndex;
         this.attempt = attempt;
         this.isPractice = isPractice;
     }
@@ -34,6 +36,14 @@ public class QuestionInfo extends RealmObject {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public int getSubIndex() {
+        return subIndex;
+    }
+
+    public void setSubIndex(int subIndex) {
+        this.subIndex = subIndex;
     }
 
     public int getAttempt() {

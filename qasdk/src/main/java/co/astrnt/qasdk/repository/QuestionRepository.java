@@ -119,28 +119,34 @@ public class QuestionRepository extends BaseRepository {
         map.put("question_id", String.valueOf(currentQuestion.getId()));
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
 
-        if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
-            map.put("type", "1");
-            String currentAnswer = currentQuestion.getAnswer();
-            if (currentAnswer == null) {
-                currentAnswer = "";
-            }
-            map.put("text_answer", currentAnswer);
+        if (currentQuestion.getSub_questions() != null ) {
+            //TODO: CALL DIFFERENT API For Group Question
 
         } else {
-            map.put("type", "0");
 
-            RealmList<MultipleAnswerApiDao> selectedAnswer = currentQuestion.getSelectedAnswer();
-
-            if (selectedAnswer != null) {
-                for (int i = 0; i < selectedAnswer.size(); i++) {
-                    MultipleAnswerApiDao answerItem = selectedAnswer.get(i);
-
-                    assert answerItem != null;
-                    map.put("answer_ids[" + i + "]", String.valueOf(answerItem.getId()));
+            if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                map.put("type", "1");
+                String currentAnswer = currentQuestion.getAnswer();
+                if (currentAnswer == null) {
+                    currentAnswer = "";
                 }
-            }
+                map.put("text_answer", currentAnswer);
 
+            } else {
+                map.put("type", "0");
+
+                RealmList<MultipleAnswerApiDao> selectedAnswer = currentQuestion.getSelectedAnswer();
+
+                if (selectedAnswer != null) {
+                    for (int i = 0; i < selectedAnswer.size(); i++) {
+                        MultipleAnswerApiDao answerItem = selectedAnswer.get(i);
+
+                        assert answerItem != null;
+                        map.put("answer_ids[" + i + "]", String.valueOf(answerItem.getId()));
+                    }
+                }
+
+            }
         }
 
         if (astrntSDK.isSectionInterview()) {

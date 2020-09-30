@@ -1987,6 +1987,16 @@ public class AstrntSDK extends HawkUtils {
                             haveMediaToDownload = true;
                         }
                     }
+
+                    if (question.getSub_questions() != null) {
+                        for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                            if (subQuestion.getMedia() != null) {
+                                if (subQuestion.getMedia().getOfflinePath() == null) {
+                                    haveMediaToDownload = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else {
@@ -1995,6 +2005,14 @@ public class AstrntSDK extends HawkUtils {
                 if (question.getMedia() != null) {
                     if (question.getMedia().getOfflinePath() == null) {
                         haveMediaToDownload = true;
+                    }
+
+                    for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                        if (subQuestion.getMedia() != null) {
+                            if (subQuestion.getMedia().getOfflinePath() == null) {
+                                haveMediaToDownload = true;
+                            }
+                        }
                     }
                 }
             }

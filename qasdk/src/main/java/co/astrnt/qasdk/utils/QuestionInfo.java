@@ -70,6 +70,14 @@ public class QuestionInfo extends RealmObject {
         this.index--;
     }
 
+    public void decreaseSubIndex() {
+        this.subIndex--;
+    }
+
+    public void increaseSubIndex() {
+        this.subIndex++;
+    }
+
     public void resetAttempt() {
         this.attempt = 0;
     }

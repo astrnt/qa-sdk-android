@@ -78,6 +78,10 @@ public class QuestionInfo extends RealmObject {
         this.subIndex++;
     }
 
+    public void resetSubIndex() {
+        this.attempt = 0;
+    }
+
     public void resetAttempt() {
         this.attempt = 0;
     }

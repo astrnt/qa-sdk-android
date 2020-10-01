@@ -155,10 +155,6 @@ public class InterviewApiDao extends RealmObject {
         this.questions = questions;
     }
 
-    public int getTotalQuestion() {
-        return getQuestions().size();
-    }
-
     public String getTemp_code() {
         return temp_code;
     }

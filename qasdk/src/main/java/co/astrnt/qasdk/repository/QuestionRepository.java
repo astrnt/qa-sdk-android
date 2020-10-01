@@ -119,7 +119,7 @@ public class QuestionRepository extends BaseRepository {
         map.put("question_id", String.valueOf(currentQuestion.getId()));
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
 
-        if (currentQuestion.getSub_questions() != null ) {
+        if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
             //TODO: CALL DIFFERENT API For Group Question
 
         } else {

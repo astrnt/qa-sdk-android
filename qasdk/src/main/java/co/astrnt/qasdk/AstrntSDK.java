@@ -917,20 +917,63 @@ public class AstrntSDK extends HawkUtils {
                 if (isNeedRegister()) {
                     return interviewApiDao.getTotalVideoQuestion();
                 } else {
-                    return interviewApiDao.getTotalQuestion();
+                    return getTotalQuestionWithSub();
                 }
             } else {
-                if (isSectionInterview()) {
-                    SectionApiDao currentSection = getCurrentSection();
-                    return currentSection.getTotalQuestion();
-                } else {
-                    return interviewApiDao.getTotalQuestion();
-                }
+                return getTotalQuestionWithSub();
             }
         } else {
             return 0;
         }
     }
+
+    public int getTotalQuestionWithSub() {
+
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+
+            RealmList<QuestionApiDao> questions = new RealmList<>();
+            if (isSectionInterview()) {
+                RealmList<SectionApiDao> sections = interviewApiDao.getSections();
+                for (SectionApiDao section : sections) {
+                    questions.addAll(section.getSectionQuestions());
+                }
+            } else {
+                questions.addAll(interviewApiDao.getQuestions());
+            }
+
+            int totalQuestions = 0;
+
+            for (QuestionApiDao question : questions) {
+                if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                    totalQuestions += question.getSub_questions().size();
+                } else {
+                    totalQuestions++;
+                }
+            }
+            return totalQuestions;
+        } else {
+            return 0;
+        }
+    }
+
+    public int getTotalSubQuestion() {
+        if (isPractice()) {
+            return 1;
+        }
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
+                return currentQuestion.getSub_questions().size();
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
 
     public List<QuestionApiDao> getPending(@UploadStatusState String uploadStatusType) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
@@ -1159,7 +1202,7 @@ public class AstrntSDK extends HawkUtils {
                         if (question.getId() == questionId) {
                             return question;
                         } else {
-                            if (question.getSub_questions() != null) {
+                            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
                                 for (QuestionApiDao subQuestion : question.getSub_questions()) {
                                     if (subQuestion.getId() == questionId) {
                                         return subQuestion;
@@ -1174,7 +1217,7 @@ public class AstrntSDK extends HawkUtils {
                     if (question.getId() == questionId) {
                         return question;
                     } else {
-                        if (question.getSub_questions() != null) {
+                        if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
                             for (QuestionApiDao subQuestion : question.getSub_questions()) {
                                 if (subQuestion.getId() == questionId) {
                                     return subQuestion;
@@ -1188,7 +1231,7 @@ public class AstrntSDK extends HawkUtils {
         return null;
     }
 
-    private QuestionApiDao getNextQuestion() {
+    public QuestionApiDao getNextQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
             int questionIndex = getQuestionIndex();
@@ -1226,6 +1269,7 @@ public class AstrntSDK extends HawkUtils {
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
             } else {
                 questionInfo.resetAttempt();
+                questionInfo.resetSubIndex();
             }
 
             realm.copyToRealmOrUpdate(questionInfo);
@@ -1263,7 +1307,7 @@ public class AstrntSDK extends HawkUtils {
                 SectionApiDao currentSection = getCurrentSection();
                 if (questionIndex < currentSection.getSectionQuestions().size()) {
                     QuestionApiDao currentQuestion = currentSection.getSectionQuestions().get(questionIndex);
-                    if (currentQuestion.getSub_questions() != null) {
+                    if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
                         if (questionSubIndex < currentQuestion.getSub_questions().size()) {
                             return currentQuestion.getSub_questions().get(questionSubIndex);
                         } else {
@@ -1278,7 +1322,7 @@ public class AstrntSDK extends HawkUtils {
             } else {
                 if (questionIndex < interviewApiDao.getQuestions().size()) {
                     QuestionApiDao currentQuestion = interviewApiDao.getQuestions().get(questionIndex);
-                    if (currentQuestion.getSub_questions() != null) {
+                    if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
                         if (questionSubIndex < currentQuestion.getSub_questions().size()) {
                             return currentQuestion.getSub_questions().get(questionSubIndex);
                         } else {
@@ -2100,6 +2144,7 @@ public class AstrntSDK extends HawkUtils {
     public boolean haveMediaToDownload() {
         boolean haveMediaToDownload = false;
         InterviewApiDao interviewApiDao = getCurrentInterview();
+        List<QuestionApiDao> questions = new ArrayList<>();
         if (isSectionInterview()) {
             for (SectionApiDao section : interviewApiDao.getSections()) {
                 if (section.getMedia() != null) {
@@ -2107,38 +2152,22 @@ public class AstrntSDK extends HawkUtils {
                         haveMediaToDownload = true;
                     }
                 }
-
-                for (QuestionApiDao question : section.getSectionQuestions()) {
-                    if (question.getMedia() != null) {
-                        if (question.getMedia().getOfflinePath() == null) {
-                            haveMediaToDownload = true;
-                        }
-                    }
-
-                    if (question.getSub_questions() != null) {
-                        for (QuestionApiDao subQuestion : question.getSub_questions()) {
-                            if (subQuestion.getMedia() != null) {
-                                if (subQuestion.getMedia().getOfflinePath() == null) {
-                                    haveMediaToDownload = true;
-                                }
-                            }
-                        }
-                    }
-                }
+                questions.addAll(section.getSectionQuestions());
             }
         } else {
+            questions.addAll(interviewApiDao.getQuestions());
+        }
 
-            for (QuestionApiDao question : interviewApiDao.getQuestions()) {
-                if (question.getMedia() != null) {
-                    if (question.getMedia().getOfflinePath() == null) {
-                        haveMediaToDownload = true;
-                    }
+        for (QuestionApiDao question : questions) {
+            if (question.getMedia() != null) {
+                if (question.getMedia().getOfflinePath() == null) {
+                    haveMediaToDownload = true;
+                }
 
-                    for (QuestionApiDao subQuestion : question.getSub_questions()) {
-                        if (subQuestion.getMedia() != null) {
-                            if (subQuestion.getMedia().getOfflinePath() == null) {
-                                haveMediaToDownload = true;
-                            }
+                for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                    if (subQuestion.getMedia() != null) {
+                        if (subQuestion.getMedia().getOfflinePath() == null) {
+                            haveMediaToDownload = true;
                         }
                     }
                 }

@@ -1203,6 +1203,42 @@ public class AstrntSDK extends HawkUtils {
         return null;
     }
 
+    public int getIndexById(long questionId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            RealmList<QuestionApiDao> questions = new RealmList<>();
+            if (isSectionInterview()) {
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    for (QuestionApiDao question : section.getSectionQuestions()) {
+                        if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                            questions.addAll(question.getSub_questions());
+                        } else {
+                            questions.add(question);
+                        }
+                    }
+                }
+            } else {
+                for (QuestionApiDao question : interviewApiDao.getQuestions()) {
+                    if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                        questions.addAll(question.getSub_questions());
+                    } else {
+                        questions.add(question);
+                    }
+                }
+            }
+
+            if (!questions.isEmpty()) {
+                for (int i = 0; i < questions.size(); i++) {
+                    QuestionApiDao question = questions.get(i);
+                    if (question.getId() == questionId) {
+                        return i;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
     public QuestionApiDao getNextQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
@@ -1430,7 +1466,15 @@ public class AstrntSDK extends HawkUtils {
             assert sectionApiDao != null;
             return getQuestionIndex() < sectionApiDao.getTotalQuestion();
         } else {
-            return getQuestionIndex() < getTotalQuestion();
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            int questionIndex = 0;
+            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
+                QuestionApiDao subQuestion = getCurrentSubQuestion();
+                questionIndex = getIndexById(subQuestion.getId());
+            } else {
+                questionIndex = getIndexById(currentQuestion.getId());
+            }
+            return questionIndex < getTotalQuestion();
         }
     }
 

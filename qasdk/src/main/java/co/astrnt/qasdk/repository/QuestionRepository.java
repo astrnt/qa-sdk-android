@@ -116,13 +116,14 @@ public class QuestionRepository extends BaseRepository {
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
-        map.put("question_id", String.valueOf(currentQuestion.getId()));
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
 
         if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
             //TODO: CALL DIFFERENT API For Group Question
 
         } else {
+
+            map.put("question_id", String.valueOf(currentQuestion.getId()));
 
             if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
                 map.put("type", "1");

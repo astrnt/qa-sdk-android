@@ -362,7 +362,7 @@ public class AstrntSDK extends HawkUtils {
 
                 for (int i = 0; i < interview.getSections().size(); i++) {
                     SectionApiDao section = interview.getSections().get(i);
-                    RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
+                    RealmList<QuestionApiDao> questions = new RealmList<>();
 
                     if (section != null) {
 
@@ -432,7 +432,7 @@ public class AstrntSDK extends HawkUtils {
                                         }
                                     }
                                 }
-                                questionApiDaos.add(question);
+                                questions.add(question);
                             }
                         } else {
                             for (QuestionApiDao question : section.getSectionQuestions()) {
@@ -451,12 +451,12 @@ public class AstrntSDK extends HawkUtils {
                                         }
                                     }
                                 }
-                                questionApiDaos.add(question);
+                                questions.add(question);
                             }
                         }
 
-                        if (!questionApiDaos.isEmpty()) {
-                            section.setSectionQuestions(questionApiDaos);
+                        if (!questions.isEmpty()) {
+                            section.setSectionQuestions(questions);
                         }
                         sectionList.add(section);
                     }
@@ -871,11 +871,11 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public List<QuestionApiDao> getAllVideoQuestion() {
+    public RealmList<QuestionApiDao> getAllVideoQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
             if (isSectionInterview()) {
-                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+                RealmList<QuestionApiDao> pendingUpload = new RealmList<>();
 
                 for (SectionApiDao section : interviewApiDao.getSections()) {
                     if (section.getType().equals(SectionType.INTERVIEW)) {
@@ -886,7 +886,7 @@ public class AstrntSDK extends HawkUtils {
                 return pendingUpload;
             } else {
 
-                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+                RealmList<QuestionApiDao> pendingUpload = new RealmList<>();
 
                 if (interviewApiDao.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
                     pendingUpload.addAll(interviewApiDao.getQuestions());
@@ -917,22 +917,39 @@ public class AstrntSDK extends HawkUtils {
                 if (isNeedRegister()) {
                     return interviewApiDao.getTotalVideoQuestion();
                 } else {
-                    return getTotalQuestionWithSub();
+                    return getTotalQuestionsAndSubs();
                 }
             } else {
-                return getTotalQuestionWithSub();
+                return getTotalQuestionsAndSubs();
             }
         } else {
             return 0;
         }
     }
 
-    public int getTotalQuestionWithSub() {
+    public int getTotalQuestionsAndSubs() {
+
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+
+            RealmList<QuestionApiDao> questions = getQuestionsAndSubs();
+            if (questions != null) {
+                return questions.size();
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    public RealmList<QuestionApiDao> getQuestionsAndSubs() {
 
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
 
             RealmList<QuestionApiDao> questions = new RealmList<>();
+            RealmList<QuestionApiDao> questionsWithSub = new RealmList<>();
             if (isSectionInterview()) {
                 RealmList<SectionApiDao> sections = interviewApiDao.getSections();
                 for (SectionApiDao section : sections) {
@@ -942,18 +959,16 @@ public class AstrntSDK extends HawkUtils {
                 questions.addAll(interviewApiDao.getQuestions());
             }
 
-            int totalQuestions = 0;
-
             for (QuestionApiDao question : questions) {
                 if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
-                    totalQuestions += question.getSub_questions().size();
+                    questionsWithSub.addAll(question.getSub_questions());
                 } else {
-                    totalQuestions++;
+                    questionsWithSub.add(question);
                 }
             }
-            return totalQuestions;
+            return questionsWithSub;
         } else {
-            return 0;
+            return null;
         }
     }
 
@@ -1467,14 +1482,15 @@ public class AstrntSDK extends HawkUtils {
             return getQuestionIndex() < sectionApiDao.getTotalQuestion();
         } else {
             QuestionApiDao currentQuestion = getCurrentQuestion();
-            int questionIndex = 0;
+            int questionIndex;
+            int totalQuestion = getTotalQuestion();
             if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
                 QuestionApiDao subQuestion = getCurrentSubQuestion();
                 questionIndex = getIndexById(subQuestion.getId());
             } else {
                 questionIndex = getIndexById(currentQuestion.getId());
             }
-            return questionIndex < getTotalQuestion();
+            return questionIndex < (totalQuestion - 1);
         }
     }
 

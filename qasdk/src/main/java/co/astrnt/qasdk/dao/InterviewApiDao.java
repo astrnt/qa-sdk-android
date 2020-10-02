@@ -204,4 +204,27 @@ public class InterviewApiDao extends RealmObject {
     public void setOnGoing(boolean onGoing) {
         isOnGoing = onGoing;
     }
+
+    public RealmList<QuestionApiDao> getQuestionsAndSubs() {
+        RealmList<SectionApiDao> sections = getSections();
+        RealmList<QuestionApiDao> questions = new RealmList<>();
+        RealmList<QuestionApiDao> questionsAndSubs = new RealmList<>();
+
+        if (sections != null && !sections.isEmpty()) {
+            for (SectionApiDao section : sections) {
+                questions.addAll(section.getSectionQuestions());
+            }
+        } else {
+            questions.addAll(getQuestions());
+        }
+
+        for (QuestionApiDao question : questions) {
+            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                questionsAndSubs.addAll(question.getSub_questions());
+            } else {
+                questionsAndSubs.add(question);
+            }
+        }
+        return questionsAndSubs;
+    }
 }

@@ -240,7 +240,9 @@ public class AstrntSDK extends HawkUtils {
 
                                             newQuestion.setMediaAttemptLeft(question.getMediaAttemptLeft());
                                             newQuestion.setSelectedAnswer(question.getSelectedAnswer());
-                                            newQuestion.setAnswered(question.isAnswered());
+                                            if (question.isAnswered()) {
+                                                newQuestion.setAnswered(true);
+                                            }
                                         }
                                     }
                                 }
@@ -278,7 +280,9 @@ public class AstrntSDK extends HawkUtils {
 
                                 newQuestion.setMediaAttemptLeft(question.getMediaAttemptLeft());
                                 newQuestion.setSelectedAnswer(question.getSelectedAnswer());
-                                newQuestion.setAnswered(question.isAnswered());
+                                if (question.isAnswered()) {
+                                    newQuestion.setAnswered(true);
+                                }
                             }
                         }
                     }
@@ -423,8 +427,6 @@ public class AstrntSDK extends HawkUtils {
                                                 if (question.getId() == questionState.getQuestionId()) {
                                                     if (questionState.isAnswered()) {
                                                         question.setAnswered(true);
-                                                    } else {
-                                                        question.setAnswered(false);
                                                     }
                                                     question.setTimeLeft(questionState.getDurationLeft());
                                                 }
@@ -474,8 +476,6 @@ public class AstrntSDK extends HawkUtils {
                             if (question.getId() == questionState.getQuestionId()) {
                                 if (questionState.isAnswered()) {
                                     question.setAnswered(true);
-                                } else {
-                                    question.setAnswered(false);
                                 }
                                 question.setTimeLeft(questionState.getDurationLeft());
                             }
@@ -817,8 +817,6 @@ public class AstrntSDK extends HawkUtils {
                     realm.beginTransaction();
                     if (questionState.isAnswered()) {
                         question.setAnswered(true);
-                    } else {
-                        question.setAnswered(false);
                     }
                     question.setTimeLeft(questionState.getDurationLeft());
 
@@ -2020,9 +2018,7 @@ public class AstrntSDK extends HawkUtils {
             questionApiDao.setMultiple_answers(multipleAnswer);
         }
 
-        if (selectedAnswer.isEmpty()) {
-            questionApiDao.setAnswered(false);
-        } else {
+        if (!selectedAnswer.isEmpty()) {
             questionApiDao.setAnswered(true);
         }
     }
@@ -2032,9 +2028,7 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             questionApiDao.setAnswer(answer);
-            if (answer.isEmpty()) {
-                questionApiDao.setAnswered(false);
-            } else {
+            if (!answer.isEmpty()) {
                 questionApiDao.setAnswered(true);
             }
             realm.copyToRealmOrUpdate(questionApiDao);
@@ -2046,9 +2040,7 @@ public class AstrntSDK extends HawkUtils {
 
     private void addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
         questionApiDao.setAnswer(answer);
-        if (answer.isEmpty()) {
-            questionApiDao.setAnswered(false);
-        } else {
+        if (!answer.isEmpty()) {
             questionApiDao.setAnswered(true);
         }
     }

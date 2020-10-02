@@ -1138,33 +1138,13 @@ public class AstrntSDK extends HawkUtils {
         }
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
-            int questionIndex = getQuestionIndex();
             int questionSubIndex = getQuestionSubIndex();
-            if (isSectionInterview()) {
-                SectionApiDao currentSection = getCurrentSection();
-                if (questionIndex < currentSection.getSectionQuestions().size()) {
-                    QuestionApiDao currentQuestion = currentSection.getSectionQuestions().get(questionIndex);
-                    if (currentQuestion.getSub_questions() != null &&
-                            (questionSubIndex < currentQuestion.getSub_questions().size())) {
-                        return currentQuestion.getSub_questions().get(questionSubIndex);
-                    } else {
-                        return currentQuestion.getSub_questions().last();
-                    }
-                } else {
-                    return null;
-                }
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty() &&
+                    (questionSubIndex < currentQuestion.getSub_questions().size())) {
+                return currentQuestion.getSub_questions().get(questionSubIndex);
             } else {
-                if (questionIndex < interviewApiDao.getQuestions().size()) {
-                    QuestionApiDao currentQuestion = interviewApiDao.getQuestions().get(questionIndex);
-                    if (currentQuestion.getSub_questions() != null &&
-                            (questionSubIndex < currentQuestion.getSub_questions().size())) {
-                        return currentQuestion.getSub_questions().get(questionSubIndex);
-                    } else {
-                        return currentQuestion.getSub_questions().last();
-                    }
-                } else {
-                    return null;
-                }
+                return null;
             }
         } else {
             return null;
@@ -1196,37 +1176,29 @@ public class AstrntSDK extends HawkUtils {
     public QuestionApiDao getQuestionById(long questionId) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
+            RealmList<QuestionApiDao> questions = new RealmList<>();
             if (isSectionInterview()) {
                 for (SectionApiDao section : interviewApiDao.getSections()) {
-                    for (QuestionApiDao question : section.getSectionQuestions()) {
-                        if (question.getId() == questionId) {
-                            return question;
-                        } else {
-                            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
-                                for (QuestionApiDao subQuestion : question.getSub_questions()) {
-                                    if (subQuestion.getId() == questionId) {
-                                        return subQuestion;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    questions.addAll(section.getSectionQuestions());
                 }
             } else {
-                for (QuestionApiDao question : interviewApiDao.getQuestions()) {
-                    if (question.getId() == questionId) {
-                        return question;
-                    } else {
-                        if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
-                            for (QuestionApiDao subQuestion : question.getSub_questions()) {
-                                if (subQuestion.getId() == questionId) {
-                                    return subQuestion;
-                                }
+                questions.addAll(interviewApiDao.getQuestions());
+            }
+
+            for (QuestionApiDao question : questions) {
+                if (question.getId() == questionId) {
+                    return question;
+                } else {
+                    if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                        for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                            if (subQuestion.getId() == questionId) {
+                                return subQuestion;
                             }
                         }
                     }
                 }
             }
+
         }
         return null;
     }
@@ -1234,19 +1206,19 @@ public class AstrntSDK extends HawkUtils {
     public QuestionApiDao getNextQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
-            int questionIndex = getQuestionIndex();
+            int questionIndex = getQuestionIndex() + 1;
             if (isSectionInterview()) {
                 SectionApiDao currentSection = getCurrentSection();
                 if (questionIndex < currentSection.getSectionQuestions().size()) {
                     return currentSection.getSectionQuestions().get(questionIndex);
                 } else {
-                    return currentSection.getSectionQuestions().last();
+                    return null;
                 }
             } else {
                 if (questionIndex < interviewApiDao.getQuestions().size()) {
                     return interviewApiDao.getQuestions().get(questionIndex);
                 } else {
-                    return interviewApiDao.getQuestions().last();
+                    return null;
                 }
             }
         } else {
@@ -1301,40 +1273,15 @@ public class AstrntSDK extends HawkUtils {
     private QuestionApiDao getNextSubQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
-            int questionIndex = getQuestionIndex();
-            int questionSubIndex = getQuestionSubIndex();
-            if (isSectionInterview()) {
-                SectionApiDao currentSection = getCurrentSection();
-                if (questionIndex < currentSection.getSectionQuestions().size()) {
-                    QuestionApiDao currentQuestion = currentSection.getSectionQuestions().get(questionIndex);
-                    if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
-                        if (questionSubIndex < currentQuestion.getSub_questions().size()) {
-                            return currentQuestion.getSub_questions().get(questionSubIndex);
-                        } else {
-                            return currentQuestion.getSub_questions().last();
-                        }
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return currentSection.getSectionQuestions().last();
-                }
+//            int questionIndex = getQuestionIndex();
+            int nextQuestionSubIndex = getQuestionSubIndex() + 1;
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            if (nextQuestionSubIndex < currentQuestion.getSub_questions().size()) {
+                return currentQuestion.getSub_questions().get(nextQuestionSubIndex);
             } else {
-                if (questionIndex < interviewApiDao.getQuestions().size()) {
-                    QuestionApiDao currentQuestion = interviewApiDao.getQuestions().get(questionIndex);
-                    if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
-                        if (questionSubIndex < currentQuestion.getSub_questions().size()) {
-                            return currentQuestion.getSub_questions().get(questionSubIndex);
-                        } else {
-                            return currentQuestion.getSub_questions().last();
-                        }
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return interviewApiDao.getQuestions().last();
-                }
+                return null;
             }
+
         } else {
             return null;
         }
@@ -1489,7 +1436,8 @@ public class AstrntSDK extends HawkUtils {
 
     public boolean isNotLastSubQuestion() {
         QuestionApiDao currentQuestion = getCurrentQuestion();
-        return getQuestionSubIndex() < currentQuestion.getSub_questions().size();
+        int subIndex = getQuestionSubIndex();
+        return subIndex < currentQuestion.getSub_questions().size();
     }
 
     public boolean isNotLastSection() {

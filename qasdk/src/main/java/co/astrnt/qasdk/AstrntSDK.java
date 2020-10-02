@@ -1289,6 +1289,7 @@ public class AstrntSDK extends HawkUtils {
             QuestionApiDao nextQuestion = getNextQuestion();
             if (nextQuestion != null) {
                 questionInfo.increaseIndex();
+                questionInfo.resetSubIndex();
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
             } else {
                 questionInfo.resetAttempt();

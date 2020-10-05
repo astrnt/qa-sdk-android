@@ -1456,19 +1456,10 @@ public class AstrntSDK extends HawkUtils {
             return getQuestionIndex() < sectionApiDao.getTotalQuestion();
         } else {
             QuestionApiDao currentQuestion = getCurrentQuestion();
-            int questionIndex;
-            int totalQuestion = getTotalQuestion() - 1;
-            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
-                QuestionApiDao subQuestion = getCurrentSubQuestion();
-                if (subQuestion != null) {
-                    questionIndex = getIndexById(subQuestion.getId());
-                } else {
-                    questionIndex = getIndexById(currentQuestion.getId());
-                }
-            } else {
-                questionIndex = getIndexById(currentQuestion.getId());
-            }
-            return questionIndex < totalQuestion;
+            QuestionApiDao lastQuestion = getQuestionsAndSubs().last();
+            long currentQuestionId = currentQuestion.getId();
+            long lastQuestionId = lastQuestion.getId();
+            return currentQuestionId != lastQuestionId;
         }
     }
 

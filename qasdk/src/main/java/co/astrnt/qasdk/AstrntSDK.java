@@ -1284,14 +1284,13 @@ public class AstrntSDK extends HawkUtils {
 
             QuestionInfo questionInfo = getQuestionInfo();
             questionInfo.increaseIndex();
+            questionInfo.resetSubIndex();
 
             QuestionApiDao nextQuestion = getNextQuestion();
             if (nextQuestion != null) {
-                questionInfo.resetSubIndex();
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
             } else {
                 questionInfo.resetAttempt();
-                questionInfo.resetSubIndex();
             }
 
             realm.copyToRealmOrUpdate(questionInfo);

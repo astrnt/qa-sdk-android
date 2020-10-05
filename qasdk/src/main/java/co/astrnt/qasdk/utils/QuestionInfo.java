@@ -79,7 +79,7 @@ public class QuestionInfo extends RealmObject {
     }
 
     public void resetSubIndex() {
-        this.attempt = 0;
+        this.subIndex = 0;
     }
 
     public void resetAttempt() {

@@ -15,6 +15,7 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -1153,8 +1154,7 @@ public class AstrntSDK extends HawkUtils {
         if (interviewApiDao != null) {
             int questionSubIndex = getQuestionSubIndex();
             QuestionApiDao currentQuestion = getCurrentQuestion();
-            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty() &&
-                    (questionSubIndex < currentQuestion.getSub_questions().size())) {
+            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
                 return currentQuestion.getSub_questions().get(questionSubIndex);
             } else {
                 return null;
@@ -1283,10 +1283,10 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             QuestionInfo questionInfo = getQuestionInfo();
+            questionInfo.increaseIndex();
 
             QuestionApiDao nextQuestion = getNextQuestion();
             if (nextQuestion != null) {
-                questionInfo.increaseIndex();
                 questionInfo.resetSubIndex();
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
             } else {
@@ -1320,23 +1320,6 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private QuestionApiDao getNextSubQuestion() {
-        InterviewApiDao interviewApiDao = getCurrentInterview();
-        if (interviewApiDao != null) {
-//            int questionIndex = getQuestionIndex();
-            int nextQuestionSubIndex = getQuestionSubIndex() + 1;
-            QuestionApiDao currentQuestion = getCurrentQuestion();
-            if (nextQuestionSubIndex < currentQuestion.getSub_questions().size()) {
-                return currentQuestion.getSub_questions().get(nextQuestionSubIndex);
-            } else {
-                return null;
-            }
-
-        } else {
-            return null;
-        }
-    }
-
     public void increaseQuestionSubIndex() {
         if (isPractice()) {
             return;
@@ -1345,14 +1328,7 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             QuestionInfo questionInfo = getQuestionInfo();
-
-            QuestionApiDao nextQuestion = getNextSubQuestion();
-            if (nextQuestion != null) {
-                questionInfo.increaseSubIndex();
-                questionInfo.setAttempt(nextQuestion.getTakesCount());
-            } else {
-                questionInfo.resetAttempt();
-            }
+            questionInfo.increaseSubIndex();
 
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
@@ -1482,29 +1458,30 @@ public class AstrntSDK extends HawkUtils {
         } else {
             QuestionApiDao currentQuestion = getCurrentQuestion();
             int questionIndex;
-            int totalQuestion = getTotalQuestion();
+            int totalQuestion = getTotalQuestion() - 1;
             if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
                 QuestionApiDao subQuestion = getCurrentSubQuestion();
-                questionIndex = getIndexById(subQuestion.getId());
+                if (subQuestion != null) {
+                    questionIndex = getIndexById(subQuestion.getId());
+                } else {
+                    questionIndex = getIndexById(currentQuestion.getId());
+                }
             } else {
                 questionIndex = getIndexById(currentQuestion.getId());
             }
-            return questionIndex < (totalQuestion - 1);
+            return questionIndex < totalQuestion;
         }
     }
 
     public boolean isNotLastSubQuestion() {
         QuestionApiDao currentQuestion = getCurrentQuestion();
         int subIndex = getQuestionSubIndex();
-        return subIndex < currentQuestion.getSub_questions().size();
+        int totalSubQuestion = currentQuestion.getSub_questions().size();
+        return subIndex < totalSubQuestion;
     }
 
     public boolean isNotLastSection() {
         return getSectionIndex() < getTotalSection();
-    }
-
-    public boolean isLastSection() {
-        return !isNotLastSection();
     }
 
     public void updateCompressing(QuestionApiDao questionApiDao) {
@@ -1613,7 +1590,7 @@ public class AstrntSDK extends HawkUtils {
 
             LogUtil.addNewLog(getInterviewCode(),
                     new LogDao("Video Upload Info",
-                            String.format("Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
+                            String.format(Locale.getDefault(), "Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
                     )
             );
 

@@ -861,15 +861,6 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public int getMediaAttempt() {
-        QuestionApiDao currentQuestion = getCurrentQuestion();
-        if (currentQuestion != null) {
-            return currentQuestion.getMediaAttemptLeft();
-        } else {
-            return 1;
-        }
-    }
-
     public RealmList<QuestionApiDao> getAllVideoQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
@@ -1426,22 +1417,20 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public void decreaseMediaAttempt() {
+    public void decreaseMediaAttempt(QuestionApiDao question) {
 
-        QuestionApiDao currentQuestion = getCurrentQuestion();
-
-        if (!realm.isInTransaction() && currentQuestion != null) {
+        if (!realm.isInTransaction() && question != null) {
             realm.beginTransaction();
 
-            currentQuestion.decreaseMediaAttempt();
-            int mediaAttempt = currentQuestion.getMediaAttemptLeft();
+            question.decreaseMediaAttempt();
+            int mediaAttempt = question.getMediaAttemptLeft();
 
             if (mediaAttempt > 0) {
-                realm.copyToRealmOrUpdate(currentQuestion);
+                realm.copyToRealmOrUpdate(question);
             }
             realm.commitTransaction();
         } else {
-            decreaseMediaAttempt();
+            decreaseMediaAttempt(question);
         }
     }
 

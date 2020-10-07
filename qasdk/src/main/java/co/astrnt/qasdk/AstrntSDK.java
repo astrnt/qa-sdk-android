@@ -1145,8 +1145,13 @@ public class AstrntSDK extends HawkUtils {
         if (interviewApiDao != null) {
             int questionSubIndex = getQuestionSubIndex();
             QuestionApiDao currentQuestion = getCurrentQuestion();
-            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
-                return currentQuestion.getSub_questions().get(questionSubIndex);
+            RealmList<QuestionApiDao> subQuestions = currentQuestion.getSub_questions();
+            if (subQuestions != null && !subQuestions.isEmpty()) {
+                if (questionSubIndex < subQuestions.size()) {
+                    return subQuestions.get(questionSubIndex);
+                } else {
+                    return subQuestions.last();
+                }
             } else {
                 return null;
             }
@@ -1445,8 +1450,12 @@ public class AstrntSDK extends HawkUtils {
             return getQuestionIndex() < sectionApiDao.getTotalQuestion();
         } else {
             QuestionApiDao currentQuestion = getCurrentQuestion();
-            QuestionApiDao lastQuestion = getQuestionsAndSubs().last();
             long currentQuestionId = currentQuestion.getId();
+            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
+                QuestionApiDao currentSubQuestion = getCurrentSubQuestion();
+                currentQuestionId = currentSubQuestion.getId();
+            }
+            QuestionApiDao lastQuestion = getQuestionsAndSubs().last();
             long lastQuestionId = lastQuestion.getId();
             return currentQuestionId != lastQuestionId;
         }

@@ -109,7 +109,11 @@ public class QuestionApiDao extends RealmObject {
         if (getSub_questions() != null && !getSub_questions().isEmpty()) {
             int maxTime = 0;
             for (QuestionApiDao question : getSub_questions()) {
-                maxTime += question.getMaxTime();
+                if (question.getTimeLeft() != 0) {
+                    maxTime += question.getTimeLeft();
+                } else {
+                    maxTime += Integer.parseInt(question.maxTime);
+                }
             }
             return maxTime;
         } else {

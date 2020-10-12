@@ -942,8 +942,11 @@ public class AstrntSDK extends HawkUtils {
             RealmList<QuestionApiDao> questionsWithSub = new RealmList<>();
             if (isSectionInterview()) {
                 RealmList<SectionApiDao> sections = interviewApiDao.getSections();
+                SectionApiDao currentSection = getCurrentSection();
                 for (SectionApiDao section : sections) {
-                    questions.addAll(section.getSectionQuestions());
+                    if (currentSection.getId() == section.getId() && !isShowUpload()) {
+                        questions.addAll(section.getSectionQuestions());
+                    }
                 }
             } else {
                 questions.addAll(interviewApiDao.getQuestions());
@@ -1217,12 +1220,15 @@ public class AstrntSDK extends HawkUtils {
         if (interviewApiDao != null) {
             RealmList<QuestionApiDao> questions = new RealmList<>();
             if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
                 for (SectionApiDao section : interviewApiDao.getSections()) {
-                    for (QuestionApiDao question : section.getSectionQuestions()) {
-                        if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
-                            questions.addAll(question.getSub_questions());
-                        } else {
-                            questions.add(question);
+                    if (section.getId() == currentSection.getId()) {
+                        for (QuestionApiDao question : section.getSectionQuestions()) {
+                            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                                questions.addAll(question.getSub_questions());
+                            } else {
+                                questions.add(question);
+                            }
                         }
                     }
                 }

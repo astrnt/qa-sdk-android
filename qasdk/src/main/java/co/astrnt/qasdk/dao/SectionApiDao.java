@@ -119,7 +119,15 @@ public class SectionApiDao extends RealmObject {
     }
 
     public int getTotalQuestion() {
-        return getSectionQuestions().size();
+        RealmList<QuestionApiDao> questionsAndSubs = new RealmList<>();
+        for (QuestionApiDao question : getSectionQuestions()) {
+            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                questionsAndSubs.addAll(question.getSub_questions());
+            } else {
+                questionsAndSubs.add(question);
+            }
+        }
+        return questionsAndSubs.size();
     }
 
     public int getTotalAttempt() {

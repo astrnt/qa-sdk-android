@@ -1215,6 +1215,36 @@ public class AstrntSDK extends HawkUtils {
         return null;
     }
 
+    public QuestionApiDao getParentQuestionById(long questionId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            RealmList<QuestionApiDao> questions = new RealmList<>();
+            if (isSectionInterview()) {
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    questions.addAll(section.getSectionQuestions());
+                }
+            } else {
+                questions.addAll(interviewApiDao.getQuestions());
+            }
+
+            for (QuestionApiDao question : questions) {
+                if (question.getId() == questionId) {
+                    return null;
+                } else {
+                    if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                        for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                            if (subQuestion.getId() == questionId) {
+                                return question;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
     public int getIndexById(long questionId) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {

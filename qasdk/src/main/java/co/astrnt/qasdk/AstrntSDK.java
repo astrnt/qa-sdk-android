@@ -1480,21 +1480,16 @@ public class AstrntSDK extends HawkUtils {
     }
 
     public boolean isNotLastQuestion() {
-        if (isSectionInterview()) {
-            SectionApiDao sectionApiDao = getSectionByIndex(getSectionIndex());
-            assert sectionApiDao != null;
-            return getQuestionIndex() < sectionApiDao.getTotalQuestion();
-        } else {
-            QuestionApiDao currentQuestion = getCurrentQuestion();
-            long currentQuestionId = currentQuestion.getId();
-            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
-                QuestionApiDao currentSubQuestion = getCurrentSubQuestion();
-                currentQuestionId = currentSubQuestion.getId();
-            }
-            QuestionApiDao lastQuestion = getQuestionsAndSubs().last();
-            long lastQuestionId = lastQuestion.getId();
-            return currentQuestionId != lastQuestionId;
+        QuestionApiDao currentQuestion = getCurrentQuestion();
+        long currentQuestionId = currentQuestion.getId();
+        List<QuestionApiDao> subQuestions = currentQuestion.getSub_questions();
+        if (subQuestions != null && !subQuestions.isEmpty()) {
+            QuestionApiDao currentSubQuestion = getCurrentSubQuestion();
+            currentQuestionId = currentSubQuestion.getId();
         }
+        QuestionApiDao lastQuestion = getQuestionsAndSubs().last();
+        long lastQuestionId = lastQuestion.getId();
+        return currentQuestionId != lastQuestionId;
     }
 
     public boolean isNotLastSubQuestion() {

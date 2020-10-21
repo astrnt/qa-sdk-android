@@ -1545,6 +1545,16 @@ public class AstrntSDK extends HawkUtils {
         return currentQuestionId != lastQuestionId;
     }
 
+    public boolean isNotLastVideoQuestion() {
+        if (isSectionInterview()) {
+            SectionApiDao section = getCurrentSection();
+            assert section != null;
+            return getQuestionIndex() < section.getTotalQuestion();
+        } else {
+            return getQuestionIndex() < getTotalQuestion();
+        }
+    }
+
     public boolean isNotLastSubQuestion() {
         QuestionApiDao currentQuestion = getCurrentQuestion();
         int subIndex = getQuestionSubIndex();

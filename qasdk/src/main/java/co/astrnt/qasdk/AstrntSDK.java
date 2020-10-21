@@ -844,22 +844,43 @@ public class AstrntSDK extends HawkUtils {
     }
 
     private void updateQuestion(InterviewApiDao interview, PrevQuestionStateApiDao questionState) {
-        for (QuestionApiDao question : interview.getQuestions()) {
-            if (question.getId() == questionState.getQuestionId()) {
-                if (!realm.isInTransaction()) {
-                    realm.beginTransaction();
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            for (QuestionApiDao question : interview.getQuestions()) {
+                if (question.getId() == questionState.getQuestionId()) {
                     if (questionState.isAnswered()) {
                         question.setAnswered(true);
                     }
                     question.setTimeLeft(questionState.getDurationLeft());
-
                     realm.copyToRealmOrUpdate(question);
-                    realm.commitTransaction();
-                } else {
-                    updateQuestion(interview, questionState);
+                }
+                RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+
+                if (subQuestions != null && !subQuestions.isEmpty()) {
+                    RealmList<QuestionApiDao> updatedSubQuestions = new RealmList<>();
+
+                    for (QuestionApiDao subQuestion : subQuestions) {
+                        if (subQuestion.getId() == questionState.getQuestionId()) {
+                            if (questionState.isAnswered()) {
+                                subQuestion.setAnswered(true);
+                            }
+                            subQuestion.setTimeLeft(questionState.getDurationLeft());
+                            subQuestion = getQuestionById(subQuestion.getId());
+                            realm.copyToRealmOrUpdate(subQuestion);
+                        }
+                        updatedSubQuestions.add(subQuestion);
+                    }
+                    question.setSub_questions(updatedSubQuestions);
+                    realm.copyToRealmOrUpdate(question);
                 }
             }
+
+            realm.commitTransaction();
+        } else {
+            updateQuestion(interview, questionState);
         }
+
     }
 
     public int getQuestionAttempt() {

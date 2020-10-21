@@ -458,12 +458,14 @@ public class AstrntSDK extends HawkUtils {
                                         if (subQuestions != null && !subQuestions.isEmpty()) {
                                             for (QuestionApiDao subQuestion : subQuestions) {
 
-                                                if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
-                                                    addFtqAnswer(subQuestion, questionInfoMcqApiDao.getFreetext_answer());
-                                                } else {
-                                                    addSelectedAnswer(subQuestion, questionInfoMcqApiDao.getAnswer_ids());
+                                                if (subQuestion.getId() == questionInfoMcqApiDao.getId()) {
+                                                    if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                                                        addFtqAnswer(subQuestion, questionInfoMcqApiDao.getFreetext_answer());
+                                                    } else {
+                                                        addSelectedAnswer(subQuestion, questionInfoMcqApiDao.getAnswer_ids());
+                                                    }
+                                                    subQuestion = getQuestionById(subQuestion.getId());
                                                 }
-                                                subQuestion = getQuestionById(subQuestion.getId());
                                                 updatedSubQuestions.add(subQuestion);
                                             }
                                             question.setSub_questions(updatedSubQuestions);

@@ -452,6 +452,23 @@ public class AstrntSDK extends HawkUtils {
                                             }
                                             question = getQuestionById(question.getId());
                                         }
+
+                                        RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+                                        RealmList<QuestionApiDao> updatedSubQuestions = new RealmList<>();
+                                        if (subQuestions != null && !subQuestions.isEmpty()) {
+                                            for (QuestionApiDao subQuestion : subQuestions) {
+
+                                                if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                                                    addFtqAnswer(subQuestion, questionInfoMcqApiDao.getFreetext_answer());
+                                                } else {
+                                                    addSelectedAnswer(subQuestion, questionInfoMcqApiDao.getAnswer_ids());
+                                                }
+                                                subQuestion = getQuestionById(subQuestion.getId());
+                                                updatedSubQuestions.add(subQuestion);
+                                            }
+                                            question.setSub_questions(updatedSubQuestions);
+                                        }
+
                                     }
                                 }
                                 questions.add(question);
@@ -480,6 +497,19 @@ public class AstrntSDK extends HawkUtils {
                                 }
                                 question.setTimeLeft(questionState.getDurationLeft());
                             }
+
+                            RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+                            if (subQuestions != null && !subQuestions.isEmpty()) {
+                                for (QuestionApiDao subQuestion : subQuestions) {
+                                    if (subQuestion.getId() == questionState.getQuestionId()) {
+                                        if (questionState.isAnswered()) {
+                                            subQuestion.setAnswered(true);
+                                        }
+                                        subQuestion.setTimeLeft(questionState.getDurationLeft());
+                                    }
+                                }
+                            }
+
                         }
                     }
 

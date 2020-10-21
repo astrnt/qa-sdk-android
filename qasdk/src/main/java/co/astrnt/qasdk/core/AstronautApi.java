@@ -5,6 +5,7 @@ import android.os.Build;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +55,7 @@ public class AstronautApi {
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             httpClientBuilder.addInterceptor(loggingInterceptor);
+            httpClientBuilder.addInterceptor(new OkHttpProfilerInterceptor());
         }
 
         Gson gson = new GsonBuilder()

@@ -59,6 +59,8 @@ dependencies {
     api 'com.squareup.okhttp3:logging-interceptor:4.9.0'
     api 'com.jakewharton.timber:timber:4.7.1'
 
+    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.7'
+
     def uploadServiceVersion = "3.5.2"
     api "net.gotev:uploadservice:$uploadServiceVersion"
     api "net.gotev:uploadservice-okhttp:$uploadServiceVersion"

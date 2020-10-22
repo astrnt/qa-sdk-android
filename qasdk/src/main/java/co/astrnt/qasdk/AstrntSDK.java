@@ -1127,6 +1127,19 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void setSectionShowReview(SectionApiDao section) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            section.setShowReview(true);
+
+            realm.copyToRealmOrUpdate(section);
+            realm.commitTransaction();
+        } else {
+            setSectionShowReview(section);
+        }
+    }
+
     private SectionApiDao getSectionByIndex(int sectionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {

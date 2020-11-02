@@ -1405,7 +1405,6 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             QuestionInfo questionInfo = getQuestionInfo();
-            questionInfo.increaseIndex();
 
             QuestionApiDao nextQuestion = getNextQuestion();
             if (nextQuestion != null) {
@@ -1416,6 +1415,7 @@ public class AstrntSDK extends HawkUtils {
             } else {
                 questionInfo.resetAttempt();
             }
+            questionInfo.increaseIndex();
 
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();

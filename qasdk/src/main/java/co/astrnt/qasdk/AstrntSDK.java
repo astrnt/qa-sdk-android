@@ -2156,9 +2156,7 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             questionApiDao.setAnswer(answer);
-            if (!answer.isEmpty()) {
-                questionApiDao.setAnswered(true);
-            }
+            questionApiDao.setAnswered(!answer.isEmpty());
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
         } else {
@@ -2168,9 +2166,7 @@ public class AstrntSDK extends HawkUtils {
 
     private void addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
         questionApiDao.setAnswer(answer);
-        if (!answer.isEmpty()) {
-            questionApiDao.setAnswered(true);
-        }
+        questionApiDao.setAnswered(!answer.isEmpty());
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {

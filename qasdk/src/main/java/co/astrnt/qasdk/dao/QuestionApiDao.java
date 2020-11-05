@@ -2,6 +2,7 @@ package co.astrnt.qasdk.dao;
 
 import co.astrnt.qasdk.constants.Constants;
 import co.astrnt.qasdk.type.MediaTypes;
+import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import io.realm.RealmList;
@@ -252,7 +253,11 @@ public class QuestionApiDao extends RealmObject {
         if (isAnswered != null) {
             return isAnswered;
         }
-        return selectedAnswer != null && selectedAnswer.size() > 0;
+        if (getType_child().equals(TestType.FREE_TEXT)) {
+            return !answer.isEmpty();
+        } else {
+            return selectedAnswer != null && selectedAnswer.size() > 0;
+        }
     }
 
     public void setAnswered(boolean answered) {

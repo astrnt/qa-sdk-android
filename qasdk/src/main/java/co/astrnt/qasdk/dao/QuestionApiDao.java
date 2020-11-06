@@ -246,7 +246,7 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public boolean isMultipleChoice() {
-        return getType_child().equals("multiple_options_for_test");
+        return getType_child() != null && getType_child().equals("multiple_options_for_test");
     }
 
     public boolean isAnswered() {

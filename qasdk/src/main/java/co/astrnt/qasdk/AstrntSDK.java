@@ -638,7 +638,7 @@ public class AstrntSDK extends HawkUtils {
     }
 
     private void saveQuestionInfo() {
-        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionSubIndex(), getQuestionAttempt(), false);
+        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionSubIndex(), getQuestionAttempt(), isPractice());
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
@@ -653,7 +653,7 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
             QuestionApiDao currentQuestion = getQuestionByIndex(questionIndex);
             questionAttempt = currentQuestion.getTakesCount() - questionAttempt;
-            QuestionInfo questionInfo = new QuestionInfo(questionIndex, questionSubIndex, questionAttempt, false);
+            QuestionInfo questionInfo = new QuestionInfo(questionIndex, questionSubIndex, questionAttempt, isPractice());
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
         } else {

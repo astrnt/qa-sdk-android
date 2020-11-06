@@ -241,9 +241,7 @@ public class AstrntSDK extends HawkUtils {
 
                                             newQuestion.setMediaAttemptLeft(question.getMediaAttemptLeft());
                                             newQuestion.setSelectedAnswer(question.getSelectedAnswer());
-                                            if (question.isAnswered()) {
-                                                newQuestion.setAnswered(true);
-                                            }
+                                            newQuestion.setAnswered(question.isAnswered());
                                         }
                                     }
                                 }
@@ -281,9 +279,7 @@ public class AstrntSDK extends HawkUtils {
 
                                 newQuestion.setMediaAttemptLeft(question.getMediaAttemptLeft());
                                 newQuestion.setSelectedAnswer(question.getSelectedAnswer());
-                                if (question.isAnswered()) {
-                                    newQuestion.setAnswered(true);
-                                }
+                                newQuestion.setAnswered(question.isAnswered());
                             }
                         }
                     }

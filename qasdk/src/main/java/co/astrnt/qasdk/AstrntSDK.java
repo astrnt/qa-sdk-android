@@ -1101,6 +1101,7 @@ public class AstrntSDK extends HawkUtils {
 
     private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
+        questionApiDao.setId(-1);
         questionApiDao.setTakesCount(3);
         questionApiDao.setMaxTime(45);
         questionApiDao.setPrepTime(10);

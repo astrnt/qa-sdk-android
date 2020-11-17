@@ -64,6 +64,7 @@ import static co.astrnt.qasdk.type.InterviewType.PROFILE;
 
 public class AstrntSDK extends HawkUtils {
 
+    private static final int DB_VERSION = 21;
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
     private static boolean isPractice = false;
@@ -101,7 +102,7 @@ public class AstrntSDK extends HawkUtils {
     public static RealmConfiguration getRealmConfig() {
         return new RealmConfiguration.Builder()
                 .name("astrntdb")
-                .schemaVersion(BuildConfig.VERSION_CODE)
+                .schemaVersion(DB_VERSION)
                 .deleteRealmIfMigrationNeeded()
                 .build();
     }

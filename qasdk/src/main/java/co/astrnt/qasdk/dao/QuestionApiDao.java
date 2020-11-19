@@ -250,13 +250,10 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public boolean isAnswered() {
-        if (isAnswered != null) {
-            return isAnswered;
-        }
         if (sub_questions != null && !sub_questions.isEmpty()) {
             return false;
         } else {
-            if (getType_child() != null && getType_child().equals(TestType.FREE_TEXT)) {
+            if (type_child != null && type_child.equals(TestType.FREE_TEXT)) {
                 return answer != null && !answer.isEmpty();
             } else {
                 return selectedAnswer != null && selectedAnswer.size() > 0;

@@ -651,8 +651,16 @@ public class AstrntSDK extends HawkUtils {
 
     public void updateSubQuestionInfo(long subQuestionId) {
         if (!realm.isInTransaction()) {
-            int subIndex = getIndexById(subQuestionId);
-            QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), subIndex, getQuestionAttempt(), isPractice());
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            int subQuestionIndex = 0;
+            for (int i = 0; i < currentQuestion.getSub_questions().size(); i++) {
+                QuestionApiDao subQuestion = currentQuestion.getSub_questions().get(i);
+                assert subQuestion != null;
+                if (subQuestionId == subQuestion.getId()) {
+                    subQuestionIndex = i;
+                }
+            }
+            QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), subQuestionIndex, getQuestionAttempt(), isPractice());
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();

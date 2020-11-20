@@ -26,6 +26,7 @@ import java.util.TimerTask;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.BaseApiDao;
@@ -50,19 +51,17 @@ public class SingleVideoUploadService extends Service {
     private long questionId;
 
     private Context context;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private Timer mTimer = null;
     private QuestionApiDao currentQuestion;
     private AstrntSDK astrntSDK;
 
     private NotificationManager mNotifyManager;
-    private NotificationCompat.Builder mBuilder;
-    private int mNotificationId;
 
     public static void start(Context context, long questionId) {
         Intent intent = new Intent(context, SingleVideoUploadService.class)
                 .putExtra(EXT_QUESTION_ID, questionId);
-        context.startService(intent);
+        ContextCompat.startForegroundService(context, intent);
     }
 
     @Override
@@ -79,10 +78,9 @@ public class SingleVideoUploadService extends Service {
     public void onCreate() {
         super.onCreate();
         context = this;
-
         astrntSDK = new AstrntSDK();
 
-        startServiceOreoCondition();
+        createNotification();
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -92,23 +90,23 @@ public class SingleVideoUploadService extends Service {
         mTimer.scheduleAtFixedRate(new SingleVideoUploadService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
 
-    private void startServiceOreoCondition() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            createNotification("Upload Video");
-        }
-    }
-
-    private void createNotification(String message) {
+    private void createNotification() {
         if (currentQuestion == null) {
             return;
         }
-        mNotificationId = (int) currentQuestion.getId();
+        int mNotificationId = (int) currentQuestion.getId();
 
-        // Make a channel if necessary
         final String channelId = "Astronaut Q&A";
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, channelId)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
+                .setContentTitle("Astronaut Q&A")
+                .setContentText("Upload Video")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create the NotificationChannel, but only on API 26+ because
-            // the NotificationChannel class is new and not in the support library
             CharSequence name = "Upload Video";
             String description = "Astronaut Q&A Upload Video";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
@@ -116,25 +114,16 @@ public class SingleVideoUploadService extends Service {
             channel.setDescription(description);
             channel.setSound(null, null);
 
-            // Add the channel
             mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             if (mNotifyManager != null) {
                 mNotifyManager.createNotificationChannel(channel);
             }
+
+            startForeground(mNotificationId, mBuilder.build());
         } else {
             mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         }
-
-        // Create the notification
-        mBuilder = new NotificationCompat.Builder(context, channelId)
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setSmallIcon(R.drawable.ic_autorenew_white_24dp)
-                .setContentTitle("Astronaut Q&A")
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         mNotifyManager.notify(mNotificationId, mBuilder.build());
     }
@@ -172,7 +161,9 @@ public class SingleVideoUploadService extends Service {
                                     "Video Still RAW File, will start compress first")
                     );
 
-                    VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
+                    });
 
                     stopService();
 
@@ -296,9 +287,11 @@ public class SingleVideoUploadService extends Service {
     }
 
     private void sendLog() {
-        if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
-            SendLogService.start(context);
-        }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
+                SendLogService.start(context);
+            }
+        });
     }
 
     public void stopService() {

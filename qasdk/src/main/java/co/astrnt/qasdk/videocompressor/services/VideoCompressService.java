@@ -15,10 +15,12 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -47,7 +49,7 @@ public class VideoCompressService extends Service {
     private long questionId;
 
     private Context context;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private Timer mTimer = null;
     private InterviewApiDao currentInterview;
     private QuestionApiDao currentQuestion;
@@ -57,14 +59,11 @@ public class VideoCompressService extends Service {
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
 
-    private int counter = 0;
-    private int totalQuestion;
-
     public static void start(Context context, String inputPath, long questionId) {
         Intent intent = new Intent(context, VideoCompressService.class)
                 .putExtra(EXT_PATH, inputPath)
                 .putExtra(EXT_QUESTION_ID, questionId);
-        context.startService(intent);
+        ContextCompat.startForegroundService(context, intent);
     }
 
     @Override
@@ -86,7 +85,7 @@ public class VideoCompressService extends Service {
         context = this;
         astrntSDK = new AstrntSDK();
 
-        startServiceOreoCondition();
+        createNotification("Compress Video");
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -94,12 +93,6 @@ public class VideoCompressService extends Service {
             mTimer = new Timer();
         }
         mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
-    }
-
-    private void startServiceOreoCondition() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            createNotification("Compress Video");
-        }
     }
 
     @Nullable
@@ -132,8 +125,8 @@ public class VideoCompressService extends Service {
                         )
                 );
 
-                counter = 0;
-                totalQuestion = allVideoQuestion.size();
+                int counter = 0;
+                int totalQuestion = allVideoQuestion.size();
 
                 for (int i = 0; i < allVideoQuestion.size(); i++) {
                     QuestionApiDao item = allVideoQuestion.get(i);
@@ -203,9 +196,11 @@ public class VideoCompressService extends Service {
                             if (astrntSDK.isShowUpload()) {
                                 EventBus.getDefault().post(new CompressEvent());
                             } else {
-                                if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                                    SingleVideoUploadService.start(context, questionId);
-                                }
+                                new Handler(Looper.getMainLooper()).post(() -> {
+                                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                        SingleVideoUploadService.start(context, questionId);
+                                    }
+                                });
                             }
                         }
 
@@ -223,7 +218,7 @@ public class VideoCompressService extends Service {
                     public void onFail() {
                         astrntSDK.markAsPending(currentQuestion, inputPath);
 
-                        String errorMsg = String.format("Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
+                        String errorMsg = String.format(Locale.getDefault(), "Video Compress FAILED Available Storage %d", astrntSDK.getAvailableStorage());
 
                         mBuilder.setContentText(errorMsg)
                                 .setProgress(0, 0, false)
@@ -263,29 +258,7 @@ public class VideoCompressService extends Service {
         }
         mNotificationId = (int) currentQuestion.getId();
 
-        // Make a channel if necessary
         final String channelId = "Astronaut Q&A";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create the NotificationChannel, but only on API 26+ because
-            // the NotificationChannel class is new and not in the support library
-            CharSequence name = "Video Compress";
-            String description = "Astronaut Q&A Video Compress";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
-            channel.setDescription(description);
-            channel.setSound(null, null);
-
-            // Add the channel
-            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (mNotifyManager != null) {
-                mNotifyManager.createNotificationChannel(channel);
-            }
-        } else {
-            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-
-        // Create the notification
         mBuilder = new NotificationCompat.Builder(context, channelId)
                 .setOngoing(true)
                 .setAutoCancel(false)
@@ -295,13 +268,34 @@ public class VideoCompressService extends Service {
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Video Compress";
+            String description = "Astronaut Q&A Video Compress";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setSound(null, null);
+
+            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (mNotifyManager != null) {
+                mNotifyManager.createNotificationChannel(channel);
+            }
+
+            startForeground(mNotificationId, mBuilder.build());
+        } else {
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
         mNotifyManager.notify(mNotificationId, mBuilder.build());
     }
 
     private void sendLog() {
-        if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
-            SendLogService.start(context);
-        }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
+                SendLogService.start(context);
+            }
+        });
     }
 
     public void stopService() {

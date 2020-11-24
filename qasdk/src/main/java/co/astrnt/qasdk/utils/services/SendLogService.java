@@ -256,7 +256,6 @@ public class SendLogService extends Service {
                     public void run() {
                         doSendLog();
                         handler.removeCallbacks(this);
-                        Looper.myLooper().quit();
                     }
                 }, 5000);
 

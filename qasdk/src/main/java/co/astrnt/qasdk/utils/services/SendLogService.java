@@ -72,7 +72,7 @@ public class SendLogService extends Service {
         } else {
             mTimer = new Timer();
         }
-        mTimer.scheduleAtFixedRate(new SendLogService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new SendLogService.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
     }
 
     @Nullable
@@ -248,7 +248,6 @@ public class SendLogService extends Service {
                     public void run() {
                         doSendLog();
                         handler.removeCallbacks(this);
-                        Looper.getMainLooper().quit();
                     }
                 }, 5000);
 

@@ -70,8 +70,17 @@ public class SingleVideoUploadService extends Service {
             questionId = intent.getLongExtra(EXT_QUESTION_ID, 0);
 
             currentQuestion = astrntSDK.searchQuestionById(questionId);
+
+            createNotification();
+
+            if (mTimer != null) {
+                mTimer.cancel();
+            } else {
+                mTimer = new Timer();
+            }
+            mTimer.scheduleAtFixedRate(new SingleVideoUploadService.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -80,14 +89,6 @@ public class SingleVideoUploadService extends Service {
         context = this;
         astrntSDK = new AstrntSDK();
 
-        createNotification();
-
-        if (mTimer != null) {
-            mTimer.cancel();
-        } else {
-            mTimer = new Timer();
-        }
-        mTimer.scheduleAtFixedRate(new SingleVideoUploadService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
 
     private void createNotification() {

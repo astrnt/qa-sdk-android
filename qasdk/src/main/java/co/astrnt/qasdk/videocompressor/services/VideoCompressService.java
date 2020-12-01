@@ -92,7 +92,7 @@ public class VideoCompressService extends Service {
         } else {
             mTimer = new Timer();
         }
-        mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
     }
 
     @Nullable

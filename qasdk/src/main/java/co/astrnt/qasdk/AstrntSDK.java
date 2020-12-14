@@ -440,14 +440,17 @@ public class AstrntSDK extends HawkUtils {
                                 if (informationApiDao.getQuestionsMcqInfo() != null && !informationApiDao.getQuestionsMcqInfo().isEmpty()) {
                                     for (QuestionInfoMcqApiDao questionInfoMcqApiDao : informationApiDao.getQuestionsMcqInfo()) {
 
-                                        if (question.getId() == questionInfoMcqApiDao.getId()) {
-
-                                            if (question.getType_child().equals(TestType.FREE_TEXT)) {
-                                                addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
-                                            } else {
-                                                addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
+                                        if (question.getSub_questions().isEmpty() && question.getSub_questions() == null) {
+                                            if (question.getId() == questionInfoMcqApiDao.getId()) {
+                                                if (question.getType_child() != null) {
+                                                    if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                                                        addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
+                                                    } else {
+                                                        addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
+                                                    }
+                                                }
+                                                question = getQuestionById(question.getId());
                                             }
-                                            question = getQuestionById(question.getId());
                                         }
 
                                         RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
@@ -456,10 +459,12 @@ public class AstrntSDK extends HawkUtils {
                                             for (QuestionApiDao subQuestion : subQuestions) {
 
                                                 if (subQuestion.getId() == questionInfoMcqApiDao.getId()) {
-                                                    if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
-                                                        addFtqAnswer(subQuestion, questionInfoMcqApiDao.getFreetext_answer());
-                                                    } else {
-                                                        addSelectedAnswer(subQuestion, questionInfoMcqApiDao.getAnswer_ids());
+                                                    if (subQuestion.getType_child() != null) {
+                                                        if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                                                            addFtqAnswer(subQuestion, questionInfoMcqApiDao.getFreetext_answer());
+                                                        } else {
+                                                            addSelectedAnswer(subQuestion, questionInfoMcqApiDao.getAnswer_ids());
+                                                        }
                                                     }
                                                     subQuestion = getQuestionById(subQuestion.getId());
                                                 }
@@ -2142,11 +2147,11 @@ public class AstrntSDK extends HawkUtils {
                 for (MultipleAnswerApiDao item : multipleAnswer) {
                     if (questionApiDao.isMultipleChoice()) {
                         if (item.getId() == answerId) {
-                            item.setSelected(!item.isSelected());
+                            item.setSelected(item.isSelected());
                         }
                     } else {
                         if (item.getId() == answerId) {
-                            item.setSelected(!item.isSelected());
+                            item.setSelected(item.isSelected());
                         } else {
                             item.setSelected(false);
                         }

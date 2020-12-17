@@ -195,6 +195,11 @@ public class VideoCompressService extends Service {
 
                             if (astrntSDK.isShowUpload()) {
                                 EventBus.getDefault().post(new CompressEvent());
+                                new Handler(Looper.getMainLooper()).post(() -> {
+                                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                        SingleVideoUploadService.start(context, questionId);
+                                    }
+                                });
                             } else {
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {

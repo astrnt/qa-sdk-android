@@ -252,6 +252,14 @@ public class SingleVideoUploadService extends Service {
                                                     "Success uploaded for question id " + currentQuestion.getId()
                                             )
                                     );
+
+                                    List<QuestionApiDao> uploadingVideo = astrntSDK.getPending(UploadStatusType.PENDING);
+
+                                    for (QuestionApiDao item : uploadingVideo) {
+                                        new Handler(Looper.getMainLooper()).post(() -> {
+                                            VideoCompressService.start(context, item.getVideoPath(), item.getId());
+                                        });
+                                    }
                                     stopService();
                                 }
 

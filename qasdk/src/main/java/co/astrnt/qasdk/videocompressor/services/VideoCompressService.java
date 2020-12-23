@@ -60,6 +60,7 @@ public class VideoCompressService extends Service {
     private int mNotificationId;
 
     public static void start(Context context, String inputPath, long questionId) {
+        Timber.e("video compress with id %d ", questionId);
         Intent intent = new Intent(context, VideoCompressService.class)
                 .putExtra(EXT_PATH, inputPath)
                 .putExtra(EXT_QUESTION_ID, questionId);
@@ -76,7 +77,7 @@ public class VideoCompressService extends Service {
             currentInterview = astrntSDK.getCurrentInterview();
             currentQuestion = astrntSDK.searchQuestionById(questionId);
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override
@@ -201,9 +202,12 @@ public class VideoCompressService extends Service {
                                     }
                                 });
                             } else {
+                                Timber.e("compress success");
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                         SingleVideoUploadService.start(context, questionId);
+                                    } else {
+                                        Timber.e("still running compressing");
                                     }
                                 });
                             }

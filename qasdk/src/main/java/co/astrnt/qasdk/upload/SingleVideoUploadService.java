@@ -63,7 +63,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     private NotificationManager mNotifyManager;
 
     public static void start(Context context, long questionId) {
-        Timber.d("start uploading id = %d", questionId);
+        Timber.e("start uploading id = %d", questionId);
         Intent intent = new Intent(context, SingleVideoUploadService.class)
                 .putExtra(EXT_QUESTION_ID, questionId);
         ContextCompat.startForegroundService(context, intent);
@@ -144,7 +144,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     }
 
     public void doUploadVideo() {
-        Timber.d("do uploading");
+        Timber.e("do uploading");
         isDoingCompress = true;
 
         interviewApiDao = astrntSDK.getCurrentInterview();
@@ -172,6 +172,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     );
 
                     new Handler(Looper.getMainLooper()).post(() -> {
+                        Timber.e("Start compress from do Upload Video");
+                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video "+currentQuestion.getId()));
                         VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
                     });
 
@@ -212,7 +214,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
                     String apiUrl = astrntSDK.getApiUrl() + "v2/video/upload";
                     try {
-                        Timber.d("try execute upload");
                         String uploadId = FileUploadHelper.uploadVideo(context, interviewApiDao, currentQuestion, apiUrl)
                                 .setNotificationConfig(notificationConfig)
                                 .setDelegate(this).startUpload();
@@ -229,8 +230,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 }
             }
         } catch (Exception exc) {
-            Timber.e("SingleVideoUploadService %s", exc.getMessage());
-
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                     new LogDao("Background Upload (Exc)",
                             exc.getMessage())
@@ -258,7 +257,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     @Override
     public void onProgress(Context context, UploadInfo uploadInfo) {
         if (uploadInfo != null) {
-            Timber.d("Video Upload Progress : %s", uploadInfo.getProgressPercent());
+            Timber.e("Video Upload Progress : %s", uploadInfo.getProgressPercent());
             astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
         } else {
             Timber.e("upload progress null");
@@ -297,7 +296,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     @Override
     public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-        Timber.d("on completed");
         astrntSDK.removeUploadId();
         astrntSDK.markUploaded(currentQuestion);
 
@@ -313,6 +311,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         isDoingCompress = true;
         for (QuestionApiDao item : uploadingVideo) {
             if (isDoingCompress) {
+                Timber.e("start compress from pending status");
+                LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From pending status "+item.getId()));
                 new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
                 isDoingCompress = false;
             }
@@ -321,8 +321,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         for (QuestionApiDao item : compressedVideo) {
             if (isDoingCompress) {
                 Timber.e("current status upload compressed");
-                SingleVideoUploadService.start(context, item.getId());
-                isDoingCompress = false;
+//                SingleVideoUploadService.start(context, item.getId());
+                ///isDoingCompress = false;
             }
         }
 
@@ -333,6 +333,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     astrntSDK.markAsPending(item, item.getVideoPath());
 
                     Timber.e("current status compress is compressing");
+                    LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From current compressing "+item.getId()));
                     new Handler(Looper.getMainLooper()).postDelayed(() ->VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
                     isDoingCompress = false;
                 } else {
@@ -346,12 +347,12 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     @Override
     public void onCancelled(Context context, UploadInfo uploadInfo) {
         astrntSDK.removeUploadId();
-        Timber.e("Video Upload Canceled");
-        astrntSDK.markAsCompressed(currentQuestion);
+        Timber.e("Video Upload Canceled id = %d", currentQuestion.getId());
+        astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Background Upload (Cancelled)",
-                        "Cancelled"
+                        "Cancelled with id "+currentQuestion.getId()
                 )
         );
         stopService();

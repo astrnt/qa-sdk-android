@@ -198,9 +198,12 @@ public class VideoCompressService extends Service {
                             );
 
                             if (astrntSDK.isShowUpload()) {
+                                Timber.e("compress isSownUpload");
                                 EventBus.getDefault().post(new CompressEvent());
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                        Timber.e("start upload from video compress service");
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video compress isShowUpload "+questionId));
                                         SingleVideoUploadService.start(context, questionId);
                                     }
                                 });
@@ -208,6 +211,8 @@ public class VideoCompressService extends Service {
                                 Timber.e("compress success");
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                        Timber.e("start upload from video service success");
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video upload success "+questionId));
                                         SingleVideoUploadService.start(context, questionId);
                                     } else {
                                         Timber.e("still running compressing");
@@ -248,10 +253,6 @@ public class VideoCompressService extends Service {
                                 )
                         );
                         stopService();
-                        if (!inputFile.exists()) {
-                            Timber.e("file has been deleted onfailed");
-                            astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
-                        }
                     }
 
                     @Override

@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.util.Log;
 
 import com.downloader.PRDownloader;
 import com.orhanobut.hawk.Hawk;
@@ -1435,6 +1436,8 @@ public class AstrntSDK extends HawkUtils {
         File rawFile = new File(directory, questionId + "_raw.mp4");
         if (rawFile.exists()) {
             markAsPending(questionApiDao, rawFile.getAbsolutePath());
+            Timber.e("Start compress from SDK");
+            LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK "+questionId));
             VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId);
         } else {
             File compressedFile = new File(directory, questionId + ".mp4");
@@ -1442,6 +1445,8 @@ public class AstrntSDK extends HawkUtils {
                 markAsCompressed(questionApiDao);
                 if (!isShowUpload() && UploadService.getTaskList().isEmpty()) {
                     if (questionApiDao.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
+                        Timber.e("start upload from sdk status compressed");
+                        LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed "+questionId));
                         SingleVideoUploadService.start(context, questionId);
                     }
                 }

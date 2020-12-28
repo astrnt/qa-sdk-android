@@ -80,6 +80,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
             if (mTimer != null) {
                 mTimer.cancel();
+                mTimer = null;
+                mTimer = new Timer();
             } else {
                 mTimer = new Timer();
             }
@@ -207,7 +209,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     notificationConfig.setRingToneEnabled(false);
                     astrntSDK.markUploading(currentQuestion);
 
-                    Timber.e(notificationConfig.getCompleted().message + " messagess");
 
                     String apiUrl = astrntSDK.getApiUrl() + "v2/video/upload";
                     try {
@@ -224,8 +225,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     } catch (MalformedURLException exc) {
                         Timber.e("MalformedURLException exception");
                     }
-
-                    Timber.e("Execute save upload");
 
                 }
             }
@@ -309,15 +308,36 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         );
 
         List<QuestionApiDao> uploadingVideo = astrntSDK.getPending(UploadStatusType.PENDING);
+        List<QuestionApiDao> compressedVideo = astrntSDK.getPending(UploadStatusType.COMPRESSED);
 
         isDoingCompress = true;
         for (QuestionApiDao item : uploadingVideo) {
-            Timber.e("upload id %d %s", item.getId(), item.getUploadStatus());
             if (isDoingCompress) {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
                 isDoingCompress = false;
-            } else {
-                Timber.d("upload id pending %d", item.getId());
+            }
+        }
+
+        for (QuestionApiDao item : compressedVideo) {
+            if (isDoingCompress) {
+                Timber.e("current status upload compressed");
+                SingleVideoUploadService.start(context, item.getId());
+                isDoingCompress = false;
+            }
+        }
+
+        List<QuestionApiDao> compressingVideo = astrntSDK.getPending(UploadStatusType.COMPRESSING);
+        for (QuestionApiDao item : compressingVideo) {
+            if (isDoingCompress) {
+                if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
+                    astrntSDK.markAsPending(item, item.getVideoPath());
+
+                    Timber.e("current status compress is compressing");
+                    new Handler(Looper.getMainLooper()).postDelayed(() ->VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
+                    isDoingCompress = false;
+                } else {
+                    Timber.e("still running compress successing");
+                }
             }
         }
         stopService();

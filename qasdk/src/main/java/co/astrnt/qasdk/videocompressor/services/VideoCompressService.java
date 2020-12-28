@@ -77,7 +77,7 @@ public class VideoCompressService extends Service {
             currentInterview = astrntSDK.getCurrentInterview();
             currentQuestion = astrntSDK.searchQuestionById(questionId);
         }
-        return START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -90,6 +90,8 @@ public class VideoCompressService extends Service {
 
         if (mTimer != null) {
             mTimer.cancel();
+            mTimer = null;
+            mTimer = new Timer();
         } else {
             mTimer = new Timer();
         }
@@ -109,6 +111,7 @@ public class VideoCompressService extends Service {
         if (currentQuestion != null) {
 
             if (!inputFile.exists()) {
+                Timber.e("file has been deleted");
                 astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
                 stopService();
             } else {
@@ -244,8 +247,11 @@ public class VideoCompressService extends Service {
                                         errorMsg
                                 )
                         );
-
                         stopService();
+                        if (!inputFile.exists()) {
+                            Timber.e("file has been deleted onfailed");
+                            astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
+                        }
                     }
 
                     @Override

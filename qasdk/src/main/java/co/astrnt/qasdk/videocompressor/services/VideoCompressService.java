@@ -200,20 +200,20 @@ public class VideoCompressService extends Service {
                             if (astrntSDK.isShowUpload()) {
                                 Timber.e("compress isSownUpload");
                                 EventBus.getDefault().post(new CompressEvent());
-                                new Handler(Looper.getMainLooper()).post(() -> {
-                                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                                        Timber.e("start upload from video compress service");
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video compress isShowUpload "+questionId));
-                                        SingleVideoUploadService.start(context, questionId);
-                                    }
-                                });
+                                if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                    new Handler(Looper.getMainLooper()).post(() -> {
+                                        Timber.e("start upload from video compress service isSownUpload");
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video compress isShowUpload " + currentQuestion.getId()));
+                                        SingleVideoUploadService.start(context, currentQuestion.getId());
+                                    });
+                                }
                             } else {
                                 Timber.e("compress success");
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                         Timber.e("start upload from video service success");
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video upload success "+questionId));
-                                        SingleVideoUploadService.start(context, questionId);
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video upload success "+currentQuestion.getId()));
+                                        SingleVideoUploadService.start(context, currentQuestion.getId());
                                     } else {
                                         Timber.e("still running compressing");
                                     }

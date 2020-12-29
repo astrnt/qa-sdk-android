@@ -51,6 +51,7 @@ import co.astrnt.qasdk.utils.HawkUtils;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.QuestionInfo;
 import co.astrnt.qasdk.utils.SectionInfo;
+import co.astrnt.qasdk.utils.ServiceUtils;
 import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -1436,18 +1437,22 @@ public class AstrntSDK extends HawkUtils {
         File rawFile = new File(directory, questionId + "_raw.mp4");
         if (rawFile.exists()) {
             markAsPending(questionApiDao, rawFile.getAbsolutePath());
-            Timber.e("Start compress from SDK");
-            LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK "+questionId));
-            VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId);
+            if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
+                Timber.e("Start compress from SDK");
+                LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK " + questionId));
+                VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId);
+            }
         } else {
             File compressedFile = new File(directory, questionId + ".mp4");
             if (compressedFile.exists()) {
                 markAsCompressed(questionApiDao);
                 if (!isShowUpload() && UploadService.getTaskList().isEmpty()) {
                     if (questionApiDao.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
-                        Timber.e("start upload from sdk status compressed");
-                        LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed "+questionId));
-                        SingleVideoUploadService.start(context, questionId);
+                        if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                            Timber.e("start upload from sdk status compressed");
+                            LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed " + questionId));
+                            SingleVideoUploadService.start(context, questionId);
+                        }
                     }
                 }
             } else {

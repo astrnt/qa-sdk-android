@@ -171,11 +171,13 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                                     "Video Still RAW File, will start compress first")
                     );
 
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        Timber.e("Start compress from do Upload Video");
-                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video "+currentQuestion.getId()));
-                        VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
-                    });
+                    if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            Timber.e("Start compress from do Upload Video");
+                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
+                            VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
+                        });
+                    }
 
                     stopService();
 
@@ -214,7 +216,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
                     String apiUrl = astrntSDK.getApiUrl() + "v2/video/upload";
                     try {
-                        String uploadId = FileUploadHelper.uploadVideo(context, interviewApiDao, currentQuestion, apiUrl)
+                        String uploadId = FileUploadHelper.uploadVideo(context, interviewApiDao, currentQuestion, apiUrl, " from service")
                                 .setNotificationConfig(notificationConfig)
                                 .setDelegate(this).startUpload();
 
@@ -302,7 +304,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Background Upload (Complete)",
                         "Success uploaded for question id " + currentQuestion.getId()
-                )
+                +" on service")
         );
 
         List<QuestionApiDao> uploadingVideo = astrntSDK.getPending(UploadStatusType.PENDING);
@@ -311,10 +313,12 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         isDoingCompress = true;
         for (QuestionApiDao item : uploadingVideo) {
             if (isDoingCompress) {
-                Timber.e("start compress from pending status");
-                LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From pending status "+item.getId()));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
-                isDoingCompress = false;
+                if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
+                    Timber.e("start compress from pending status");
+                    LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From pending status " + item.getId()));
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
+                    isDoingCompress = false;
+                }
             }
         }
 

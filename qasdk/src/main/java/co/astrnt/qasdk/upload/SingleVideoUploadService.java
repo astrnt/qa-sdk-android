@@ -19,6 +19,8 @@ import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
@@ -35,6 +37,9 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.event.CompressEvent;
+import co.astrnt.qasdk.event.UploadComplete;
+import co.astrnt.qasdk.event.UploadEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
 import co.astrnt.qasdk.utils.FileUploadHelper;
 import co.astrnt.qasdk.utils.LogUtil;
@@ -259,11 +264,11 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     @Override
     public void onProgress(Context context, UploadInfo uploadInfo) {
         if (uploadInfo != null) {
-            Timber.e("Video Upload Progress : %s", uploadInfo.getProgressPercent());
             astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
         } else {
             Timber.e("upload progress null");
         }
+        EventBus.getDefault().post(new UploadEvent());
     }
 
     @Override
@@ -300,6 +305,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
         astrntSDK.removeUploadId();
         astrntSDK.markUploaded(currentQuestion);
+        EventBus.getDefault().post(new UploadComplete());
+        stopService();
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Background Upload (Complete)",
@@ -307,6 +314,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 +" on service")
         );
 
+        Timber.e("on Completed uploading "+currentQuestion.getId());
         List<QuestionApiDao> uploadingVideo = astrntSDK.getPending(UploadStatusType.PENDING);
         List<QuestionApiDao> compressedVideo = astrntSDK.getPending(UploadStatusType.COMPRESSED);
 
@@ -315,8 +323,10 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
             if (isDoingCompress) {
                 if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
                     Timber.e("start compress from pending status");
-                    LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From pending status " + item.getId()));
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
+                    LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress",
+                            "From pending status " + item.getId()));
+                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                            VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
                     isDoingCompress = false;
                 }
             }
@@ -325,8 +335,13 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         for (QuestionApiDao item : compressedVideo) {
             if (isDoingCompress) {
                 Timber.e("current status upload compressed");
-//                SingleVideoUploadService.start(context, item.getId());
-                ///isDoingCompress = false;
+                if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                    LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Current status",
+                            "Uploading from compressed "+item.getId()));
+
+                    SingleVideoUploadService.start(context, item.getId());
+                    isDoingCompress = false;
+                }
             }
         }
 
@@ -345,7 +360,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 }
             }
         }
-        stopService();
     }
 
     @Override
@@ -353,6 +367,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         astrntSDK.removeUploadId();
         Timber.e("Video Upload Canceled id = %d", currentQuestion.getId());
         astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
+        EventBus.getDefault().post(new UploadEvent());
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Background Upload (Cancelled)",

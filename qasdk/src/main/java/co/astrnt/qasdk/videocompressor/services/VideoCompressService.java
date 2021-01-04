@@ -111,9 +111,9 @@ public class VideoCompressService extends Service {
         if (currentQuestion != null) {
 
             if (!inputFile.exists()) {
+                stopService();
                 Timber.e("file has been deleted");
                 astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
-                stopService();
             } else {
 
                 File directory = FileUtils.makeAndGetSubDirectory(context, currentInterview.getInterviewCode(), "video");
@@ -186,16 +186,17 @@ public class VideoCompressService extends Service {
                             message = "Video Compress (Success), but file is corrupt or too small";
 
                         } else {
-
-                            inputFile.delete();
-                            astrntSDK.updateVideoPath(currentQuestion, outputPath);
-                            LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                    new LogDao("Video Compress (Success) " + currentQuestion.getId(),
-                                            "Success, file compressed size: " + fileSizeInMb + "Mb, available storage "
-                                                    + astrntSDK.getAvailableStorage() + "Mb."
-                                                    + "Raw File has been deleted"
-                                    )
-                            );
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                inputFile.delete();
+                                astrntSDK.updateVideoPath(currentQuestion, outputPath);
+                                LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                        new LogDao("Video Compress (Success) " + currentQuestion.getId(),
+                                                "Success, file compressed size: " + fileSizeInMb + "Mb, available storage "
+                                                        + astrntSDK.getAvailableStorage() + "Mb."
+                                                        + "Raw File has been deleted"
+                                        )
+                                );
+                            },5000);
 
                             if (astrntSDK.isShowUpload()) {
                                 Timber.e("compress isSownUpload");
@@ -203,7 +204,8 @@ public class VideoCompressService extends Service {
                                 if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                     new Handler(Looper.getMainLooper()).post(() -> {
                                         Timber.e("start upload from video compress service isSownUpload");
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video compress isShowUpload " + currentQuestion.getId()));
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
+                                                "From video compress isShowUpload " + currentQuestion.getId()));
                                         SingleVideoUploadService.start(context, currentQuestion.getId());
                                     });
                                 }
@@ -212,10 +214,11 @@ public class VideoCompressService extends Service {
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                         Timber.e("start upload from video service success");
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload", "From video upload success "+currentQuestion.getId()));
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
+                                                "From video upload success "+currentQuestion.getId()));
                                         SingleVideoUploadService.start(context, currentQuestion.getId());
                                     } else {
-                                        Timber.e("still running compressing");
+                                        Timber.e("still running uploading");
                                     }
                                 });
                             }

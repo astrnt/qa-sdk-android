@@ -113,6 +113,7 @@ public class VideoCompressService extends Service {
             if (!inputFile.exists()) {
                 stopService();
                 Timber.e("file has been deleted");
+                LogUtil.addNewLog(currentInterview.getInterviewCode(), new LogDao("File not exists", "With id " + questionId));
                 astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
             } else {
 

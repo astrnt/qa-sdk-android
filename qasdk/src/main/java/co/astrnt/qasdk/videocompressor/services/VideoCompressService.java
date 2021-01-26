@@ -196,7 +196,7 @@ public class VideoCompressService extends Service {
                                                         + "Raw File has been deleted"
                                         )
                                 );
-                            },5000);
+                            }, 150);
 
                             if (astrntSDK.isShowUpload()) {
                                 Timber.e("compress isSownUpload");

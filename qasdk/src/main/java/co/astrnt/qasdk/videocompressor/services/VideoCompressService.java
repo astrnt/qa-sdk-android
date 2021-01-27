@@ -95,7 +95,7 @@ public class VideoCompressService extends Service {
         } else {
             mTimer = new Timer();
         }
-        mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
+        mTimer.scheduleAtFixedRate(new VideoCompressService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
     }
 
     @Nullable
@@ -113,6 +113,7 @@ public class VideoCompressService extends Service {
             if (!inputFile.exists()) {
                 stopService();
                 Timber.e("file has been deleted");
+                LogUtil.addNewLog(currentInterview.getInterviewCode(), new LogDao("File not exists", "With id " + questionId));
                 astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
             } else {
 
@@ -196,7 +197,7 @@ public class VideoCompressService extends Service {
                                                         + "Raw File has been deleted"
                                         )
                                 );
-                            },5000);
+                            }, 150);
 
                             if (astrntSDK.isShowUpload()) {
                                 Timber.e("compress isSownUpload");

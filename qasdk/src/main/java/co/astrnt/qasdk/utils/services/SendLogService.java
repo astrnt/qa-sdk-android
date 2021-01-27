@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.constants.PreferenceKey;
@@ -38,7 +39,7 @@ public class SendLogService extends Service {
     public static final long NOTIFY_INTERVAL = 60 * 1000;
 
     private Context context;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private Timer mTimer = null;
     private AstrntSDK astrntSDK;
     private AstronautApi astronautApi;
@@ -49,7 +50,7 @@ public class SendLogService extends Service {
 
     public static void start(Context context) {
         Intent intent = new Intent(context, SendLogService.class);
-        context.startService(intent);
+        ContextCompat.startForegroundService(context, intent);
     }
 
     @Override
@@ -64,20 +65,14 @@ public class SendLogService extends Service {
         astrntSDK = new AstrntSDK();
         astronautApi = astrntSDK.getApi();
 
-        startServiceOreoCondition();
+        createNotification();
 
         if (mTimer != null) {
             mTimer.cancel();
         } else {
             mTimer = new Timer();
         }
-        mTimer.scheduleAtFixedRate(new SendLogService.TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
-    }
-
-    private void startServiceOreoCondition() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            createNotification();
-        }
+        mTimer.scheduleAtFixedRate(new SendLogService.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
     }
 
     @Nullable
@@ -196,29 +191,7 @@ public class SendLogService extends Service {
     private void createNotification() {
         mNotificationId = 1001;
 
-        // Make a channel if necessary
-        final String channelId = getString(R.string.app_name);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create the NotificationChannel, but only on API 26+ because
-            // the NotificationChannel class is new and not in the support library
-            CharSequence name = "Send Log";
-            String description = "Astronaut Q&A Send Log";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
-            channel.setDescription(description);
-            channel.setSound(null, null);
-
-            // Add the channel
-            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            if (mNotifyManager != null) {
-                mNotifyManager.createNotificationChannel(channel);
-            }
-        } else {
-            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-
-        // Create the notification
+        final String channelId = "Astronaut Q&A";
         mBuilder = new NotificationCompat.Builder(context, channelId)
                 .setOngoing(true)
                 .setAutoCancel(false)
@@ -227,6 +200,25 @@ public class SendLogService extends Service {
                 .setContentTitle("Astronaut Q&A")
                 .setContentText("Sending Log")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Send Log";
+            String description = "Astronaut Q&A Send Log";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            channel.setSound(null, null);
+
+            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (mNotifyManager != null) {
+                mNotifyManager.createNotificationChannel(channel);
+            }
+
+            startForeground(mNotificationId, mBuilder.build());
+        } else {
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        }
 
         mNotifyManager.notify(mNotificationId, mBuilder.build());
     }

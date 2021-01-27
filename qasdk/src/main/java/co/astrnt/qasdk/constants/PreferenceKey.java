@@ -28,4 +28,5 @@ public class PreferenceKey {
     public static final String KEY_PRACTICE_RETAKE = "PracticeRetake";
     public static final String KEY_LAST_API_CALL = "LastApiCall";
     public static final String KEY_CV_START_CALLED = "CvStart";
+    public static final String KEY_IS_RUNNING_UPLOADING = "RunningUploading";
 }

@@ -1144,20 +1144,12 @@ public class AstrntSDK extends HawkUtils {
             SectionApiDao currentSection = getCurrentSection();
             SectionApiDao nextSection = getNextSection();
             if (nextSection != null) {
-                if (currentSection.isOnGoing()) {
                     sectionInfo.increaseIndex();
                     LogUtil.addNewLog(getInterviewCode(),
                             new LogDao("Section",
                                     "Section Index Increased"
                             )
                     );
-                } else {
-                    LogUtil.addNewLog(getInterviewCode(),
-                            new LogDao("Section",
-                                    "Section Index Failed to Increased, because not started"
-                            )
-                    );
-                }
             } else {
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",

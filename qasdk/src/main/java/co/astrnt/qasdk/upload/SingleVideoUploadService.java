@@ -37,7 +37,6 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
-import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.event.UploadComplete;
 import co.astrnt.qasdk.event.UploadEvent;
 import co.astrnt.qasdk.type.UploadStatusType;

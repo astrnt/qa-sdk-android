@@ -216,9 +216,11 @@ public class VideoCompressService extends Service {
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                         Timber.e("start upload from video service success");
                                         LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
-                                                "From video upload success "+currentQuestion.getId()));
+                                                "From video compress success "+currentQuestion.getId()));
                                         SingleVideoUploadService.start(context, currentQuestion.getId());
                                     } else {
+                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload Info Warning",
+                                                "still running uploading"));
                                         Timber.e("still running uploading");
                                     }
                                 });

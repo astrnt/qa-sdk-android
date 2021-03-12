@@ -37,7 +37,6 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
-import co.astrnt.qasdk.event.CompressEvent;
 import co.astrnt.qasdk.event.UploadComplete;
 import co.astrnt.qasdk.event.UploadEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
@@ -227,10 +226,22 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
                         astrntSDK.saveUploadId(uploadId);
                     } catch (FileNotFoundException exc) {
+                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                new LogDao("Uploading Info",
+                                        "Failed FileNotFoundException " + exc.getMessage())
+                        );
                         Timber.e("File not exception");
                     } catch (IllegalArgumentException exc) {
                         Timber.e("IllegalArgumentException exception");
+                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                new LogDao("Uploading Info",
+                                        "Failed IllegalArgumentException " + exc.getMessage())
+                        );
                     } catch (MalformedURLException exc) {
+                        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                                new LogDao("Uploading Info",
+                                        "Failed MalformedURLException " + exc.getMessage())
+                        );
                         Timber.e("MalformedURLException exception");
                     }
 
@@ -365,7 +376,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     public void onCancelled(Context context, UploadInfo uploadInfo) {
         astrntSDK.removeUploadId();
         Timber.e("Video Upload Canceled id = %d", currentQuestion.getId());
-        astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
+        astrntSDK.markAsCompressed(currentQuestion);
         EventBus.getDefault().post(new UploadEvent());
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),

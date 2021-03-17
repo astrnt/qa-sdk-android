@@ -21,4 +21,20 @@ public class FileUtils {
 
         return subDirectory;
     }
+
+    public static File makeAndGetSubDirectoryDownload(String subFolderName, String interviewCode) {
+        // determine the profile directory
+        File interviewDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), subFolderName);
+        if (!interviewDirectory.exists()) {
+            interviewDirectory.mkdir();
+        }
+
+        File subDirectory = new File(interviewDirectory.getAbsolutePath(), interviewCode);
+        if (!subDirectory.exists()) {
+            subDirectory.mkdirs();
+        }
+
+        return subDirectory;
+    }
+
 }

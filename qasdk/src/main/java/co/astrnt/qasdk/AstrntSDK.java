@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.util.Log;
 
 import com.downloader.PRDownloader;
 import com.orhanobut.hawk.Hawk;
@@ -1284,7 +1283,7 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public void updateCheatsheetPath(SupportMaterialDao supportMaterialDao, String mediaPath) {
+    public void updateCheatSheetPath(SupportMaterialDao supportMaterialDao, String mediaPath) {
 
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -1296,7 +1295,7 @@ public class AstrntSDK extends HawkUtils {
             realm.copyToRealmOrUpdate(supportMaterialDao);
             realm.commitTransaction();
         } else {
-            updateCheatsheetPath(supportMaterialDao, mediaPath);
+            updateCheatSheetPath(supportMaterialDao, mediaPath);
         }
     }
 

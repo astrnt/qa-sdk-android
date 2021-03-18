@@ -66,8 +66,6 @@ dependencies {
 //    Download Manager
     api 'com.mindorks.android:prdownloader:0.6.0'
 
-    api 'ir.siaray:downloadmanagerplus:1.4.1'
-
     //    Event Bus for Broadcast Receiver
     api 'org.greenrobot:eventbus:3.2.0'
 

@@ -22,14 +22,14 @@ public class FileUtils {
         return subDirectory;
     }
 
-    public static File makeAndGetSubDirectoryDownload(String subFolderName, String interviewCode) {
+    public static File makeAndGetSubDirectoryDownload(String subFolderName, String jobName) {
         // determine the profile directory
         File interviewDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), subFolderName);
         if (!interviewDirectory.exists()) {
             interviewDirectory.mkdir();
         }
 
-        File subDirectory = new File(interviewDirectory.getAbsolutePath(), interviewCode);
+        File subDirectory = new File(interviewDirectory.getAbsolutePath(), jobName);
         if (!subDirectory.exists()) {
             subDirectory.mkdirs();
         }

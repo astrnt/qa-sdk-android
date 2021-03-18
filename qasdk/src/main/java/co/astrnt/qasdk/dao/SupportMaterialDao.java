@@ -8,10 +8,12 @@ import io.realm.annotations.PrimaryKey;
 
 public class SupportMaterialDao extends RealmObject {
 
+	@PrimaryKey
+	@SerializedName("id")
+	private int id;
 	@Expose
 	@SerializedName("size")
 	private int size;
-	@PrimaryKey
 	@Expose
 	@SerializedName("name")
 	private String name;
@@ -74,5 +76,13 @@ public class SupportMaterialDao extends RealmObject {
 
 	public String getUrl(){
 		return url;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }

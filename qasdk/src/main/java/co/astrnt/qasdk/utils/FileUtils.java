@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.IOException;
 
 import timber.log.Timber;
 
@@ -24,33 +25,26 @@ public class FileUtils {
         return subDirectory;
     }
 
-    public static File makeAndGetSubDirectoryDownload(String subFolderName, String jobName) {
-        // determine the profile directory
-        File interviewDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), subFolderName);
-        if (!interviewDirectory.exists()) {
-            Timber.e("createfolderrr111 %s", interviewDirectory.getAbsolutePath());
-            interviewDirectory.mkdirs();
+    public static File makeAndGetSubDirectoryDownload(String appName, String subFolderName, String jobNameFolder) {
+        File appNameDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), appName);
+
+        if (!appNameDirectory.exists()) {
+            Timber.e("Create app folder in root");
+            appNameDirectory.mkdirs();
         }
 
-        File subDirectory = new File(interviewDirectory.getAbsolutePath(), jobName);
+        File subDirectory = new File(appNameDirectory.getAbsolutePath(), subFolderName);
         if (!subDirectory.exists()) {
-            Timber.e("createfolderrr2222 %s", subDirectory.getAbsolutePath());
+            Timber.e("Create sub folder in AstronautQ&A");
             subDirectory.mkdirs();
         }
 
-        return subDirectory;
-    }
-
-    public static File makeAndGetSubDownload(String subFolderName) {
-        // determine the profile directory
-        File interviewDirectory = new File(Environment.getExternalStorageDirectory().toString(), subFolderName);
-        if (!interviewDirectory.exists()) {
-            Timber.e("MKDIRRR 2222"+interviewDirectory.getPath());
-            Timber.e("MKDIRRR 2222xx"+interviewDirectory.getAbsolutePath());
-            interviewDirectory.mkdirs();
+        File jobName = new File(subDirectory.getAbsolutePath(), jobNameFolder);
+        if (!subDirectory.exists()) {
+            Timber.e("Create sub folder in job name");
+            jobName.mkdirs();
         }
-
-        return interviewDirectory;
+        return jobName;
     }
 
 }

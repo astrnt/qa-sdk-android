@@ -40,7 +40,7 @@ public class FileUtils {
         }
 
         File jobName = new File(subDirectory.getAbsolutePath(), jobNameFolder);
-        if (!subDirectory.exists()) {
+        if (!jobName.exists()) {
             Timber.e("Create sub folder in job name");
             jobName.mkdirs();
         }

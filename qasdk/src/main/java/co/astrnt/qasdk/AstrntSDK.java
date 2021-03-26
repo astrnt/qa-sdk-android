@@ -1911,6 +1911,13 @@ public class AstrntSDK extends HawkUtils {
                         haveMediaToDownload = true;
                     }
                 }
+                for (SupportMaterialDao cheatsheet : section.getSupport_materials()) {
+                    if (cheatsheet.getUrl() != null) {
+                        if (cheatsheet.getOfflinePath() == null) {
+                            haveMediaToDownload = true;
+                        }
+                    }
+                }
 
                 for (QuestionApiDao question : section.getSectionQuestions()) {
                     if (question.getMedia() != null) {

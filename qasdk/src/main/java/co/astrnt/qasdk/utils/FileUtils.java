@@ -26,7 +26,7 @@ public class FileUtils {
     }
 
     public static File makeAndGetSubDirectoryDownload(String appName, String subFolderName, String jobNameFolder) {
-        File appNameDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), appName);
+        File appNameDirectory = new File(Environment.getExternalStorageDirectory(),appName);
 
         if (!appNameDirectory.exists()) {
             Timber.e("Create app folder in root");

@@ -4,6 +4,9 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.IOException;
+
+import timber.log.Timber;
 
 public class FileUtils {
 
@@ -21,4 +24,27 @@ public class FileUtils {
 
         return subDirectory;
     }
+
+    public static File makeAndGetSubDirectoryDownload(String appName, String subFolderName, String jobNameFolder) {
+        File appNameDirectory = new File(Environment.getExternalStorageDirectory(),appName);
+
+        if (!appNameDirectory.exists()) {
+            Timber.e("Create app folder in root");
+            appNameDirectory.mkdirs();
+        }
+
+        File subDirectory = new File(appNameDirectory.getAbsolutePath(), subFolderName);
+        if (!subDirectory.exists()) {
+            Timber.e("Create sub folder in AstronautQ&A");
+            subDirectory.mkdirs();
+        }
+
+        File jobName = new File(subDirectory.getAbsolutePath(), jobNameFolder);
+        if (!jobName.exists()) {
+            Timber.e("Create sub folder in job name");
+            jobName.mkdirs();
+        }
+        return jobName;
+    }
+
 }

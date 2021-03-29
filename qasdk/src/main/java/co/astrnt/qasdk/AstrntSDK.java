@@ -170,7 +170,6 @@ public class AstrntSDK extends HawkUtils {
             }
             InterviewApiDao currentInterview = getCurrentInterview();
             if (resultApiDao.getInformation() != null && currentInterview != null && isContinue) {
-                Timber.e("is Continue");
                 updateInterview(currentInterview, resultApiDao.getInformation());
             }
 

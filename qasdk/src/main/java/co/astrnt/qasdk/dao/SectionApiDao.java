@@ -22,6 +22,7 @@ public class SectionApiDao extends RealmObject {
     private String image;
     private String parent_id;
     private RealmList<QuestionApiDao> section_questions;
+    private RealmList<SupportMaterialDao> support_materials;
 
     private MediaDao media;
     private @MediaTypes String media_type;
@@ -37,6 +38,15 @@ public class SectionApiDao extends RealmObject {
     public void setId(long id) {
         this.id = id;
     }
+
+    public RealmList<SupportMaterialDao> getSupport_materials() {
+        return support_materials;
+    }
+
+    public void setSupport_materials(RealmList<SupportMaterialDao> support_materials) {
+        this.support_materials = support_materials;
+    }
+
 
     public String getTitle() {
         return title;

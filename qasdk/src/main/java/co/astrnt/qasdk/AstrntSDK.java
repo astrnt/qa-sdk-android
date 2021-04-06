@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.util.Log;
 
 import com.downloader.PRDownloader;
 import com.orhanobut.hawk.Hawk;
@@ -39,6 +38,7 @@ import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.QuestionInfoApiDao;
 import co.astrnt.qasdk.dao.QuestionInfoMcqApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
+import co.astrnt.qasdk.dao.SupportMaterialDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.SectionType;
@@ -249,6 +249,7 @@ public class AstrntSDK extends HawkUtils {
                                 questionList.add(newQuestion);
                             }
                             newSection.setSectionQuestions(questionList);
+                            newSection.setSupport_materials(newSection.getSupport_materials());
                         }
                     }
                     sectionList.add(newSection);
@@ -459,6 +460,7 @@ public class AstrntSDK extends HawkUtils {
 
                         if (!questionApiDaos.isEmpty()) {
                             section.setSectionQuestions(questionApiDaos);
+                            section.setSupport_materials(section.getSupport_materials());
                         }
                         sectionList.add(section);
                     }
@@ -1281,6 +1283,23 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void updateCheatSheetPath(SupportMaterialDao supportMaterialDao, String mediaPath) {
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            if (supportMaterialDao != null) {
+                supportMaterialDao.setOfflinePath(mediaPath);
+            }
+
+            realm.copyToRealmOrUpdate(supportMaterialDao);
+            realm.commitTransaction();
+        } else {
+            updateCheatSheetPath(supportMaterialDao, mediaPath);
+        }
+    }
+
+
     public void updateMediaPath(SectionApiDao sectionApiDao, String mediaPath) {
 
         if (!realm.isInTransaction()) {
@@ -1889,6 +1908,13 @@ public class AstrntSDK extends HawkUtils {
                 if (section.getMedia() != null) {
                     if (section.getMedia().getOfflinePath() == null) {
                         haveMediaToDownload = true;
+                    }
+                }
+                for (SupportMaterialDao cheatsheet : section.getSupport_materials()) {
+                    if (cheatsheet.getUrl() != null) {
+                        if (cheatsheet.getOfflinePath() == null) {
+                            haveMediaToDownload = true;
+                        }
                     }
                 }
 

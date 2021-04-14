@@ -102,7 +102,7 @@ public class AstrntSDK extends HawkUtils {
     public static RealmConfiguration getRealmConfig() {
         return new RealmConfiguration.Builder()
                 .name("astrntdb")
-                .schemaVersion(BuildConfig.VERSION_CODE)
+                .schemaVersion(190)
                 .deleteRealmIfMigrationNeeded()
                 .build();
     }

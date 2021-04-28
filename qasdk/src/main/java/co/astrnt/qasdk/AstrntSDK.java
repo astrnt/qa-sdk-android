@@ -1321,7 +1321,11 @@ public class AstrntSDK extends HawkUtils {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
-            questionApiDao.setUploadProgress(progress);
+            try {
+                questionApiDao.setUploadProgress(progress);
+            } catch (Exception e){
+                Timber.e("Exception %s", e.getMessage());
+            }
 
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();

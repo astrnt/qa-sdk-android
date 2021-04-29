@@ -59,7 +59,7 @@ public class VideoCompressService extends Service {
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
 
-    public static void start(Context context, String inputPath, long questionId) {
+    public static void start(Context context, String inputPath, long questionId, String interviewCode) {
         Timber.e("video compress with id %d ", questionId);
         try {
             Intent intent = new Intent(context, VideoCompressService.class)
@@ -67,6 +67,11 @@ public class VideoCompressService extends Service {
                     .putExtra(EXT_QUESTION_ID, questionId);
             ContextCompat.startForegroundService(context, intent);
         } catch (Exception e){
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Failed to start compress",
+                            "Because "+e.getMessage()
+                    )
+            );
             Timber.e("Error compress %s", e.getMessage());
         }
     }

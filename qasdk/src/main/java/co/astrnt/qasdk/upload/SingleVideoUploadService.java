@@ -180,7 +180,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                         new Handler(Looper.getMainLooper()).post(() -> {
                             Timber.e("Start compress from do Upload Video");
                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
-                            VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId());
+                            VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId(), astrntSDK.getInterviewCode());
                         });
                     }
 
@@ -346,7 +346,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                         LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress",
                                 "From pending status " + item.getId()));
                         new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
+                                VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
                         isDoingCompress = false;
                     }
                 }
@@ -372,7 +372,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                         astrntSDK.markAsPending(item, item.getVideoPath());
                         Timber.e("current status compress is compressing");
                         LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Status compressing", "From current compressing " + item.getId()));
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId()), 1000);
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
                         isDoingCompress = false;
                     } else {
                         Timber.e("still running compress successing");

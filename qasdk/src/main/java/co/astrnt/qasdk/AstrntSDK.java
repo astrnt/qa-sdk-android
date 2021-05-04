@@ -504,8 +504,11 @@ public class AstrntSDK extends HawkUtils {
                             if (question.getId() == questionState.getQuestionId()) {
                                 if (questionState.isAnswered()) {
                                     question.setAnswered(true);
-                                }
-                                question.setTimeLeft(questionState.getDurationLeft());
+                                } else {
+                                question.setAnswered(false);
+                            }
+
+                            question.setTimeLeft(questionState.getDurationLeft());
                             }
 
                             RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
@@ -2202,7 +2205,12 @@ public class AstrntSDK extends HawkUtils {
             realm.beginTransaction();
 
             questionApiDao.setAnswer(answer);
-            questionApiDao.setAnswered(!answer.isEmpty());
+            if (answer.isEmpty()) {
+                questionApiDao.setAnswered(false);
+            } else {
+                questionApiDao.setAnswered(true);
+            }
+
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
         } else {
@@ -2212,7 +2220,12 @@ public class AstrntSDK extends HawkUtils {
 
     private void addFtqAnswer(QuestionApiDao questionApiDao, String answer) {
         questionApiDao.setAnswer(answer);
-        questionApiDao.setAnswered(!answer.isEmpty());
+        if (answer.isEmpty()) {
+            questionApiDao.setAnswered(false);
+        } else {
+            questionApiDao.setAnswered(true);
+        }
+
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {

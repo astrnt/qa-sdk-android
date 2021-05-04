@@ -44,11 +44,11 @@ public class VideoSDK {
     }
 
     public boolean isNotLastQuestion() {
-        return astrntSDK.isNotLastQuestion();
+        return astrntSDK.isNotLastVideoQuestion();
     }
 
     public boolean isLastQuestion() {
-        return !astrntSDK.isNotLastQuestion();
+        return !astrntSDK.isNotLastVideoQuestion();
     }
 
     public boolean isLastAttempt() {

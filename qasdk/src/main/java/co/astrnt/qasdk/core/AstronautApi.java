@@ -5,6 +5,7 @@ import android.os.Build;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,9 +14,10 @@ import co.astrnt.qasdk.dao.CustomFieldApiDao;
 import co.astrnt.qasdk.dao.CustomFieldDeserializer;
 import co.astrnt.qasdk.dao.InformationApiDao;
 import co.astrnt.qasdk.dao.InformationDeserializer;
+import co.astrnt.qasdk.dao.SummaryQuestionApiDao;
+import co.astrnt.qasdk.dao.SummaryQuestionDeserializer;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -48,15 +50,13 @@ public class AstronautApi {
         });
 
         if (isDebugable) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-            httpClientBuilder.addInterceptor(loggingInterceptor);
+            httpClientBuilder.addInterceptor(new OkHttpProfilerInterceptor());
         }
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(InformationApiDao.class, new InformationDeserializer())
                 .registerTypeAdapter(CustomFieldApiDao.class, new CustomFieldDeserializer())
+                .registerTypeAdapter(SummaryQuestionApiDao.class, new SummaryQuestionDeserializer())
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()

@@ -30,6 +30,7 @@ public class SectionApiDao extends RealmObject {
 
     //additional field
     private boolean isOnGoing;
+    private boolean showReview;
 
     public long getId() {
         return id;
@@ -129,7 +130,15 @@ public class SectionApiDao extends RealmObject {
     }
 
     public int getTotalQuestion() {
-        return getSectionQuestions().size();
+        RealmList<QuestionApiDao> questionsAndSubs = new RealmList<>();
+        for (QuestionApiDao question : getSectionQuestions()) {
+            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                questionsAndSubs.addAll(question.getSub_questions());
+            } else {
+                questionsAndSubs.add(question);
+            }
+        }
+        return questionsAndSubs.size();
     }
 
     public int getTotalAttempt() {
@@ -182,5 +191,13 @@ public class SectionApiDao extends RealmObject {
 
     public void setOnGoing(boolean onGoing) {
         isOnGoing = onGoing;
+    }
+
+    public boolean isShowReview() {
+        return showReview;
+    }
+
+    public void setShowReview(boolean showReview) {
+        this.showReview = showReview;
     }
 }

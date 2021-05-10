@@ -59,12 +59,21 @@ public class VideoCompressService extends Service {
     private NotificationCompat.Builder mBuilder;
     private int mNotificationId;
 
-    public static void start(Context context, String inputPath, long questionId) {
+    public static void start(Context context, String inputPath, long questionId, String interviewCode) {
         Timber.e("video compress with id %d ", questionId);
-        Intent intent = new Intent(context, VideoCompressService.class)
-                .putExtra(EXT_PATH, inputPath)
-                .putExtra(EXT_QUESTION_ID, questionId);
-        ContextCompat.startForegroundService(context, intent);
+        try {
+            Intent intent = new Intent(context, VideoCompressService.class)
+                    .putExtra(EXT_PATH, inputPath)
+                    .putExtra(EXT_QUESTION_ID, questionId);
+            ContextCompat.startForegroundService(context, intent);
+        } catch (Exception e){
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Failed to start compress",
+                            "Because "+e.getMessage()
+                    )
+            );
+            Timber.e("Error compress %s", e.getMessage());
+        }
     }
 
     @Override
@@ -177,55 +186,65 @@ public class VideoCompressService extends Service {
                             outputFile.delete();
 
 
-                            LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                    new LogDao("Video Compress (Success) " + currentQuestion.getId(),
-                                            "But, File is corrupt or too small " + fileSizeInKb + "Kb. Compressed file will be deleted."
-                                    )
-                            );
-                            astrntSDK.markAsPending(currentQuestion, inputPath);
+                            try {
+                                if (currentInterview.getInterviewCode() != null) {
+                                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                            new LogDao("Video Compress (Success) " + currentQuestion.getId(),
+                                                    "But, File is corrupt or too small " + fileSizeInKb + "Kb. Compressed file will be deleted."
+                                            )
+                                    );
+                                    astrntSDK.markAsPending(currentQuestion, inputPath);
 
-                            message = "Video Compress (Success), but file is corrupt or too small";
-
+                                    message = "Video Compress (Success), but file is corrupt or too small";
+                                }
+                            } catch (Exception e){
+                                Timber.e("Error 1 deleted by another thread");
+                            }
                         } else {
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                inputFile.delete();
-                                astrntSDK.updateVideoPath(currentQuestion, outputPath);
-                                LogUtil.addNewLog(currentInterview.getInterviewCode(),
-                                        new LogDao("Video Compress (Success) " + currentQuestion.getId(),
-                                                "Success, file compressed size: " + fileSizeInMb + "Mb, available storage "
-                                                        + astrntSDK.getAvailableStorage() + "Mb."
-                                                        + "Raw File has been deleted"
-                                        )
-                                );
-                            }, 150);
+                            try {
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                    inputFile.delete();
+                                    astrntSDK.updateVideoPath(currentQuestion, outputPath);
+                                    LogUtil.addNewLog(currentInterview.getInterviewCode(),
+                                            new LogDao("Video Compress (Success) " + currentQuestion.getId(),
+                                                    "Success, file compressed size: " + fileSizeInMb + "Mb, available storage "
+                                                            + astrntSDK.getAvailableStorage() + "Mb."
+                                                            + "Raw File has been deleted"
+                                            )
+                                    );
+                                }, 150);
 
-                            if (astrntSDK.isShowUpload()) {
-                                Timber.e("compress isSownUpload");
-                                EventBus.getDefault().post(new CompressEvent());
-                                if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                if (astrntSDK.isShowUpload()) {
+                                    Timber.e("compress isSownUpload");
+                                    EventBus.getDefault().post(new CompressEvent());
+                                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                        new Handler(Looper.getMainLooper()).post(() -> {
+                                            Timber.e("start upload from video compress service isSownUpload");
+                                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
+                                                    "From video compress isShowUpload " + currentQuestion.getId()));
+                                            SingleVideoUploadService.start(context, currentQuestion.getId());
+                                        });
+                                    }
+                                } else {
+                                    Timber.e("compress success");
                                     new Handler(Looper.getMainLooper()).post(() -> {
-                                        Timber.e("start upload from video compress service isSownUpload");
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
-                                                "From video compress isShowUpload " + currentQuestion.getId()));
-                                        SingleVideoUploadService.start(context, currentQuestion.getId());
+                                        if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
+                                            Timber.e("start upload from video service success");
+                                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
+                                                    "From video compress success " + currentQuestion.getId()));
+                                            SingleVideoUploadService.start(context, currentQuestion.getId());
+                                        } else {
+                                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload Info Warning",
+                                                    "still running uploading"));
+                                            Timber.e("still running uploading");
+                                        }
                                     });
                                 }
-                            } else {
-                                Timber.e("compress success");
-                                new Handler(Looper.getMainLooper()).post(() -> {
-                                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                                        Timber.e("start upload from video service success");
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
-                                                "From video compress success "+currentQuestion.getId()));
-                                        SingleVideoUploadService.start(context, currentQuestion.getId());
-                                    } else {
-                                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload Info Warning",
-                                                "still running uploading"));
-                                        Timber.e("still running uploading");
-                                    }
-                                });
+                            } catch (Exception e) {
+                                Timber.e("Error 2 deleted by another thread");
                             }
                         }
+
 
                         mBuilder.setContentText(message)
                                 .setProgress(0, 0, false)

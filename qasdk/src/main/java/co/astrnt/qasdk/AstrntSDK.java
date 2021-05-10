@@ -1321,7 +1321,11 @@ public class AstrntSDK extends HawkUtils {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
 
-            questionApiDao.setUploadProgress(progress);
+            try {
+                questionApiDao.setUploadProgress(progress);
+            } catch (Exception e){
+                Timber.e("Exception %s", e.getMessage());
+            }
 
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
@@ -1451,7 +1455,7 @@ public class AstrntSDK extends HawkUtils {
             if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
                 Timber.e("Start compress from SDK");
                 LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK " + questionId));
-                VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId);
+                VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId, getCurrentInterview().getInterviewCode());
             }
         } else {
             File compressedFile = new File(directory, questionId + ".mp4");

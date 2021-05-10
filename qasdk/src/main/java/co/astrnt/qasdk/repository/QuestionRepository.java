@@ -187,12 +187,24 @@ public class QuestionRepository extends BaseRepository {
             map.put("interview_type", "test");
         }
 
-        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Hit API (/question/answer)",
-                        "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
-                                ", questionId = " + question.getId()
-                )
-        );
+        if (astrntSDK.isSectionInterview()) {
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Hit API (/question/answer)",
+                            "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
+                                    ", questionId = " + currentQuestion.getId() +
+                                    ", sectionId = " + astrntSDK.getCurrentSection().getId() +
+                                    " duration left = " + astrntSDK.getCurrentSection().getDuration() +
+                                    " seconds"
+                    )
+            );
+        } else {
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Hit API (/question/answer)",
+                            "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
+                                    ", questionId = " + currentQuestion.getId()
+                    )
+            );
+        }
         astrntSDK.saveLastApiCall("(/question/answer)");
 
         return mAstronautApi.getApiService().answerQuestion(token, map);

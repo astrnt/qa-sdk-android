@@ -224,7 +224,12 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public void setUploadStatus(@UploadStatusState String uploadStatus) {
-        this.uploadStatus = uploadStatus;
+        try {
+            this.uploadStatus = uploadStatus;
+        } catch (Exception e) {
+
+        }
+
     }
 
     public double getUploadProgress() {

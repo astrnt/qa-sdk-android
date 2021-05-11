@@ -386,17 +386,24 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     @Override
     public void onCancelled(Context context, UploadInfo uploadInfo) {
-        astrntSDK.removeUploadId();
-        Timber.e("Video Upload Canceled id = %d", currentQuestion.getId());
-        astrntSDK.markAsCompressed(currentQuestion);
-        EventBus.getDefault().post(new UploadEvent());
+        try {
+            astrntSDK.removeUploadId();
+        } catch (Exception e){
 
-        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Background Upload (Cancelled)",
-                        "Cancelled with id " + currentQuestion.getId()
-                )
-        );
-        stopService();
+        }
+        try {
+            astrntSDK.markAsCompressed(currentQuestion);
+            EventBus.getDefault().post(new UploadEvent());
+
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Background Upload (Cancelled)",
+                            "Cancelled with id " + currentQuestion.getId()
+                    )
+            );
+            stopService();
+        } catch (Exception e){
+
+        }
     }
 
 

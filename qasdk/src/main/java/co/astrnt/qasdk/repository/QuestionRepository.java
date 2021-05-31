@@ -191,7 +191,7 @@ public class QuestionRepository extends BaseRepository {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                     new LogDao("Hit API (/question/answer)",
                             "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
-                                    ", questionId = " + currentQuestion.getId() +
+                                    ", questionId = " + question.getId() +
                                     ", sectionId = " + astrntSDK.getCurrentSection().getId() +
                                     " duration left = " + astrntSDK.getCurrentSection().getDuration() +
                                     " seconds"
@@ -201,7 +201,7 @@ public class QuestionRepository extends BaseRepository {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                     new LogDao("Hit API (/question/answer)",
                             "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
-                                    ", questionId = " + currentQuestion.getId()
+                                    ", questionId = " + question.getId()
                     )
             );
         }

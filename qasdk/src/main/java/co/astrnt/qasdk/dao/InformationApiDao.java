@@ -42,6 +42,22 @@ public class InformationApiDao extends RealmObject {
         }
     }
 
+    public InformationApiDao(boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao[] prevQuestStates, QuestionInfoMcqApiDao... questionInfoMcqApiDao) {
+        this.finished = finished;
+        this.status = status;
+        this.interviewIndex = interviewIndex;
+        this.interviewSubIndex = interviewSubIndex;
+        this.interviewAttempt = interviewAttempt;
+        this.message = message;
+        if (prevQuestStates != null) {
+            this.prevQuestStates = new RealmList<>(prevQuestStates);
+        }
+        if (questionInfoMcqApiDao != null) {
+            this.questions_mcq_info = new RealmList<>(questionInfoMcqApiDao);
+        }
+    }
+
+
     public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
         this.finished = finished;
         this.status = status;

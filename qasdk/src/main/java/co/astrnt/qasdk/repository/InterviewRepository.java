@@ -45,6 +45,7 @@ public class InterviewRepository extends BaseRepository {
         map.put("phone", param.getPhone());
         map.put("device", param.getDevice());
         map.put("version", String.valueOf(param.getVersion()));
+        map.put("session_timer", String.valueOf(true));
 
         if (param.getCustom_fields() != null) {
             for (int i = 0; i < param.getCustom_fields().size(); i++) {

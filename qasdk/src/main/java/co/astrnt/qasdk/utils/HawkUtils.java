@@ -9,6 +9,8 @@ import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CONTINUE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CV_START_CALLED;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_DOWNLOAD_ID;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_INTERVIEW;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_QUESTION;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_SESSION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FIRST_OPEN;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_GDPR;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_INTERVIEW_CODE;
@@ -22,6 +24,7 @@ import static co.astrnt.qasdk.constants.PreferenceKey.KEY_PRACTICE_RETAKE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SELF_PACE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_RATING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_UPLOAD;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_START_SESSION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_UNAUTHORIZED;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_UPLOAD_ID;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_WATCH_WELCOME_VIDEO;
@@ -45,6 +48,32 @@ public class HawkUtils {
     public void setShowUpload(boolean showUpload) {
         Hawk.put(KEY_SHOW_UPLOAD, showUpload);
     }
+
+    public boolean isFinishSession() {
+        return Hawk.get(KEY_FINISH_SESSION, false);
+    }
+
+    public void setFinishSession(boolean finishSession) {
+        Hawk.put(KEY_FINISH_SESSION, finishSession);
+    }
+
+    public boolean isStartSessionTimer() {
+        return Hawk.get(KEY_START_SESSION, false);
+    }
+
+    public void setStartSessionTimer(boolean finishSession) {
+        Hawk.put(KEY_START_SESSION, finishSession);
+    }
+
+    public boolean isFinishQuestionSession() {
+        return Hawk.get(KEY_FINISH_QUESTION, false);
+    }
+
+    public void setFinishQuestionSession(boolean finishQuestionSession) {
+        Hawk.put(KEY_FINISH_QUESTION, finishQuestionSession);
+    }
+
+
 
     public boolean isFinishInterview() {
         return Hawk.get(KEY_FINISH_INTERVIEW, true);
@@ -235,6 +264,9 @@ public class HawkUtils {
         Hawk.delete(KEY_LAST_API_CALL);
         Hawk.delete(KEY_CV_START_CALLED);
         Hawk.delete(KEY_IS_RUNNING_UPLOADING);
+        Hawk.delete(KEY_FINISH_SESSION);
+        Hawk.delete(KEY_FINISH_QUESTION);
+        Hawk.delete(KEY_START_SESSION);
         removeDownloadId();
         removeUploadId();
     }

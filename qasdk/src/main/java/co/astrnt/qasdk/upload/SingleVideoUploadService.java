@@ -67,11 +67,19 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     private NotificationManager mNotifyManager;
 
-    public static void start(Context context, long questionId) {
+    public static void start(Context context, long questionId, String interviewCode) {
         Timber.e("start uploading id = %d", questionId);
+        try {
         Intent intent = new Intent(context, SingleVideoUploadService.class)
                 .putExtra(EXT_QUESTION_ID, questionId);
         ContextCompat.startForegroundService(context, intent);
+        }catch (Exception e) {
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Failed to start upload",
+                            "Because "+e.getMessage()
+                    )
+            );
+        }
     }
 
     @Override
@@ -281,6 +289,9 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
             } catch (Exception e) {
                 Timber.e("Error %s", e.getMessage());
+                if (e.getMessage().contains(getString(R.string.error_deleted_thread))) {
+                    stopService();
+                }
             }
         } else {
             Timber.e("upload progress null");
@@ -359,7 +370,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                         LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Current status",
                                 "Uploading from compressed " + item.getId()));
 
-                        SingleVideoUploadService.start(context, item.getId());
+                        SingleVideoUploadService.start(context, item.getId(), interviewApiDao.getInterviewCode());
                         isDoingCompress = false;
                     }
                 }

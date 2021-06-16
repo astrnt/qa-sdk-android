@@ -118,6 +118,25 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 
+//    public Observable<BaseApiDao> finishSession(QuestionApiDao question) {
+//        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+//        String token = interviewApiDao.getToken();
+//
+//        HashMap<String, String> map = new HashMap<>();
+//        map.put("interview_code", interviewApiDao.getInterviewCode());
+//        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+//
+//        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+//                new LogDao("Hit API (/question/finish)",
+//                        "Finish Question, number " + (astrntSDK.getQuestionIndex() + 1) +
+//                                ", questionId = " + question.getId()
+//                )
+//        );
+//        astrntSDK.saveLastApiCall("(/question/finish)");
+//
+//        return mAstronautApi.getApiService().finishQuestion(token, map);
+//    }
+
     public Observable<BaseApiDao> answerQuestion(QuestionApiDao question, QuestionApiDao subQuestion) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();

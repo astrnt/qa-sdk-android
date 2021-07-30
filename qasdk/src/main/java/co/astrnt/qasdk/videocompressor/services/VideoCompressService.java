@@ -198,7 +198,10 @@ public class VideoCompressService extends Service {
                                     message = "Video Compress (Success), but file is corrupt or too small";
                                 }
                             } catch (Exception e){
-                                Timber.e("Error 1 deleted by another thread");
+                                if (e.getMessage().contains(getString(R.string.error_deleted_thread))) {
+                                    stopService();
+                                    Timber.e(e.getMessage());
+                                }
                             }
                         } else {
                             try {
@@ -222,7 +225,7 @@ public class VideoCompressService extends Service {
                                             Timber.e("start upload from video compress service isSownUpload");
                                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
                                                     "From video compress isShowUpload " + currentQuestion.getId()));
-                                            SingleVideoUploadService.start(context, currentQuestion.getId());
+                                            SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
                                         });
                                     }
                                 } else {
@@ -232,7 +235,7 @@ public class VideoCompressService extends Service {
                                             Timber.e("start upload from video service success");
                                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
                                                     "From video compress success " + currentQuestion.getId()));
-                                            SingleVideoUploadService.start(context, currentQuestion.getId());
+                                            SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
                                         } else {
                                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload Info Warning",
                                                     "still running uploading"));

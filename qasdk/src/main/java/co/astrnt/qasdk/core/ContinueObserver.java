@@ -45,6 +45,9 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 
                 if (interviewCode.equals(resultApiDao.getInterview_code())) {
 //                    astrntSDK.updateInterviewData(currentInterview, newInterview);
+                    if (!astrntSDK.isSectionInterview()) {
+                        astrntSDK.updateDurationLeft(currentInterview, newInterview.getDuration_left());
+                    }
                     currentInterview = astrntSDK.getCurrentInterview();
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true);
                 } else {

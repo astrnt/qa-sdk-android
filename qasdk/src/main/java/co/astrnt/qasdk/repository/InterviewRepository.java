@@ -8,6 +8,7 @@ import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.LogDao;
+import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.SummaryApiDao;
 import co.astrnt.qasdk.dao.post.RegisterPost;
 import co.astrnt.qasdk.type.CustomFiledType;
@@ -28,6 +29,7 @@ public class InterviewRepository extends BaseRepository {
         map.put("interview_code", interviewCode);
         map.put("device", "android");
         map.put("version", String.valueOf(version));
+        map.put("session_timer", String.valueOf(true));
 
         return mAstronautApi.getApiService().enterCode("", map);
     }
@@ -45,6 +47,7 @@ public class InterviewRepository extends BaseRepository {
         map.put("phone", param.getPhone());
         map.put("device", param.getDevice());
         map.put("version", String.valueOf(param.getVersion()));
+        map.put("session_timer", String.valueOf(true));
 
         if (param.getCustom_fields() != null) {
             for (int i = 0; i < param.getCustom_fields().size(); i++) {
@@ -83,8 +86,30 @@ public class InterviewRepository extends BaseRepository {
         if (astrntSDK.isSectionInterview()) {
             astrntSDK.setContinueInterview(true);
         }
+        if (astrntSDK.isSelfPace()) {
+            astrntSDK.setContinueInterview(true);
+        }
         astrntSDK.updateInterviewOnGoing(interviewApiDao, true);
         return mAstronautApi.getApiService().startInterview(token, map);
+    }
+
+    public Observable<BaseApiDao> finishSession(QuestionApiDao question) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        String token = interviewApiDao.getToken();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API (/question/finish)",
+                        "Finish Question, number " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + question.getId()
+                )
+        );
+        astrntSDK.saveLastApiCall("(/question/finish)");
+
+        return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 
     public Observable<BaseApiDao> finishInterview() {

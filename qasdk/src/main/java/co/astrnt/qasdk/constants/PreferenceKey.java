@@ -13,6 +13,9 @@ public class PreferenceKey {
     public static final String KEY_GDPR = "GdprDao";
     public static final String KEY_CONTINUE = "ContinueInterview";
     public static final String KEY_SHOW_UPLOAD = "ShowUpload";
+    public static final String KEY_FINISH_SESSION = "finishSession";
+    public static final String KEY_START_SESSION = "startSession";
+    public static final String KEY_FINISH_QUESTION = "finishQuestionFinish";
     public static final String KEY_FINISH_INTERVIEW = "FinishInterview";
     public static final String KEY_IS_SOURCING = "IsSourcing";
     public static final String KEY_UNAUTHORIZED = "IsUnauthorized";

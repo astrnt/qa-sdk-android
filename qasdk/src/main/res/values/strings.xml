@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">QA SDK</string>
+    <string name="error_deleted_thread">Object is no longer valid to operate on</string>
 </resources>

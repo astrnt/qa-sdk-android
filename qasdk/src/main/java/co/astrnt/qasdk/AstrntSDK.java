@@ -505,10 +505,10 @@ public class AstrntSDK extends HawkUtils {
                                 if (questionState.isAnswered()) {
                                     question.setAnswered(true);
                                 } else {
-                                question.setAnswered(false);
-                            }
+                                    question.setAnswered(false);
+                                }
 
-                            question.setTimeLeft(questionState.getDurationLeft());
+                                question.setTimeLeft(questionState.getDurationLeft());
                             }
 
                             RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
@@ -517,6 +517,8 @@ public class AstrntSDK extends HawkUtils {
                                     if (subQuestion.getId() == questionState.getQuestionId()) {
                                         if (questionState.isAnswered()) {
                                             subQuestion.setAnswered(true);
+                                        } else {
+                                            subQuestion.setAnswered(false);
                                         }
                                         subQuestion.setTimeLeft(questionState.getDurationLeft());
                                     }
@@ -595,6 +597,17 @@ public class AstrntSDK extends HawkUtils {
             realm.commitTransaction();
         } else {
             updateInterviewOnGoing(interviewApiDao, onGoing);
+        }
+    }
+
+    public void updateDurationLeft(InterviewApiDao interviewApiDao, int timeLeft) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            interviewApiDao.setDuration_left(timeLeft);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
+        } else {
+            updateDurationLeft(interviewApiDao, timeLeft);
         }
     }
 
@@ -1887,7 +1900,7 @@ public class AstrntSDK extends HawkUtils {
                         if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                             Timber.e("start upload from sdk status compressed");
                             LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed " + questionId));
-                            SingleVideoUploadService.start(context, questionId);
+                            SingleVideoUploadService.start(context, questionId, interviewCode);
                         }
                     }
                 }

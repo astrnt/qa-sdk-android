@@ -32,4 +32,6 @@ public class PreferenceKey {
     public static final String KEY_LAST_API_CALL = "LastApiCall";
     public static final String KEY_CV_START_CALLED = "CvStart";
     public static final String KEY_IS_RUNNING_UPLOADING = "RunningUploading";
+    public static final String KEY_IS_RUNNING_COMPRESSING = "RunningCOMPRESSING";
+    public static final String KEY_IS_LAST_QUESTION = "LastQuestion";
 }

@@ -1961,9 +1961,10 @@ public class AstrntSDK extends HawkUtils {
         if (rawFile.exists()) {
             markAsPending(questionApiDao, rawFile.getAbsolutePath());
             if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
-                Timber.e("Start compress from SDK");
-                LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK " + questionId));
-                VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId, getCurrentInterview().getInterviewCode());
+                if (!isRunningCompressing()) {
+                    LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK " + questionId));
+                    VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId, getCurrentInterview().getInterviewCode());
+                }
             }
         } else {
             File compressedFile = new File(directory, questionId + ".mp4");
@@ -1972,9 +1973,11 @@ public class AstrntSDK extends HawkUtils {
                 if (!isShowUpload() && UploadService.getTaskList().isEmpty()) {
                     if (questionApiDao.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
                         if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                            Timber.e("start upload from sdk status compressed");
-                            LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed " + questionId));
-                            SingleVideoUploadService.start(context, questionId, interviewCode);
+                            if (!isRunningUploading()) {
+                                LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed " + questionId));
+                                SingleVideoUploadService.start(context, questionId, interviewCode);
+                            }
+
                         }
                     }
                 }

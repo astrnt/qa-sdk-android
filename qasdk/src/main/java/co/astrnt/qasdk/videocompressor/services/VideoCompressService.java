@@ -114,6 +114,7 @@ public class VideoCompressService extends Service {
     }
 
     public void doCompress() {
+        astrntSDK.saveRunningCompressing(true);
 
         List<QuestionApiDao> allVideoQuestion = astrntSDK.getAllVideoQuestion();
 
@@ -221,21 +222,25 @@ public class VideoCompressService extends Service {
                                     Timber.e("compress isSownUpload");
                                     EventBus.getDefault().post(new CompressEvent());
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                                        new Handler(Looper.getMainLooper()).post(() -> {
-                                            Timber.e("start upload from video compress service isSownUpload");
-                                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
-                                                    "From video compress isShowUpload " + currentQuestion.getId()));
-                                            SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
-                                        });
+                                        if (!astrntSDK.isRunningUploading()) {
+                                            new Handler(Looper.getMainLooper()).post(() -> {
+                                                Timber.e("start upload from video compress service isSownUpload");
+                                                LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
+                                                        "From video compress isShowUpload " + currentQuestion.getId()));
+                                                SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
+                                            });
+                                        }
                                     }
                                 } else {
                                     Timber.e("compress success");
                                     new Handler(Looper.getMainLooper()).post(() -> {
                                         if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                                            Timber.e("start upload from video service success");
-                                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
-                                                    "From video compress success " + currentQuestion.getId()));
-                                            SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
+                                            if (!astrntSDK.isRunningUploading()) {
+                                                Timber.e("start upload from video service success");
+                                                LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
+                                                        "From video compress success " + currentQuestion.getId()));
+                                                SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
+                                            }
                                         } else {
                                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload Info Warning",
                                                     "still running uploading"));
@@ -343,6 +348,7 @@ public class VideoCompressService extends Service {
     }
 
     public void stopService() {
+        astrntSDK.saveRunningCompressing(false);
         sendLog();
         mTimer.cancel();
         if (mNotifyManager != null) mNotifyManager.cancelAll();

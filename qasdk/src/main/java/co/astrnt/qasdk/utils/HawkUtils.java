@@ -14,7 +14,9 @@ import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_SESSION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FIRST_OPEN;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_GDPR;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_INTERVIEW_CODE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_LAST_QUESTION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_PROFILE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_RUNNING_COMPRESSING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_RUNNING_UPLOADING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_SOURCING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_LAST_API_CALL;
@@ -248,6 +250,23 @@ public class HawkUtils {
         Hawk.put(KEY_IS_RUNNING_UPLOADING, running);
     }
 
+    public boolean isRunningCompressing() {
+        return Hawk.get(KEY_IS_RUNNING_COMPRESSING, false);
+    }
+
+    public void saveRunningCompressing(boolean running) {
+        Hawk.put(KEY_IS_RUNNING_COMPRESSING, running);
+    }
+
+    public boolean isLastQuestion() {
+        return Hawk.get(KEY_IS_LAST_QUESTION, false);
+    }
+
+    public void saveIsLastQuestion(boolean isLast) {
+        Hawk.put(KEY_IS_LAST_QUESTION, isLast);
+    }
+
+
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(KEY_WELCOME_VIDEO);
@@ -264,9 +283,11 @@ public class HawkUtils {
         Hawk.delete(KEY_LAST_API_CALL);
         Hawk.delete(KEY_CV_START_CALLED);
         Hawk.delete(KEY_IS_RUNNING_UPLOADING);
+        Hawk.delete(KEY_IS_RUNNING_COMPRESSING);
         Hawk.delete(KEY_FINISH_SESSION);
         Hawk.delete(KEY_FINISH_QUESTION);
         Hawk.delete(KEY_START_SESSION);
+        Hawk.delete(KEY_IS_LAST_QUESTION);
         removeDownloadId();
         removeUploadId();
     }

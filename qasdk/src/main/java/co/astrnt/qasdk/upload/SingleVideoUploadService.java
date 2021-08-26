@@ -67,11 +67,19 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     private NotificationManager mNotifyManager;
 
-    public static void start(Context context, long questionId) {
+    public static void start(Context context, long questionId, String interviewCode) {
         Timber.e("start uploading id = %d", questionId);
+        try {
         Intent intent = new Intent(context, SingleVideoUploadService.class)
                 .putExtra(EXT_QUESTION_ID, questionId);
         ContextCompat.startForegroundService(context, intent);
+        }catch (Exception e) {
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Failed to start upload",
+                            "Because "+e.getMessage()
+                    )
+            );
+        }
     }
 
     @Override
@@ -149,7 +157,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     }
 
     public void doUploadVideo() {
-        Timber.e("do uploading");
+        astrntSDK.saveRunningUploading(true);
         isDoingCompress = true;
 
         interviewApiDao = astrntSDK.getCurrentInterview();
@@ -177,11 +185,13 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     );
 
                     if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            Timber.e("Start compress from do Upload Video");
-                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
-                            VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId(), astrntSDK.getInterviewCode());
-                        });
+                        if (!astrntSDK.isRunningCompressing()) {
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                Timber.e("Start compress from do Upload Video");
+                                LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
+                                VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId(), astrntSDK.getInterviewCode());
+                            });
+                        }
                     }
 
                     stopService();
@@ -267,6 +277,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     }
 
     public void stopService() {
+        astrntSDK.saveRunningUploading(false);
         sendLog();
         if (mTimer != null) mTimer.cancel();
         if (mNotifyManager != null) mNotifyManager.cancelAll();
@@ -281,6 +292,9 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
             } catch (Exception e) {
                 Timber.e("Error %s", e.getMessage());
+                if (e.getMessage().contains(getString(R.string.error_deleted_thread))) {
+                    stopService();
+                }
             }
         } else {
             Timber.e("upload progress null");
@@ -351,25 +365,27 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
             for (QuestionApiDao item : uploadingVideo) {
                 if (isDoingCompress) {
                     if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
-                        Timber.e("start compress from pending status");
-                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress",
-                                "From pending status " + item.getId()));
-                        new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
-                        isDoingCompress = false;
+                        if (!astrntSDK.isRunningCompressing()) {
+                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress",
+                                    "From pending status " + item.getId()));
+                            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
+                            isDoingCompress = false;
+                        }
                     }
                 }
             }
 
             for (QuestionApiDao item : compressedVideo) {
                 if (isDoingCompress) {
-                    Timber.e("current status upload compressed");
                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Current status",
-                                "Uploading from compressed " + item.getId()));
+                        if (!astrntSDK.isRunningUploading()) {
+                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Current status",
+                                    "Uploading from compressed " + item.getId()));
 
-                        SingleVideoUploadService.start(context, item.getId());
-                        isDoingCompress = false;
+                            SingleVideoUploadService.start(context, item.getId(), interviewApiDao.getInterviewCode());
+                            isDoingCompress = false;
+                        }
                     }
                 }
             }
@@ -378,11 +394,13 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
             for (QuestionApiDao item : compressingVideo) {
                 if (isDoingCompress) {
                     if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
-                        astrntSDK.markAsPending(item, item.getVideoPath());
-                        Timber.e("current status compress is compressing");
-                        LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Status compressing", "From current compressing " + item.getId()));
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
-                        isDoingCompress = false;
+                        if (!astrntSDK.isRunningCompressing()) {
+                            astrntSDK.markAsPending(item, item.getVideoPath());
+                            Timber.e("current status compress is compressing");
+                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Status compressing", "From current compressing " + item.getId()));
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
+                            isDoingCompress = false;
+                        }
                     } else {
                         Timber.e("still running compress successing");
                     }
@@ -395,17 +413,24 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     @Override
     public void onCancelled(Context context, UploadInfo uploadInfo) {
-        astrntSDK.removeUploadId();
-        Timber.e("Video Upload Canceled id = %d", currentQuestion.getId());
-        astrntSDK.markAsCompressed(currentQuestion);
-        EventBus.getDefault().post(new UploadEvent());
+        try {
+            astrntSDK.removeUploadId();
+        } catch (Exception e){
 
-        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Background Upload (Cancelled)",
-                        "Cancelled with id " + currentQuestion.getId()
-                )
-        );
-        stopService();
+        }
+        try {
+            astrntSDK.markAsCompressed(currentQuestion);
+            EventBus.getDefault().post(new UploadEvent());
+
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Background Upload (Cancelled)",
+                            "Cancelled with id " + currentQuestion.getId()
+                    )
+            );
+            stopService();
+        } catch (Exception e){
+
+        }
     }
 
 

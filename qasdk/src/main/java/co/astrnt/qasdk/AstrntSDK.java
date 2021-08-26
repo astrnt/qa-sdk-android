@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StatFs;
 
 import com.downloader.PRDownloader;
@@ -15,10 +17,12 @@ import net.gotev.uploadservice.okhttp.OkHttpStack;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
+
 import co.astrnt.qasdk.constants.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.CandidateApiDao;
@@ -65,6 +69,7 @@ import static co.astrnt.qasdk.type.InterviewType.PROFILE;
 
 public class AstrntSDK extends HawkUtils {
 
+    private static final int DB_VERSION = 21;
     private static AstronautApi mAstronautApi;
     private static String mApiUrl;
     private static boolean isPractice = false;
@@ -102,7 +107,7 @@ public class AstrntSDK extends HawkUtils {
     public static RealmConfiguration getRealmConfig() {
         return new RealmConfiguration.Builder()
                 .name("astrntdb")
-                .schemaVersion(BuildConfig.VERSION_CODE)
+                .schemaVersion(DB_VERSION)
                 .deleteRealmIfMigrationNeeded()
                 .build();
     }
@@ -175,7 +180,16 @@ public class AstrntSDK extends HawkUtils {
 
             currentInterview = getCurrentInterview();
             if (currentInterview != null && currentInterview.getInterviewCode() != null) {
-                saveInterviewCode(currentInterview.getInterviewCode());
+                if (!isSectionInterview()) {
+                    InterviewApiDao currentInterview1 = getCurrentInterview();
+                    if (resultApiDao.getInformation().getQuestionsMcqInfo() != null && !resultApiDao.getInformation().getQuestionsMcqInfo().isEmpty())
+                        updateInterviewSelectedAnswer(currentInterview1, resultApiDao);
+                    final Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(() -> {
+                        updateInterviewSelectedAnswer(currentInterview1, resultApiDao);
+                    }, 2000);
+                }
+
 
                 if (currentInterview.getCompany() != null) {
                     Hawk.put(PreferenceKey.KEY_COMPANY_ID, String.valueOf(currentInterview.getCompany().getId()));
@@ -335,17 +349,79 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    private void updateInterviewSelectedAnswer(InterviewApiDao interview, InterviewResultApiDao interviewResultApiDao) {
+        if (!isSectionInterview()) {
+            updateQuestionInfo(interviewResultApiDao.getInformation().getInterviewIndex(), interviewResultApiDao.getInformation().getInterviewSubIndex(), interviewResultApiDao.getInformation().getInterviewAttempt());
+        }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            LogUtil.addNewLog(getInterviewCode(),
+                    new LogDao("API Resume Information",
+                            interviewResultApiDao.getInformation().toString()
+                    )
+            );
+
+            if (!isSectionInterview()) {
+                RealmList<QuestionApiDao> questionList = new RealmList<>();
+
+                if (interviewResultApiDao.getInterview().getQuestions() != null && interviewResultApiDao.getInformation().getQuestionsMcqInfo() != null) {
+                    RealmList<QuestionApiDao> questions = interview.getQuestions();
+                    for (QuestionApiDao question : questions) {
+
+                        for (QuestionInfoMcqApiDao questionState : interviewResultApiDao.getInformation().getQuestionsMcqInfo()) {
+                            if (question.getId() == questionState.getId()) {
+                                if (question.getType_child() != null) {
+                                    if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                                        addFtqAnswer(question, questionState.getFreetext_answer());
+                                    } else {
+                                        addSelectedAnswer(question, questionState.getAnswer_ids());
+                                    }
+                                }
+                            }
+                            RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+                            if (subQuestions != null && !subQuestions.isEmpty()) {
+                                for (QuestionApiDao subQuestion : subQuestions) {
+                                    if (subQuestion.getId() == questionState.getId()) {
+                                        if (subQuestion.getType_child() != null) {
+                                            if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                                                addFtqAnswer(subQuestion, questionState.getFreetext_answer());
+                                            } else {
+                                                addSelectedAnswer(subQuestion, questionState.getAnswer_ids());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        }
+                        questionList.add(question);
+                    }
+                    interview.setQuestions(questionList);
+                }
+
+
+            }
+
+            realm.copyToRealmOrUpdate(interview);
+            realm.commitTransaction();
+        } else {
+            updateInterviewSelectedAnswer(interview, interviewResultApiDao);
+        }
+    }
+
     private void updateInterview(InterviewApiDao interview, InformationApiDao informationApiDao) {
         if (isSectionInterview()) {
             updateSectionInfo(informationApiDao.getSectionIndex());
 
             if (informationApiDao.getQuestionsInfo() != null && !informationApiDao.getQuestionsInfo().isEmpty()) {
                 for (QuestionInfoApiDao questionInfoApiDao : informationApiDao.getQuestionsInfo()) {
-                    updateQuestionInfo(questionInfoApiDao.getInterviewIndex(), questionInfoApiDao.getInterviewAttempt());
+                    updateQuestionInfo(questionInfoApiDao.getInterviewIndex(), questionInfoApiDao.getInterviewSubIndex(), questionInfoApiDao.getInterviewAttempt());
                 }
             }
         } else {
-            updateQuestionInfo(informationApiDao.getInterviewIndex(), informationApiDao.getInterviewAttempt());
+            updateQuestionInfo(informationApiDao.getInterviewIndex(), informationApiDao.getInterviewSubIndex(), informationApiDao.getInterviewAttempt());
         }
 
         if (!realm.isInTransaction()) {
@@ -365,7 +441,7 @@ public class AstrntSDK extends HawkUtils {
 
                 for (int i = 0; i < interview.getSections().size(); i++) {
                     SectionApiDao section = interview.getSections().get(i);
-                    RealmList<QuestionApiDao> questionApiDaos = new RealmList<>();
+                    RealmList<QuestionApiDao> questions = new RealmList<>();
 
                     if (section != null) {
 
@@ -413,7 +489,7 @@ public class AstrntSDK extends HawkUtils {
                             section.setOnGoing(informationApiDao.isOnGoing());
                         }
 
-                        if (section.getType().equals(InterviewType.INTERVIEW)) {
+                        if (section.getType().equals(SectionType.INTERVIEW)) {
 
                             for (QuestionApiDao question : section.getSectionQuestions()) {
 
@@ -435,7 +511,7 @@ public class AstrntSDK extends HawkUtils {
                                         }
                                     }
                                 }
-                                questionApiDaos.add(question);
+                                questions.add(question);
                             }
                         } else {
                             for (QuestionApiDao question : section.getSectionQuestions()) {
@@ -443,23 +519,47 @@ public class AstrntSDK extends HawkUtils {
                                 if (informationApiDao.getQuestionsMcqInfo() != null && !informationApiDao.getQuestionsMcqInfo().isEmpty()) {
                                     for (QuestionInfoMcqApiDao questionInfoMcqApiDao : informationApiDao.getQuestionsMcqInfo()) {
 
-                                        if (question.getId() == questionInfoMcqApiDao.getId()) {
-
-                                            if (question.getType_child().equals(TestType.FREE_TEXT)) {
-                                                addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
-                                            } else {
-                                                addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
+                                        if (question.getSub_questions().isEmpty() && question.getSub_questions() == null) {
+                                            if (question.getId() == questionInfoMcqApiDao.getId()) {
+                                                if (question.getType_child() != null) {
+                                                    if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                                                        addFtqAnswer(question, questionInfoMcqApiDao.getFreetext_answer());
+                                                    } else {
+                                                        addSelectedAnswer(question, questionInfoMcqApiDao.getAnswer_ids());
+                                                    }
+                                                }
+                                                question = getQuestionById(question.getId());
                                             }
-                                            question = getQuestionById(question.getId());
                                         }
+
+                                        RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+                                        RealmList<QuestionApiDao> updatedSubQuestions = new RealmList<>();
+                                        if (subQuestions != null && !subQuestions.isEmpty()) {
+                                            for (QuestionApiDao subQuestion : subQuestions) {
+
+                                                if (subQuestion.getId() == questionInfoMcqApiDao.getId()) {
+                                                    if (subQuestion.getType_child() != null) {
+                                                        if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                                                            addFtqAnswer(subQuestion, questionInfoMcqApiDao.getFreetext_answer());
+                                                        } else {
+                                                            addSelectedAnswer(subQuestion, questionInfoMcqApiDao.getAnswer_ids());
+                                                        }
+                                                    }
+                                                    subQuestion = getQuestionById(subQuestion.getId());
+                                                }
+                                                updatedSubQuestions.add(subQuestion);
+                                            }
+                                            question.setSub_questions(updatedSubQuestions);
+                                        }
+
                                     }
                                 }
-                                questionApiDaos.add(question);
+                                questions.add(question);
                             }
                         }
 
-                        if (!questionApiDaos.isEmpty()) {
-                            section.setSectionQuestions(questionApiDaos);
+                        if (!questions.isEmpty()) {
+                            section.setSectionQuestions(questions);
                             section.setSupport_materials(section.getSupport_materials());
                         }
                         sectionList.add(section);
@@ -481,8 +581,24 @@ public class AstrntSDK extends HawkUtils {
                                 } else {
                                     question.setAnswered(false);
                                 }
+
                                 question.setTimeLeft(questionState.getDurationLeft());
                             }
+
+                            RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+                            if (subQuestions != null && !subQuestions.isEmpty()) {
+                                for (QuestionApiDao subQuestion : subQuestions) {
+                                    if (subQuestion.getId() == questionState.getQuestionId()) {
+                                        if (questionState.isAnswered()) {
+                                            subQuestion.setAnswered(true);
+                                        } else {
+                                            subQuestion.setAnswered(false);
+                                        }
+                                        subQuestion.setTimeLeft(questionState.getDurationLeft());
+                                    }
+                                }
+                            }
+
                         }
                     }
 
@@ -558,6 +674,17 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void updateDurationLeft(InterviewApiDao interviewApiDao, int timeLeft) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            interviewApiDao.setDuration_left(timeLeft);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
+        } else {
+            updateDurationLeft(interviewApiDao, timeLeft);
+        }
+    }
+
     public void updateQuestionTimeLeft(QuestionApiDao currentQuestion, int timeLeft) {
         currentQuestion = getQuestionById(currentQuestion.getId());
         if (currentQuestion != null) {
@@ -613,7 +740,7 @@ public class AstrntSDK extends HawkUtils {
     }
 
     private void saveQuestionInfo() {
-        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionAttempt(), false);
+        QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), getQuestionSubIndex(), getQuestionAttempt(), isPractice());
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             realm.copyToRealmOrUpdate(questionInfo);
@@ -623,16 +750,36 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private void updateQuestionInfo(int questionIndex, int questionAttempt) {
+    public void updateSubQuestionInfo(long subQuestionId) {
+        if (!realm.isInTransaction()) {
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            int subQuestionIndex = 0;
+            for (int i = 0; i < currentQuestion.getSub_questions().size(); i++) {
+                QuestionApiDao subQuestion = currentQuestion.getSub_questions().get(i);
+                assert subQuestion != null;
+                if (subQuestionId == subQuestion.getId()) {
+                    subQuestionIndex = i;
+                }
+            }
+            QuestionInfo questionInfo = new QuestionInfo(getQuestionIndex(), subQuestionIndex, getQuestionAttempt(), isPractice());
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+        } else {
+            updateSubQuestionInfo(subQuestionId);
+        }
+    }
+
+    private void updateQuestionInfo(int questionIndex, int questionSubIndex, int questionAttempt) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
             QuestionApiDao currentQuestion = getQuestionByIndex(questionIndex);
             questionAttempt = currentQuestion.getTakesCount() - questionAttempt;
-            QuestionInfo questionInfo = new QuestionInfo(questionIndex, questionAttempt, false);
+            QuestionInfo questionInfo = new QuestionInfo(questionIndex, questionSubIndex, questionAttempt, isPractice());
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
         } else {
-            updateQuestionInfo(questionIndex, questionAttempt);
+            updateQuestionInfo(questionIndex, questionSubIndex, questionAttempt);
         }
     }
 
@@ -678,12 +825,13 @@ public class AstrntSDK extends HawkUtils {
                     int questionIndex = 0;
 
                     SectionApiDao section = getCurrentSection();
-                    if (section.getType().equals(InterviewType.INTERVIEW)) {
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
 
                         for (QuestionInfoApiDao questionInfoApiDao : information.getQuestionsInfo()) {
                             if (questionInfoApiDao != null) {
                                 questionIndex = questionInfoApiDao.getInterviewIndex();
-                                updateQuestionInfo(questionIndex, questionInfoApiDao.getInterviewAttempt());
+                                int questionSubIndex = questionInfoApiDao.getInterviewSubIndex();
+                                updateQuestionInfo(questionIndex, questionSubIndex, questionInfoApiDao.getInterviewAttempt());
 
                                 for (int i = 0; i < questionInfoApiDao.getPrevQuestStates().size(); i++) {
                                     PrevQuestionStateApiDao prevQuestionState = questionInfoApiDao.getPrevQuestStates().get(i);
@@ -728,6 +876,74 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public int getQuestionSubIndex() {
+        if (isPractice()) {
+            return 0;
+        }
+        QuestionInfo questionInfo = getQuestionInfo();
+        if (questionInfo != null) {
+            return questionInfo.getSubIndex();
+        } else {
+            InformationApiDao information = getInformation();
+            if (information == null) {
+                return 0;
+            } else {
+                InterviewApiDao interviewApiDao = getCurrentInterview();
+                if (isSectionInterview()) {
+                    int questionSubIndex = 0;
+
+                    SectionApiDao section = getCurrentSection();
+                    if (section.getType().equals(SectionType.INTERVIEW)) {
+
+                        for (QuestionInfoApiDao questionInfoApiDao : information.getQuestionsInfo()) {
+                            if (questionInfoApiDao != null) {
+                                int questionIndex = questionInfoApiDao.getInterviewIndex();
+                                questionSubIndex = questionInfoApiDao.getInterviewSubIndex();
+                                updateQuestionInfo(questionIndex, questionSubIndex, questionInfoApiDao.getInterviewAttempt());
+
+                                for (int i = 0; i < questionInfoApiDao.getPrevQuestStates().size(); i++) {
+                                    PrevQuestionStateApiDao prevQuestionState = questionInfoApiDao.getPrevQuestStates().get(i);
+                                    assert prevQuestionState != null;
+                                    if (prevQuestionState.getDurationLeft() > 0) {
+                                        updateQuestion(interviewApiDao, prevQuestionState);
+                                        return i;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        RealmList<QuestionInfoMcqApiDao> questionsMcqInfo = information.getQuestionsMcqInfo();
+                        for (int i = 0; i < questionsMcqInfo.size(); i++) {
+                            QuestionInfoMcqApiDao questionInfoMcqApiDao = questionsMcqInfo.get(i);
+                            if (questionInfoMcqApiDao != null) {
+                                if (questionInfoMcqApiDao.getAnswer_ids().isEmpty()) {
+                                    return i;
+                                }
+                            }
+                        }
+                    }
+
+                    return questionSubIndex;
+                } else {
+                    if (interviewApiDao.getType().equals(InterviewType.OPEN_TEST) ||
+                            interviewApiDao.getType().equals(InterviewType.CLOSE_TEST)) {
+
+                        for (int i = 0; i < information.getPrevQuestStates().size(); i++) {
+                            PrevQuestionStateApiDao prevQuestionState = information.getPrevQuestStates().get(i);
+                            assert prevQuestionState != null;
+                            if (prevQuestionState.getDurationLeft() > 0) {
+                                updateQuestion(interviewApiDao, prevQuestionState);
+                                return i;
+                            }
+                        }
+
+                    }
+                    return information.getInterviewSubIndex();
+                }
+            }
+        }
+    }
+
     public int getSectionIndex() {
         if (isPractice()) {
             return 0;
@@ -746,24 +962,43 @@ public class AstrntSDK extends HawkUtils {
     }
 
     private void updateQuestion(InterviewApiDao interview, PrevQuestionStateApiDao questionState) {
-        for (QuestionApiDao question : interview.getQuestions()) {
-            if (question.getId() == questionState.getQuestionId()) {
-                if (!realm.isInTransaction()) {
-                    realm.beginTransaction();
+
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            for (QuestionApiDao question : interview.getQuestions()) {
+                if (question.getId() == questionState.getQuestionId()) {
                     if (questionState.isAnswered()) {
                         question.setAnswered(true);
-                    } else {
-                        question.setAnswered(false);
                     }
                     question.setTimeLeft(questionState.getDurationLeft());
-
                     realm.copyToRealmOrUpdate(question);
-                    realm.commitTransaction();
-                } else {
-                    updateQuestion(interview, questionState);
+                }
+                RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+
+                if (subQuestions != null && !subQuestions.isEmpty()) {
+                    RealmList<QuestionApiDao> updatedSubQuestions = new RealmList<>();
+
+                    for (QuestionApiDao subQuestion : subQuestions) {
+                        if (subQuestion.getId() == questionState.getQuestionId()) {
+                            if (questionState.isAnswered()) {
+                                subQuestion.setAnswered(true);
+                            }
+                            subQuestion.setTimeLeft(questionState.getDurationLeft());
+                            subQuestion = getQuestionById(subQuestion.getId());
+                            realm.copyToRealmOrUpdate(subQuestion);
+                        }
+                        updatedSubQuestions.add(subQuestion);
+                    }
+                    question.setSub_questions(updatedSubQuestions);
+                    realm.copyToRealmOrUpdate(question);
                 }
             }
+
+            realm.commitTransaction();
+        } else {
+            updateQuestion(interview, questionState);
         }
+
     }
 
     public int getQuestionAttempt() {
@@ -797,20 +1032,11 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public int getMediaAttempt() {
-        QuestionApiDao currentQuestion = getCurrentQuestion();
-        if (currentQuestion != null) {
-            return currentQuestion.getMediaAttemptLeft();
-        } else {
-            return 1;
-        }
-    }
-
-    public List<QuestionApiDao> getAllVideoQuestion() {
+    public RealmList<QuestionApiDao> getAllVideoQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
             if (isSectionInterview()) {
-                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+                RealmList<QuestionApiDao> pendingUpload = new RealmList<>();
 
                 for (SectionApiDao section : interviewApiDao.getSections()) {
                     if (section.getType().equals(SectionType.INTERVIEW)) {
@@ -821,7 +1047,7 @@ public class AstrntSDK extends HawkUtils {
                 return pendingUpload;
             } else {
 
-                List<QuestionApiDao> pendingUpload = new ArrayList<>();
+                RealmList<QuestionApiDao> pendingUpload = new RealmList<>();
 
                 if (interviewApiDao.getType().equals(InterviewType.CLOSE_INTERVIEW)) {
                     pendingUpload.addAll(interviewApiDao.getQuestions());
@@ -852,20 +1078,81 @@ public class AstrntSDK extends HawkUtils {
                 if (isNeedRegister()) {
                     return interviewApiDao.getTotalVideoQuestion();
                 } else {
-                    return interviewApiDao.getTotalQuestion();
+                    return getTotalQuestionsAndSubs();
                 }
             } else {
-                if (isSectionInterview()) {
-                    SectionApiDao currentSection = getCurrentSection();
-                    return currentSection.getTotalQuestion();
-                } else {
-                    return interviewApiDao.getTotalQuestion();
-                }
+                return getTotalQuestionsAndSubs();
             }
         } else {
             return 0;
         }
     }
+
+    public int getTotalQuestionsAndSubs() {
+
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+
+            RealmList<QuestionApiDao> questions = getQuestionsAndSubs();
+            if (questions != null) {
+                return questions.size();
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    public RealmList<QuestionApiDao> getQuestionsAndSubs() {
+
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+
+            RealmList<QuestionApiDao> questions = new RealmList<>();
+            RealmList<QuestionApiDao> questionsWithSub = new RealmList<>();
+            if (isSectionInterview()) {
+                RealmList<SectionApiDao> sections = interviewApiDao.getSections();
+                SectionApiDao currentSection = getCurrentSection();
+                for (SectionApiDao section : sections) {
+                    if (currentSection.getId() == section.getId() && !isShowUpload()) {
+                        questions.addAll(section.getSectionQuestions());
+                    }
+                }
+            } else {
+                questions.addAll(interviewApiDao.getQuestions());
+            }
+
+            for (QuestionApiDao question : questions) {
+                if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                    questionsWithSub.addAll(question.getSub_questions());
+                } else {
+                    questionsWithSub.add(question);
+                }
+            }
+            return questionsWithSub;
+        } else {
+            return null;
+        }
+    }
+
+    public int getTotalSubQuestion() {
+        if (isPractice()) {
+            return 1;
+        }
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            if (currentQuestion.getSub_questions() != null && !currentQuestion.getSub_questions().isEmpty()) {
+                return currentQuestion.getSub_questions().size();
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
 
     public List<QuestionApiDao> getPending(@UploadStatusState String uploadStatusType) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
@@ -936,6 +1223,7 @@ public class AstrntSDK extends HawkUtils {
 
     private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
+        questionApiDao.setId(-1);
         questionApiDao.setTakesCount(3);
         questionApiDao.setMaxTime(45);
         questionApiDao.setPrepTime(10);
@@ -955,6 +1243,19 @@ public class AstrntSDK extends HawkUtils {
             }
         } else {
             return null;
+        }
+    }
+
+    public void setSectionShowReview(SectionApiDao section) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            section.setShowReview(true);
+
+            realm.copyToRealmOrUpdate(section);
+            realm.commitTransaction();
+        } else {
+            setSectionShowReview(section);
         }
     }
 
@@ -1024,6 +1325,29 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public QuestionApiDao getCurrentSubQuestion() {
+        if (isPractice()) {
+            return getPracticeQuestion();
+        }
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            int questionSubIndex = getQuestionSubIndex();
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+            RealmList<QuestionApiDao> subQuestions = currentQuestion.getSub_questions();
+            if (subQuestions != null && !subQuestions.isEmpty()) {
+                if (questionSubIndex < subQuestions.size()) {
+                    return subQuestions.get(questionSubIndex);
+                } else {
+                    return subQuestions.last();
+                }
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public QuestionApiDao getQuestionByIndex(int questionIndex) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
@@ -1049,47 +1373,148 @@ public class AstrntSDK extends HawkUtils {
     public QuestionApiDao getQuestionById(long questionId) {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
+            RealmList<QuestionApiDao> questions = new RealmList<>();
             if (isSectionInterview()) {
                 for (SectionApiDao section : interviewApiDao.getSections()) {
-                    for (QuestionApiDao item : section.getSectionQuestions()) {
-                        if (item.getId() == questionId) {
-                            return item;
+                    questions.addAll(section.getSectionQuestions());
+                }
+            } else {
+                questions.addAll(interviewApiDao.getQuestions());
+            }
+
+            for (QuestionApiDao question : questions) {
+                if (question.getId() == questionId) {
+                    return question;
+                } else {
+                    if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                        for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                            if (subQuestion.getId() == questionId) {
+                                return subQuestion;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public QuestionApiDao getParentQuestionById(long questionId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            RealmList<QuestionApiDao> questions = new RealmList<>();
+            if (isSectionInterview()) {
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    questions.addAll(section.getSectionQuestions());
+                }
+            } else {
+                questions.addAll(interviewApiDao.getQuestions());
+            }
+
+            for (QuestionApiDao question : questions) {
+                if (question.getId() == questionId) {
+                    return null;
+                } else {
+                    if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                        for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                            if (subQuestion.getId() == questionId) {
+                                return question;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public int getIndexById(long questionId) {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            RealmList<QuestionApiDao> questions = new RealmList<>();
+            if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
+                for (SectionApiDao section : interviewApiDao.getSections()) {
+                    if (section.getId() == currentSection.getId()) {
+                        for (QuestionApiDao question : section.getSectionQuestions()) {
+                            if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                                questions.addAll(question.getSub_questions());
+                            } else {
+                                questions.add(question);
+                            }
                         }
                     }
                 }
             } else {
                 for (QuestionApiDao question : interviewApiDao.getQuestions()) {
+                    if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+                        questions.addAll(question.getSub_questions());
+                    } else {
+                        questions.add(question);
+                    }
+                }
+            }
+
+            if (!questions.isEmpty()) {
+                for (int i = 0; i < questions.size(); i++) {
+                    QuestionApiDao question = questions.get(i);
                     if (question.getId() == questionId) {
-                        return question;
+                        return i;
                     }
                 }
             }
         }
-        return null;
+        return 0;
     }
 
-    private QuestionApiDao getNextQuestion() {
+    public QuestionApiDao getNextQuestion() {
         InterviewApiDao interviewApiDao = getCurrentInterview();
         if (interviewApiDao != null) {
-            int questionIndex = getQuestionIndex();
+            int questionIndex = getQuestionIndex() + 1;
             if (isSectionInterview()) {
                 SectionApiDao currentSection = getCurrentSection();
                 if (questionIndex < currentSection.getSectionQuestions().size()) {
                     return currentSection.getSectionQuestions().get(questionIndex);
                 } else {
-                    return currentSection.getSectionQuestions().last();
+                    return null;
                 }
             } else {
                 if (questionIndex < interviewApiDao.getQuestions().size()) {
                     return interviewApiDao.getQuestions().get(questionIndex);
                 } else {
-                    return interviewApiDao.getQuestions().last();
+                    return null;
                 }
             }
         } else {
             return null;
         }
     }
+
+    public QuestionApiDao getPrevQuestion() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            int questionIndex = getQuestionIndex() - 1;
+            if (isSectionInterview()) {
+                SectionApiDao currentSection = getCurrentSection();
+                if (questionIndex >= 0) {
+                    return currentSection.getSectionQuestions().get(questionIndex);
+                } else {
+                    return null;
+                }
+            } else {
+                if (questionIndex >= 0) {
+                    return interviewApiDao.getQuestions().get(questionIndex);
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return null;
+        }
+    }
+
 
     public void increaseQuestionIndex() {
         if (isPractice()) {
@@ -1102,11 +1527,14 @@ public class AstrntSDK extends HawkUtils {
 
             QuestionApiDao nextQuestion = getNextQuestion();
             if (nextQuestion != null) {
-                questionInfo.increaseIndex();
                 questionInfo.setAttempt(nextQuestion.getTakesCount());
+                if (nextQuestion.getSub_questions() != null && !nextQuestion.getSub_questions().isEmpty()) {
+                    questionInfo.resetSubIndex();
+                }
             } else {
                 questionInfo.resetAttempt();
             }
+            questionInfo.increaseIndex();
 
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
@@ -1124,6 +1552,14 @@ public class AstrntSDK extends HawkUtils {
 
             QuestionInfo questionInfo = getQuestionInfo();
             if (questionInfo.getIndex() > 0) {
+                QuestionApiDao prevQuestion = getPrevQuestion();
+                if (prevQuestion != null) {
+                    RealmList<QuestionApiDao> subQuestions = prevQuestion.getSub_questions();
+                    if (subQuestions != null && !subQuestions.isEmpty()) {
+                        questionInfo.setSubIndex(subQuestions.size() - 1);
+                    }
+                }
+
                 questionInfo.decreaseIndex();
             }
 
@@ -1131,6 +1567,64 @@ public class AstrntSDK extends HawkUtils {
             realm.commitTransaction();
         } else {
             decreaseQuestionIndex();
+        }
+    }
+
+    public void increaseQuestionSubIndex() {
+        if (isPractice()) {
+            return;
+        }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            QuestionInfo questionInfo = getQuestionInfo();
+            QuestionApiDao currentQuestion = getCurrentQuestion();
+
+            if (questionInfo.getSubIndex() < currentQuestion.getSub_questions().size()) {
+                questionInfo.increaseSubIndex();
+            } else {
+                QuestionApiDao nextQuestion = getNextQuestion();
+                if (nextQuestion != null) {
+                    questionInfo.setAttempt(nextQuestion.getTakesCount());
+                    questionInfo.resetSubIndex();
+                } else {
+                    questionInfo.increaseIndex();
+                    questionInfo.resetAttempt();
+                }
+            }
+
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+        } else {
+            increaseQuestionSubIndex();
+        }
+    }
+
+    public void decreaseQuestionSubIndex() {
+        if (isPractice()) {
+            return;
+        }
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            QuestionInfo questionInfo = getQuestionInfo();
+            if (questionInfo.getSubIndex() > 0) {
+                questionInfo.decreaseSubIndex();
+            } else {
+                QuestionApiDao prevQuestion = getPrevQuestion();
+                if (prevQuestion != null) {
+                    RealmList<QuestionApiDao> subQuestions = prevQuestion.getSub_questions();
+                    if (subQuestions != null && !subQuestions.isEmpty()) {
+                        questionInfo.setSubIndex(subQuestions.size() - 1);
+                    }
+                }
+                questionInfo.decreaseIndex();
+            }
+
+            realm.copyToRealmOrUpdate(questionInfo);
+            realm.commitTransaction();
+        } else {
+            decreaseQuestionSubIndex();
         }
     }
 
@@ -1146,12 +1640,12 @@ public class AstrntSDK extends HawkUtils {
             SectionApiDao currentSection = getCurrentSection();
             SectionApiDao nextSection = getNextSection();
             if (nextSection != null) {
-                    sectionInfo.increaseIndex();
-                    LogUtil.addNewLog(getInterviewCode(),
-                            new LogDao("Section",
-                                    "Section Index Increased"
-                            )
-                    );
+                sectionInfo.increaseIndex();
+                LogUtil.addNewLog(getInterviewCode(),
+                        new LogDao("Section",
+                                "Section Index Increased"
+                        )
+                );
             } else {
                 LogUtil.addNewLog(getInterviewCode(),
                         new LogDao("Section",
@@ -1168,7 +1662,7 @@ public class AstrntSDK extends HawkUtils {
                             "Question Info reset"
                     )
             );
-            updateQuestionInfo(0, 0);
+            updateQuestionInfo(0, 0, 0);
         } else {
             increaseSectionIndex();
         }
@@ -1178,7 +1672,7 @@ public class AstrntSDK extends HawkUtils {
 
         QuestionInfo questionInfo = getQuestionInfo();
         if (questionInfo == null) {
-            updateQuestionInfo(0, 0);
+            updateQuestionInfo(0, 0, 0);
             questionInfo = getQuestionInfo();
         }
 
@@ -1197,22 +1691,20 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    public void decreaseMediaAttempt() {
+    public void decreaseMediaAttempt(QuestionApiDao question) {
 
-        QuestionApiDao currentQuestion = getCurrentQuestion();
-
-        if (!realm.isInTransaction() && currentQuestion != null) {
+        if (!realm.isInTransaction() && question != null) {
             realm.beginTransaction();
 
-            currentQuestion.decreaseMediaAttempt();
-            int mediaAttempt = currentQuestion.getMediaAttemptLeft();
+            question.decreaseMediaAttempt();
+            int mediaAttempt = question.getMediaAttemptLeft();
 
             if (mediaAttempt > 0) {
-                realm.copyToRealmOrUpdate(currentQuestion);
+                realm.copyToRealmOrUpdate(question);
             }
             realm.commitTransaction();
         } else {
-            decreaseMediaAttempt();
+            decreaseMediaAttempt(question);
         }
     }
 
@@ -1221,21 +1713,37 @@ public class AstrntSDK extends HawkUtils {
     }
 
     public boolean isNotLastQuestion() {
+        QuestionApiDao currentQuestion = getCurrentQuestion();
+        long currentQuestionId = currentQuestion.getId();
+        List<QuestionApiDao> subQuestions = currentQuestion.getSub_questions();
+        if (subQuestions != null && !subQuestions.isEmpty()) {
+            QuestionApiDao currentSubQuestion = getCurrentSubQuestion();
+            currentQuestionId = currentSubQuestion.getId();
+        }
+        QuestionApiDao lastQuestion = getQuestionsAndSubs().last();
+        long lastQuestionId = lastQuestion.getId();
+        return currentQuestionId != lastQuestionId;
+    }
+
+    public boolean isNotLastVideoQuestion() {
         if (isSectionInterview()) {
-            SectionApiDao sectionApiDao = getSectionByIndex(getSectionIndex());
-            assert sectionApiDao != null;
-            return getQuestionIndex() < sectionApiDao.getTotalQuestion();
+            SectionApiDao section = getCurrentSection();
+            assert section != null;
+            return getQuestionIndex() < section.getTotalQuestion();
         } else {
             return getQuestionIndex() < getTotalQuestion();
         }
     }
 
-    public boolean isNotLastSection() {
-        return getSectionIndex() < getTotalSection();
+    public boolean isNotLastSubQuestion() {
+        QuestionApiDao currentQuestion = getCurrentQuestion();
+        int subIndex = getQuestionSubIndex();
+        int totalSubQuestion = currentQuestion.getSub_questions().size();
+        return subIndex < totalSubQuestion;
     }
 
-    public boolean isLastSection() {
-        return !isNotLastSection();
+    public boolean isNotLastSection() {
+        return getSectionIndex() < getTotalSection();
     }
 
     public void updateCompressing(QuestionApiDao questionApiDao) {
@@ -1323,7 +1831,7 @@ public class AstrntSDK extends HawkUtils {
 
             try {
                 questionApiDao.setUploadProgress(progress);
-            } catch (Exception e){
+            } catch (Exception e) {
                 Timber.e("Exception %s", e.getMessage());
             }
 
@@ -1365,7 +1873,7 @@ public class AstrntSDK extends HawkUtils {
 
             LogUtil.addNewLog(getInterviewCode(),
                     new LogDao("Video Upload Info",
-                            String.format("Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
+                            String.format(Locale.getDefault(), "Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
                     )
             );
 
@@ -1453,9 +1961,10 @@ public class AstrntSDK extends HawkUtils {
         if (rawFile.exists()) {
             markAsPending(questionApiDao, rawFile.getAbsolutePath());
             if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
-                Timber.e("Start compress from SDK");
-                LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK " + questionId));
-                VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId, getCurrentInterview().getInterviewCode());
+                if (!isRunningCompressing()) {
+                    LogUtil.addNewLog(getInterviewCode(), new LogDao("Start compress", "From SDK " + questionId));
+                    VideoCompressService.start(context, rawFile.getAbsolutePath(), questionId, getCurrentInterview().getInterviewCode());
+                }
             }
         } else {
             File compressedFile = new File(directory, questionId + ".mp4");
@@ -1464,9 +1973,11 @@ public class AstrntSDK extends HawkUtils {
                 if (!isShowUpload() && UploadService.getTaskList().isEmpty()) {
                     if (questionApiDao.getUploadStatus().equals(UploadStatusType.COMPRESSED)) {
                         if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
-                            Timber.e("start upload from sdk status compressed");
-                            LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed " + questionId));
-                            SingleVideoUploadService.start(context, questionId);
+                            if (!isRunningUploading()) {
+                                LogUtil.addNewLog(getInterviewCode(), new LogDao("Start upload", "upload From sdk status compressed " + questionId));
+                                SingleVideoUploadService.start(context, questionId, interviewCode);
+                            }
+
                         }
                     }
                 }
@@ -1560,7 +2071,7 @@ public class AstrntSDK extends HawkUtils {
         isPractice = true;
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
-            QuestionInfo questionInfo = new QuestionInfo(0, 3, isPractice);
+            QuestionInfo questionInfo = new QuestionInfo(0, 0, 3, isPractice);
             questionInfo.setId(20180427);
             realm.copyToRealmOrUpdate(questionInfo);
             realm.commitTransaction();
@@ -1706,39 +2217,39 @@ public class AstrntSDK extends HawkUtils {
     public void addSelectedAnswer(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
         if (!realm.isInTransaction()) {
 
-            RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
-            realm.beginTransaction();
+            if (questionApiDao != null && questionApiDao.getMultiple_answers() != null) {
 
-            RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
-            for (MultipleAnswerApiDao item : multipleAnswer) {
-                if (questionApiDao.isMultipleChoice()) {
-                    if (item.getId() == answer.getId()) {
-                        item.setSelected(!answer.isSelected());
-                    }
-                } else {
-                    if (item.getId() == answer.getId()) {
-                        item.setSelected(!answer.isSelected());
+                RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
+                realm.beginTransaction();
+
+                RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (questionApiDao.isMultipleChoice()) {
+                        if (item.getId() == answer.getId()) {
+                            item.setSelected(!answer.isSelected());
+                        }
                     } else {
-                        item.setSelected(false);
+                        if (item.getId() == answer.getId()) {
+                            item.setSelected(!answer.isSelected());
+                        } else {
+                            item.setSelected(false);
+                        }
                     }
                 }
-            }
 
-            for (MultipleAnswerApiDao item : multipleAnswer) {
-                if (item.isSelected()) {
-                    selectedAnswer.add(item);
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (item.isSelected()) {
+                        selectedAnswer.add(item);
+                    }
                 }
+
+                questionApiDao.setSelectedAnswer(selectedAnswer);
+                questionApiDao.setMultiple_answers(multipleAnswer);
+
+                realm.copyToRealmOrUpdate(questionApiDao);
+                realm.commitTransaction();
             }
 
-            questionApiDao.setSelectedAnswer(selectedAnswer);
-            questionApiDao.setMultiple_answers(multipleAnswer);
-            if (selectedAnswer.isEmpty()) {
-                questionApiDao.setAnswered(false);
-            } else {
-                questionApiDao.setAnswered(true);
-            }
-            realm.copyToRealmOrUpdate(questionApiDao);
-            realm.commitTransaction();
         } else {
             addSelectedAnswer(questionApiDao, answer);
         }
@@ -1748,35 +2259,42 @@ public class AstrntSDK extends HawkUtils {
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
-        RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+        if (questionApiDao.getMultiple_answers() != null) {
 
-        for (Integer answerId : answerIds) {
-            for (MultipleAnswerApiDao item : multipleAnswer) {
-                if (questionApiDao.isMultipleChoice()) {
-                    if (item.getId() == answerId) {
-                        item.setSelected(!item.isSelected());
-                    }
-                } else {
-                    if (item.getId() == answerId) {
-                        item.setSelected(!item.isSelected());
+            RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+            RealmList<MultipleAnswerApiDao> newMultipleAnswer = new RealmList<>();
+
+            for (Integer answerId : answerIds) {
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (questionApiDao.isMultipleChoice()) {
+                        if (item.getId() == answerId) {
+                            item.setSelected(true);
+                        }
                     } else {
-                        item.setSelected(false);
+                        if (item.getId() == answerId) {
+                            item.setSelected(true);
+                        }
+                    }
+
+
+                    MultipleAnswerApiDao multipleAnswerApiDao = item;
+                    if (!newMultipleAnswer.contains(multipleAnswerApiDao)) {
+                        newMultipleAnswer.add(item);
                     }
                 }
             }
-        }
 
-        for (MultipleAnswerApiDao item : multipleAnswer) {
-            if (item.isSelected()) {
-                selectedAnswer.add(item);
+            for (MultipleAnswerApiDao item : newMultipleAnswer) {
+                if (item.isSelected()) {
+                    selectedAnswer.add(item);
+                }
             }
+
+            questionApiDao.setSelectedAnswer(selectedAnswer);
+            questionApiDao.setMultiple_answers(newMultipleAnswer);
         }
 
-        questionApiDao.setSelectedAnswer(selectedAnswer);
-        questionApiDao.setMultiple_answers(multipleAnswer);
-        if (selectedAnswer.isEmpty()) {
-            questionApiDao.setAnswered(false);
-        } else {
+        if (!selectedAnswer.isEmpty()) {
             questionApiDao.setAnswered(true);
         }
     }
@@ -1791,6 +2309,7 @@ public class AstrntSDK extends HawkUtils {
             } else {
                 questionApiDao.setAnswered(true);
             }
+
             realm.copyToRealmOrUpdate(questionApiDao);
             realm.commitTransaction();
         } else {
@@ -1805,6 +2324,7 @@ public class AstrntSDK extends HawkUtils {
         } else {
             questionApiDao.setAnswered(true);
         }
+
     }
 
     public void markAnswered(QuestionApiDao questionApiDao) {
@@ -1907,6 +2427,7 @@ public class AstrntSDK extends HawkUtils {
     public boolean haveMediaToDownload() {
         boolean haveMediaToDownload = false;
         InterviewApiDao interviewApiDao = getCurrentInterview();
+        List<QuestionApiDao> questions = new ArrayList<>();
         if (isSectionInterview()) {
             for (SectionApiDao section : interviewApiDao.getSections()) {
                 if (section.getMedia() != null) {
@@ -1929,13 +2450,23 @@ public class AstrntSDK extends HawkUtils {
                         }
                     }
                 }
+                questions.addAll(section.getSectionQuestions());
             }
         } else {
+            questions.addAll(interviewApiDao.getQuestions());
+        }
 
-            for (QuestionApiDao question : interviewApiDao.getQuestions()) {
-                if (question.getMedia() != null) {
-                    if (question.getMedia().getOfflinePath() == null) {
-                        haveMediaToDownload = true;
+        for (QuestionApiDao question : questions) {
+            if (question.getMedia() != null) {
+                if (question.getMedia().getOfflinePath() == null) {
+                    haveMediaToDownload = true;
+                }
+
+                for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                    if (subQuestion.getMedia() != null) {
+                        if (subQuestion.getMedia().getOfflinePath() == null) {
+                            haveMediaToDownload = true;
+                        }
                     }
                 }
             }

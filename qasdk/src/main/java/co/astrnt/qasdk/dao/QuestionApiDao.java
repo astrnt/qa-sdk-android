@@ -2,6 +2,7 @@ package co.astrnt.qasdk.dao;
 
 import co.astrnt.qasdk.constants.Constants;
 import co.astrnt.qasdk.type.MediaTypes;
+import co.astrnt.qasdk.type.TestType;
 import co.astrnt.qasdk.type.UploadStatusState;
 import co.astrnt.qasdk.type.UploadStatusType;
 import io.realm.RealmList;
@@ -20,7 +21,7 @@ public class QuestionApiDao extends RealmObject {
     private int qType;
     private int takesCount;
     private int prepTime;
-    private int maxTime;
+    private String maxTime;
     private int job_id;
     private String created_at;
     private String updated_at;
@@ -52,6 +53,8 @@ public class QuestionApiDao extends RealmObject {
     private int media_id;
     private int media_attempt;
     private int media_attempt_left;
+
+    private RealmList<QuestionApiDao> sub_questions;
 
     private boolean isRetake;
 
@@ -104,15 +107,27 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public int getMaxTime() {
-        if (getTimeLeft() != 0) {
-            return getTimeLeft();
-        } else {
+        if (getSub_questions() != null && !getSub_questions().isEmpty()) {
+            int maxTime = 0;
+            for (QuestionApiDao question : getSub_questions()) {
+                if (question.getTimeLeft() != 0) {
+                    maxTime += question.getTimeLeft();
+                } else {
+                    maxTime += Integer.parseInt(question.maxTime);
+                }
+            }
             return maxTime;
+        } else {
+            if (getTimeLeft() != 0) {
+                return getTimeLeft();
+            } else {
+                return Integer.parseInt(maxTime);
+            }
         }
     }
 
     public void setMaxTime(int maxTime) {
-        this.maxTime = maxTime;
+        this.maxTime = String.valueOf(maxTime);
     }
 
     public int getJob_id() {
@@ -236,14 +251,19 @@ public class QuestionApiDao extends RealmObject {
     }
 
     public boolean isMultipleChoice() {
-        return getType_child().equals("multiple_options_for_test");
+        return getType_child() != null && getType_child().equals("multiple_options_for_test");
     }
 
     public boolean isAnswered() {
-        if (isAnswered != null) {
-            return isAnswered;
+        if (sub_questions != null && !sub_questions.isEmpty()) {
+            return false;
+        } else {
+            if (type_child != null && type_child.equals(TestType.FREE_TEXT)) {
+                return answer != null && !answer.isEmpty();
+            } else {
+                return selectedAnswer != null && selectedAnswer.size() > 0;
+            }
         }
-        return selectedAnswer != null && selectedAnswer.size() > 0;
     }
 
     public void setAnswered(boolean answered) {
@@ -330,6 +350,14 @@ public class QuestionApiDao extends RealmObject {
 
     public void decreaseMediaAttempt() {
         this.media_attempt_left--;
+    }
+
+    public RealmList<QuestionApiDao> getSub_questions() {
+        return sub_questions;
+    }
+
+    public void setSub_questions(RealmList<QuestionApiDao> sub_questions) {
+        this.sub_questions = sub_questions;
     }
 
     public boolean isRetake() {

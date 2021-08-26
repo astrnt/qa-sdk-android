@@ -13,6 +13,7 @@ public class QuestionInfoApiDao extends RealmObject {
     private long id;
     private boolean finished;
     private int interviewIndex;
+    private int interviewSubIndex;
     private int interviewAttempt;
     private String status;
     private String message;
@@ -32,6 +33,14 @@ public class QuestionInfoApiDao extends RealmObject {
 
     public void setInterviewIndex(int interviewIndex) {
         this.interviewIndex = interviewIndex;
+    }
+
+    public int getInterviewSubIndex() {
+        return interviewSubIndex;
+    }
+
+    public void setInterviewSubIndex(int interviewSubIndex) {
+        this.interviewSubIndex = interviewSubIndex;
     }
 
     public int getInterviewAttempt() {
@@ -72,6 +81,7 @@ public class QuestionInfoApiDao extends RealmObject {
                 "id=" + id +
                 ", finished=" + finished +
                 ", interviewIndex=" + interviewIndex +
+                ", interviewSubIndex=" + interviewSubIndex +
                 ", interviewAttempt=" + interviewAttempt +
                 ", status='" + status + '\'' +
                 ", message='" + message + '\'' +

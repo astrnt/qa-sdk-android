@@ -15,6 +15,7 @@ public class InformationApiDao extends RealmObject {
     private long id;
     private boolean finished;
     private int interviewIndex;
+    private int interviewSubIndex;
     private int interviewAttempt;
     private String status;
     private RealmList<PrevQuestionStateApiDao> prevQuestStates;
@@ -29,16 +30,33 @@ public class InformationApiDao extends RealmObject {
     public InformationApiDao() {
     }
 
-    public InformationApiDao(boolean finished, int interviewIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao... prevQuestStates) {
+    public InformationApiDao(boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao... prevQuestStates) {
         this.finished = finished;
         this.status = status;
         this.interviewIndex = interviewIndex;
+        this.interviewSubIndex = interviewSubIndex;
         this.interviewAttempt = interviewAttempt;
         this.message = message;
         if (prevQuestStates != null) {
             this.prevQuestStates = new RealmList<>(prevQuestStates);
         }
     }
+
+    public InformationApiDao(boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao[] prevQuestStates, QuestionInfoMcqApiDao... questionInfoMcqApiDao) {
+        this.finished = finished;
+        this.status = status;
+        this.interviewIndex = interviewIndex;
+        this.interviewSubIndex = interviewSubIndex;
+        this.interviewAttempt = interviewAttempt;
+        this.message = message;
+        if (prevQuestStates != null) {
+            this.prevQuestStates = new RealmList<>(prevQuestStates);
+        }
+        if (questionInfoMcqApiDao != null) {
+            this.questions_mcq_info = new RealmList<>(questionInfoMcqApiDao);
+        }
+    }
+
 
     public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
         this.finished = finished;
@@ -98,6 +116,14 @@ public class InformationApiDao extends RealmObject {
 
     public void setInterviewIndex(int interviewIndex) {
         this.interviewIndex = interviewIndex;
+    }
+
+    public int getInterviewSubIndex() {
+        return interviewSubIndex;
+    }
+
+    public void setInterviewSubIndex(int interviewSubIndex) {
+        this.interviewSubIndex = interviewSubIndex;
     }
 
     public int getInterviewAttempt() {
@@ -191,6 +217,7 @@ public class InformationApiDao extends RealmObject {
                 "id=" + id +
                 ", finished=" + finished +
                 ", interviewIndex=" + interviewIndex +
+                ", interviewSubIndex=" + interviewSubIndex +
                 ", interviewAttempt=" + interviewAttempt +
                 ", status='" + status + '\'' +
                 ", prevQuestStates=" + prevQuestStates +

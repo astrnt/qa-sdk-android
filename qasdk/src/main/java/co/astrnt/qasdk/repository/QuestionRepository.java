@@ -10,7 +10,6 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.MultipleAnswerApiDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
-import co.astrnt.qasdk.type.ElapsedTime;
 import co.astrnt.qasdk.type.ElapsedTimeType;
 import co.astrnt.qasdk.type.InterviewType;
 import co.astrnt.qasdk.type.TestType;
@@ -30,14 +29,14 @@ public class QuestionRepository extends BaseRepository {
         super(astronautApi);
     }
 
-    public Observable<BaseApiDao> addQuestionAttempt(QuestionApiDao currentQuestion) {
+    public Observable<BaseApiDao> addQuestionAttempt(QuestionApiDao question) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
-        map.put("question_id", String.valueOf(currentQuestion.getId()));
+        map.put("question_id", String.valueOf(question.getId()));
 
         if (astrntSDK.isSectionInterview()) {
             SectionApiDao currentSection = astrntSDK.getCurrentSection();
@@ -47,7 +46,7 @@ public class QuestionRepository extends BaseRepository {
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API (/question/attempt)",
                         "Add Question Attempt, number " + (astrntSDK.getQuestionIndex() + 1) +
-                                ", questionId = " + currentQuestion.getId()
+                                ", questionId = " + question.getId()
                 )
         );
         astrntSDK.saveLastApiCall("(/question/attempt)");
@@ -55,14 +54,14 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().addAttempt(token, map);
     }
 
-    public Observable<BaseApiDao> addMediaAttempt(QuestionApiDao currentQuestion) {
+    public Observable<BaseApiDao> addMediaAttempt(QuestionApiDao question) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
-        map.put("question_id", String.valueOf(currentQuestion.getId()));
+        map.put("question_id", String.valueOf(question.getId()));
 
         if (astrntSDK.isSectionInterview()) {
             SectionApiDao currentSection = astrntSDK.getCurrentSection();
@@ -72,7 +71,7 @@ public class QuestionRepository extends BaseRepository {
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API (/media/attempt)",
                         "Add Media Attempt, number " + (astrntSDK.getQuestionIndex() + 1) +
-                                ", questionId = " + currentQuestion.getId()
+                                ", questionId = " + question.getId()
                 )
         );
         astrntSDK.saveLastApiCall("(/media/attempt)");
@@ -80,14 +79,24 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().addMediaAttempt(token, map);
     }
 
-    public Observable<BaseApiDao> finishQuestion(QuestionApiDao currentQuestion) {
+    public Observable<BaseApiDao> finishQuestion(QuestionApiDao question) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
-        map.put("question_id", String.valueOf(currentQuestion.getId()));
+
+        RealmList<QuestionApiDao> subQuestions = question.getSub_questions();
+        if (subQuestions != null && !subQuestions.isEmpty()) {
+            for (int i = 0; i < subQuestions.size(); i++) {
+                QuestionApiDao subQuestion = subQuestions.get(i);
+                assert subQuestion != null;
+                map.put("question_ids[" + i + "]", String.valueOf(subQuestion.getId()));
+            }
+        } else {
+            map.put("question_id", String.valueOf(question.getId()));
+        }
 
         if (astrntSDK.isSectionInterview()) {
             SectionApiDao currentSection = astrntSDK.getCurrentSection();
@@ -95,13 +104,13 @@ public class QuestionRepository extends BaseRepository {
         }
 
         if (interviewApiDao.getType().equals(InterviewType.CLOSE_TEST)) {
-            updateElapsedTime(ElapsedTimeType.TEST, currentQuestion.getId());
+            updateElapsedTime(question.getId());
         }
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API (/question/finish)",
                         "Finish Question, number " + (astrntSDK.getQuestionIndex() + 1) +
-                                ", questionId = " + currentQuestion.getId()
+                                ", questionId = " + question.getId()
                 )
         );
         astrntSDK.saveLastApiCall("(/question/finish)");
@@ -109,38 +118,86 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().finishQuestion(token, map);
     }
 
-    public Observable<BaseApiDao> answerQuestion(QuestionApiDao currentQuestion) {
+//    public Observable<BaseApiDao> finishSession(QuestionApiDao question) {
+//        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+//        String token = interviewApiDao.getToken();
+//
+//        HashMap<String, String> map = new HashMap<>();
+//        map.put("interview_code", interviewApiDao.getInterviewCode());
+//        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+//
+//        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+//                new LogDao("Hit API (/question/finish)",
+//                        "Finish Question, number " + (astrntSDK.getQuestionIndex() + 1) +
+//                                ", questionId = " + question.getId()
+//                )
+//        );
+//        astrntSDK.saveLastApiCall("(/question/finish)");
+//
+//        return mAstronautApi.getApiService().finishQuestion(token, map);
+//    }
+
+    public Observable<BaseApiDao> answerQuestion(QuestionApiDao question, QuestionApiDao subQuestion) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
         map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
-        map.put("question_id", String.valueOf(currentQuestion.getId()));
         map.put("invite_id", String.valueOf(interviewApiDao.getInvite_id()));
 
-        if (currentQuestion.getType_child().equals(TestType.FREE_TEXT)) {
-            map.put("type", "1");
-            String currentAnswer = currentQuestion.getAnswer();
-            if (currentAnswer == null) {
-                currentAnswer = "";
-            }
-            map.put("text_answer", currentAnswer);
+        if (subQuestion != null) {
+            map.put("question_id", String.valueOf(subQuestion.getId()));
+            if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
+                map.put("type", "1");
+                String currentAnswer = subQuestion.getAnswer();
+                if (currentAnswer == null) {
+                    currentAnswer = "";
+                }
+                map.put("text_answer", currentAnswer);
 
-        } else {
-            map.put("type", "0");
+            } else {
+                map.put("type", "0");
 
-            RealmList<MultipleAnswerApiDao> selectedAnswer = currentQuestion.getSelectedAnswer();
+                RealmList<MultipleAnswerApiDao> selectedAnswer = subQuestion.getSelectedAnswer();
 
-            if (selectedAnswer != null) {
-                for (int i = 0; i < selectedAnswer.size(); i++) {
-                    MultipleAnswerApiDao answerItem = selectedAnswer.get(i);
-
-                    assert answerItem != null;
-                    map.put("answer_ids[" + i + "]", String.valueOf(answerItem.getId()));
+                if (selectedAnswer != null) {
+                    for (int i = 0; i < selectedAnswer.size(); i++) {
+                        MultipleAnswerApiDao answerItem = selectedAnswer.get(i);
+                        assert answerItem != null;
+                        map.put("answer_ids[" + i + "]", String.valueOf(answerItem.getId()));
+                    }
                 }
             }
 
+        } else {
+            map.put("question_id", String.valueOf(question.getId()));
+            if (question.getType_child().equals(TestType.FREE_TEXT)) {
+                map.put("type", "1");
+                String currentAnswer = question.getAnswer();
+                if (currentAnswer == null) {
+                    currentAnswer = "";
+                }
+                map.put("text_answer", currentAnswer);
+
+            } else {
+                map.put("type", "0");
+
+                RealmList<MultipleAnswerApiDao> selectedAnswer = question.getSelectedAnswer();
+                if (selectedAnswer != null) {
+                    for (int i = 0; i < selectedAnswer.size(); i++) {
+                        MultipleAnswerApiDao answerItem = selectedAnswer.get(i);
+                        assert answerItem != null;
+                        map.put("answer_ids[" + i + "]", String.valueOf(answerItem.getId()));
+                    }
+                }
+            }
+        }
+
+        if (question.getSub_questions() != null && !question.getSub_questions().isEmpty()) {
+            map.put("group_question", "true");
+        } else {
+            map.put("group_question", "false");
         }
 
         if (astrntSDK.isSectionInterview()) {
@@ -153,7 +210,7 @@ public class QuestionRepository extends BaseRepository {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                     new LogDao("Hit API (/question/answer)",
                             "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
-                                    ", questionId = " + currentQuestion.getId() +
+                                    ", questionId = " + question.getId() +
                                     ", sectionId = " + astrntSDK.getCurrentSection().getId() +
                                     " duration left = " + astrntSDK.getCurrentSection().getDuration() +
                                     " seconds"
@@ -163,7 +220,7 @@ public class QuestionRepository extends BaseRepository {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                     new LogDao("Hit API (/question/answer)",
                             "Answer Question " + (astrntSDK.getQuestionIndex() + 1) +
-                                    ", questionId = " + currentQuestion.getId()
+                                    ", questionId = " + question.getId()
                     )
             );
         }
@@ -172,12 +229,12 @@ public class QuestionRepository extends BaseRepository {
         return mAstronautApi.getApiService().answerQuestion(token, map);
     }
 
-    private void updateElapsedTime(@ElapsedTime String type, long refId) {
+    private void updateElapsedTime(long refId) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
-        map.put("type", type);
+        map.put("type", ElapsedTimeType.TEST);
         map.put("ref_id", String.valueOf(refId));
 
         String token = interviewApiDao.getToken();
@@ -185,7 +242,7 @@ public class QuestionRepository extends BaseRepository {
         final String interviewCode = astrntSDK.getInterviewCode();
         LogUtil.addNewLog(interviewCode,
                 new LogDao("Hit API (/interview/update/elapsedTime)",
-                        "Update Elapsed Time, type =  " + type +
+                        "Update Elapsed Time, type =  " + ElapsedTimeType.TEST +
                                 ", number " + (astrntSDK.getQuestionIndex() + 1)
                                 + ", refId = " + refId
                 )
@@ -226,24 +283,23 @@ public class QuestionRepository extends BaseRepository {
                 });
     }
 
-    public Observable<BaseApiDao> addLastSeen(QuestionApiDao currentQuestion) {
+    public Observable<BaseApiDao> addLastSeen(QuestionApiDao question) {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("interview_code", interviewApiDao.getInterviewCode());
-        map.put("question_id", String.valueOf(currentQuestion.getId()));
+        map.put("question_id", String.valueOf(question.getId()));
 
         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                 new LogDao("Hit API (/question/last_seen)",
                         "Add Last Seen, number " + (astrntSDK.getQuestionIndex() + 1) +
-                                ", questionId = " + currentQuestion.getId()
+                                ", questionId = " + question.getId()
                 )
         );
         astrntSDK.saveLastApiCall("(/question/last_seen)");
 
         return mAstronautApi.getApiService().addLastSeen(token, map);
     }
-
 
 }

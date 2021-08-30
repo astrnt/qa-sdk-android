@@ -60,7 +60,6 @@ public class VideoCompressService extends Service {
     private int mNotificationId;
 
     public static void start(Context context, String inputPath, long questionId, String interviewCode) {
-        Timber.e("video compress with id %d ", questionId);
         try {
             Intent intent = new Intent(context, VideoCompressService.class)
                     .putExtra(EXT_PATH, inputPath)
@@ -122,7 +121,7 @@ public class VideoCompressService extends Service {
 
             if (!inputFile.exists()) {
                 stopService();
-                Timber.e("file has been deleted");
+                Timber.i("file has been deleted");
                 LogUtil.addNewLog(currentInterview.getInterviewCode(), new LogDao("File not exists", "With id " + questionId));
                 astrntSDK.getVideoFile(context, currentInterview.getInterviewCode(), currentQuestion.getId());
             } else {
@@ -219,12 +218,12 @@ public class VideoCompressService extends Service {
                                 }, 150);
 
                                 if (astrntSDK.isShowUpload()) {
-                                    Timber.e("compress isSownUpload");
+                                    Timber.i("compress isSownUpload");
                                     EventBus.getDefault().post(new CompressEvent());
                                     if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                         if (!astrntSDK.isRunningUploading()) {
                                             new Handler(Looper.getMainLooper()).post(() -> {
-                                                Timber.e("start upload from video compress service isSownUpload");
+                                                Timber.i("start upload from video compress service isSownUpload");
                                                 LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
                                                         "From video compress isShowUpload " + currentQuestion.getId()));
                                                 SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
@@ -232,11 +231,11 @@ public class VideoCompressService extends Service {
                                         }
                                     }
                                 } else {
-                                    Timber.e("compress success");
+                                    Timber.i("compress success");
                                     new Handler(Looper.getMainLooper()).post(() -> {
                                         if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                                             if (!astrntSDK.isRunningUploading()) {
-                                                Timber.e("start upload from video service success");
+                                                Timber.i("start upload from video service success");
                                                 LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload",
                                                         "From video compress success " + currentQuestion.getId()));
                                                 SingleVideoUploadService.start(context, currentQuestion.getId(), astrntSDK.getInterviewCode());
@@ -244,12 +243,12 @@ public class VideoCompressService extends Service {
                                         } else {
                                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start upload Info Warning",
                                                     "still running uploading"));
-                                            Timber.e("still running uploading");
+                                            Timber.i("still running uploading");
                                         }
                                     });
                                 }
                             } catch (Exception e) {
-                                Timber.e("Error 2 deleted by another thread");
+                                Timber.i("Error 2 deleted by another thread");
                             }
                         }
 

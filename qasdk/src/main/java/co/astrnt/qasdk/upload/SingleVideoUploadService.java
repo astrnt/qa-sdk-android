@@ -68,7 +68,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     private NotificationManager mNotifyManager;
 
     public static void start(Context context, long questionId, String interviewCode) {
-        Timber.e("start uploading id = %d", questionId);
         try {
         Intent intent = new Intent(context, SingleVideoUploadService.class)
                 .putExtra(EXT_QUESTION_ID, questionId);
@@ -187,7 +186,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
                         if (!astrntSDK.isRunningCompressing()) {
                             new Handler(Looper.getMainLooper()).post(() -> {
-                                Timber.e("Start compress from do Upload Video");
+                                Timber.i("Start compress from do Upload Video");
                                 LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
                                 VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId(), astrntSDK.getInterviewCode());
                             });
@@ -297,7 +296,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 }
             }
         } else {
-            Timber.e("upload progress null");
+            Timber.i("upload progress null");
         }
         EventBus.getDefault().post(new UploadEvent());
 
@@ -357,7 +356,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                                     + " on service")
             );
 
-            Timber.e("on Completed uploading " + currentQuestion.getId());
             List<QuestionApiDao> uploadingVideo = astrntSDK.getPending(UploadStatusType.PENDING);
             List<QuestionApiDao> compressedVideo = astrntSDK.getPending(UploadStatusType.COMPRESSED);
 
@@ -396,13 +394,13 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                     if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
                         if (!astrntSDK.isRunningCompressing()) {
                             astrntSDK.markAsPending(item, item.getVideoPath());
-                            Timber.e("current status compress is compressing");
+                            Timber.i("current status compress is compressing");
                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Status compressing", "From current compressing " + item.getId()));
                             new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
                             isDoingCompress = false;
                         }
                     } else {
-                        Timber.e("still running compress successing");
+                        Timber.i("still running compress successing");
                     }
                 }
             }

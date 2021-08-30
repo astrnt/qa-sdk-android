@@ -371,6 +371,7 @@ public class AstrntSDK extends HawkUtils {
 
                         for (QuestionInfoMcqApiDao questionState : interviewResultApiDao.getInformation().getQuestionsMcqInfo()) {
                             if (question.getId() == questionState.getId()) {
+                                addClearSelectedAnswer(question, questionState.getAnswer_ids());
                                 if (question.getType_child() != null) {
                                     if (question.getType_child().equals(TestType.FREE_TEXT)) {
                                         addFtqAnswer(question, questionState.getFreetext_answer());
@@ -383,6 +384,7 @@ public class AstrntSDK extends HawkUtils {
                             if (subQuestions != null && !subQuestions.isEmpty()) {
                                 for (QuestionApiDao subQuestion : subQuestions) {
                                     if (subQuestion.getId() == questionState.getId()) {
+                                        addClearSelectedAnswer(subQuestion, questionState.getAnswer_ids());
                                         if (subQuestion.getType_child() != null) {
                                             if (subQuestion.getType_child().equals(TestType.FREE_TEXT)) {
                                                 addFtqAnswer(subQuestion, questionState.getFreetext_answer());
@@ -2255,6 +2257,41 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    private void addClearSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
+
+        RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
+
+        if (questionApiDao.getMultiple_answers() != null) {
+
+            RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+            RealmList<MultipleAnswerApiDao> newMultipleAnswer = new RealmList<>();
+
+            for (Integer answerId : answerIds) {
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (questionApiDao.isMultipleChoice()) {
+                        item.setSelected(false);
+                    } else {
+                        item.setSelected(false);
+                    }
+
+                    MultipleAnswerApiDao multipleAnswerApiDao = item;
+                    if (!newMultipleAnswer.contains(multipleAnswerApiDao)) {
+                        newMultipleAnswer.add(item);
+                    }
+                }
+            }
+
+            for (MultipleAnswerApiDao item : newMultipleAnswer) {
+                selectedAnswer.add(item);
+            }
+
+            questionApiDao.setSelectedAnswer(selectedAnswer);
+            questionApiDao.setMultiple_answers(newMultipleAnswer);
+        }
+
+        questionApiDao.setAnswered(false);
+    }
+
     private void addSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
@@ -2461,12 +2498,12 @@ public class AstrntSDK extends HawkUtils {
                 if (question.getMedia().getOfflinePath() == null) {
                     haveMediaToDownload = true;
                 }
+            }
 
-                for (QuestionApiDao subQuestion : question.getSub_questions()) {
-                    if (subQuestion.getMedia() != null) {
-                        if (subQuestion.getMedia().getOfflinePath() == null) {
-                            haveMediaToDownload = true;
-                        }
+            for (QuestionApiDao subQuestion : question.getSub_questions()) {
+                if (subQuestion.getMedia() != null) {
+                    if (subQuestion.getMedia().getOfflinePath() == null) {
+                        haveMediaToDownload = true;
                     }
                 }
             }

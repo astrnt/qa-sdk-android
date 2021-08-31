@@ -3,9 +3,6 @@ package co.astrnt.qasdk.dao;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by deni rohimat on 17/05/18.
- */
 public class MultipleAnswerApiDao extends RealmObject {
 
     @PrimaryKey

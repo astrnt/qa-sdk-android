@@ -15,4 +15,5 @@ public class InterviewType {
     public static final String PROFILE = "profile";
     public static final String CLOSE_INTERVIEW_PROFILE = "close interview profile";
     public static final String ASTRONAUT_PROFILE = "astronaut profile";
+    public static final String CLOSE_APTITUDE = "close aptitude";
 }

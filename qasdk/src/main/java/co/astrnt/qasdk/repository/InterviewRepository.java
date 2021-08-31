@@ -9,6 +9,7 @@ import co.astrnt.qasdk.dao.InterviewResultApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
+import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.dao.SummaryApiDao;
 import co.astrnt.qasdk.dao.post.RegisterPost;
 import co.astrnt.qasdk.type.CustomFiledType;
@@ -91,6 +92,28 @@ public class InterviewRepository extends BaseRepository {
         }
         astrntSDK.updateInterviewOnGoing(interviewApiDao, true);
         return mAstronautApi.getApiService().startInterview(token, map);
+    }
+
+    public Observable<BaseApiDao> setTrySampleQuestion() {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        String token = interviewApiDao.getToken();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+
+        if (astrntSDK.isSectionInterview()) {
+            SectionApiDao currentSection = astrntSDK.getCurrentSection();
+            map.put("section_id", String.valueOf(currentSection.getId()));
+        }
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API (/set/try-sample-question)",
+                        "Sample Question"
+                )
+        );
+        astrntSDK.saveLastApiCall("(/set/try-sample-question)");
+        return mAstronautApi.getApiService().setTrySampleQuestion(token, map);
     }
 
     public Observable<BaseApiDao> finishSession(QuestionApiDao question) {

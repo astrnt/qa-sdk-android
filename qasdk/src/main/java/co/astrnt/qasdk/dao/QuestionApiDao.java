@@ -44,6 +44,7 @@ public class QuestionApiDao extends RealmObject {
 
     //this field below is additional field for MCQ
     private int timeLeft;
+    private long answerId;
     private Boolean isAnswered;
     private RealmList<MultipleAnswerApiDao> selectedAnswer;
 
@@ -276,6 +277,14 @@ public class QuestionApiDao extends RealmObject {
 
     public void setSelectedAnswer(RealmList<MultipleAnswerApiDao> selectedAnswer) {
         this.selectedAnswer = selectedAnswer;
+    }
+
+    public long getAnswerId() {
+        return answerId;
+    }
+
+    public void setAnswerId(long answerId) {
+        this.answerId = answerId;
     }
 
     //Free Text method support

@@ -141,6 +141,7 @@ public class AstrntSDK extends HawkUtils {
         } else {
             saveSourcing(false);
         }
+        updateTrySampleQuestion(interviewApiDao, resultApiDao.getInterview().getTrySampleQuestion());
 
         boolean isProfile = newInterview.getType().contains(PROFILE);
         saveIsProfile(isProfile);
@@ -302,6 +303,7 @@ public class AstrntSDK extends HawkUtils {
                     questionList.add(newQuestion);
                 }
                 newInterview.setQuestions(questionList);
+                newInterview.setSample_question(newInterview.getSample_question());
             }
 
             realm.copyToRealmOrUpdate(newInterview);
@@ -365,6 +367,9 @@ public class AstrntSDK extends HawkUtils {
             if (!isSectionInterview()) {
                 RealmList<QuestionApiDao> questionList = new RealmList<>();
 
+                if (interview.getSample_question() != null) {
+                    clearSelectedAnswer(interview.getSample_question());
+                }
                 if (interviewResultApiDao.getInterview().getQuestions() != null && interviewResultApiDao.getInformation().getQuestionsMcqInfo() != null) {
                     RealmList<QuestionApiDao> questions = interview.getQuestions();
                     for (QuestionApiDao question : questions) {
@@ -402,10 +407,7 @@ public class AstrntSDK extends HawkUtils {
                     }
                     interview.setQuestions(questionList);
                 }
-
-
             }
-
             realm.copyToRealmOrUpdate(interview);
             realm.commitTransaction();
         } else {
@@ -605,6 +607,7 @@ public class AstrntSDK extends HawkUtils {
                     }
 
                     interview.setQuestions(questions);
+                    interview.setSample_question(interview.getSample_question());
                 }
             }
 
@@ -673,6 +676,17 @@ public class AstrntSDK extends HawkUtils {
             realm.commitTransaction();
         } else {
             updateInterviewOnGoing(interviewApiDao, onGoing);
+        }
+    }
+
+    public void updateTrySampleQuestion(InterviewApiDao interviewApiDao, int trySampleQuestion) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+            interviewApiDao.setTrySampleQuestion(trySampleQuestion);
+            realm.copyToRealmOrUpdate(interviewApiDao);
+            realm.commitTransaction();
+        } else {
+            updateTrySampleQuestion(interviewApiDao, trySampleQuestion);
         }
     }
 
@@ -1223,6 +1237,15 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public boolean isTriedSampleQuestion() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao.getTrySampleQuestion() != 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private QuestionApiDao getPracticeQuestion() {
         QuestionApiDao questionApiDao = new QuestionApiDao();
         questionApiDao.setId(-1);
@@ -1243,6 +1266,15 @@ public class AstrntSDK extends HawkUtils {
             } else {
                 return interviewApiDao.getSections().last();
             }
+        } else {
+            return null;
+        }
+    }
+
+    public QuestionApiDao getSampleQuestion() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        if (interviewApiDao != null) {
+            return interviewApiDao.getSample_question();
         } else {
             return null;
         }
@@ -2055,6 +2087,11 @@ public class AstrntSDK extends HawkUtils {
         return interviewApiDao != null && interviewApiDao.getSections() != null && !interviewApiDao.getSections().isEmpty();
     }
 
+    public boolean isRatingScale() {
+        InterviewApiDao interviewApiDao = getCurrentInterview();
+        return interviewApiDao != null && interviewApiDao.getSub_type().equals(TestType.RATING_SCALE);
+    }
+
     public void setInterviewFinished() {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();
@@ -2232,6 +2269,7 @@ public class AstrntSDK extends HawkUtils {
                         }
                     } else {
                         if (item.getId() == answer.getId()) {
+                            questionApiDao.setAnswerId(item.getId());
                             item.setSelected(!answer.isSelected());
                         } else {
                             item.setSelected(false);
@@ -2257,7 +2295,39 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private void addClearSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
+    public void clearSelectedAnswer(QuestionApiDao questionApiDao) {
+        RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
+
+        if (questionApiDao.getMultiple_answers() != null) {
+
+            RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+            RealmList<MultipleAnswerApiDao> newMultipleAnswer = new RealmList<>();
+
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (questionApiDao.isMultipleChoice()) {
+                        item.setSelected(false);
+                    } else {
+                        item.setSelected(false);
+                    }
+
+                    MultipleAnswerApiDao multipleAnswerApiDao = item;
+                    if (!newMultipleAnswer.contains(multipleAnswerApiDao)) {
+                        newMultipleAnswer.add(item);
+                    }
+                }
+
+            for (MultipleAnswerApiDao item : newMultipleAnswer) {
+                selectedAnswer.add(item);
+            }
+
+            questionApiDao.setSelectedAnswer(selectedAnswer);
+            questionApiDao.setMultiple_answers(newMultipleAnswer);
+        }
+
+        questionApiDao.setAnswered(false);
+    }
+
+    public void addClearSelectedAnswer(QuestionApiDao questionApiDao, RealmList<Integer> answerIds) {
 
         RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
 
@@ -2305,11 +2375,13 @@ public class AstrntSDK extends HawkUtils {
                 for (MultipleAnswerApiDao item : multipleAnswer) {
                     if (questionApiDao.isMultipleChoice()) {
                         if (item.getId() == answerId) {
+                            questionApiDao.setAnswerId(answerId);
                             item.setSelected(true);
                         }
                     } else {
                         if (item.getId() == answerId) {
                             item.setSelected(true);
+                            questionApiDao.setAnswerId(answerId);
                         }
                     }
 

@@ -59,14 +59,6 @@ public class HawkUtils {
         Hawk.put(KEY_FINISH_SESSION, finishSession);
     }
 
-    public boolean isStartSessionTimer() {
-        return Hawk.get(KEY_START_SESSION, false);
-    }
-
-    public void setStartSessionTimer(boolean finishSession) {
-        Hawk.put(KEY_START_SESSION, finishSession);
-    }
-
     public boolean isFinishQuestionSession() {
         return Hawk.get(KEY_FINISH_QUESTION, false);
     }

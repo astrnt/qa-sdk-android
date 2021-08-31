@@ -35,6 +35,11 @@ public interface ApiService {
                                                     @FieldMap HashMap<String, String> data);
 
     @FormUrlEncoded
+    @POST("v2/set/try-sample-question")
+    Observable<BaseApiDao> setTrySampleQuestion(@Header("token") String token,
+                                                    @FieldMap HashMap<String, String> data);
+
+    @FormUrlEncoded
     @POST("v2/interview/finish")
     Observable<BaseApiDao> finishInterview(@Header("token") String token,
                                            @FieldMap HashMap<String, String> data);

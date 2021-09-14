@@ -5,7 +5,7 @@ import android.os.Build;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.itkacher.okhttpprofiler.OkHttpProfilerInterceptor;
+import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
 
 import java.util.concurrent.TimeUnit;
 

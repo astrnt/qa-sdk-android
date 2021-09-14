@@ -24,6 +24,10 @@ public class SectionApiDao extends RealmObject {
     private RealmList<QuestionApiDao> section_questions;
     private RealmList<SupportMaterialDao> support_materials;
 
+    //for rating scale
+    private QuestionApiDao sample_question;
+    private int try_sample_question;
+
     private MediaDao media;
     private @MediaTypes String media_type;
     private int media_id;
@@ -199,5 +203,21 @@ public class SectionApiDao extends RealmObject {
 
     public void setShowReview(boolean showReview) {
         this.showReview = showReview;
+    }
+
+    public QuestionApiDao getSample_question() {
+        return sample_question;
+    }
+
+    public void setSample_question(QuestionApiDao sample_question) {
+        this.sample_question = sample_question;
+    }
+
+    public int getTry_sample_question() {
+        return try_sample_question;
+    }
+
+    public void setTry_sample_question(int try_sample_question) {
+        this.try_sample_question = try_sample_question;
     }
 }

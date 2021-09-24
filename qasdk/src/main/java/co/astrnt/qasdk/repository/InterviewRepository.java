@@ -127,6 +127,31 @@ public class InterviewRepository extends BaseRepository {
         return mAstronautApi.getApiService().startSection(token, map);
     }
 
+    public Observable<BaseApiDao> finishSection(SectionApiDao sectionApiDao) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("candidate_id", String.valueOf(interviewApiDao.getCandidate().getId()));
+        map.put("section_id", String.valueOf(sectionApiDao.getId()));
+        String token = interviewApiDao.getToken();
+
+        if (!astrntSDK.isSelfPace()) {
+            updateElapsedTime(ElapsedTimeType.SECTION, sectionApiDao.getId());
+        }
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API (/section/stop)",
+                        "Finish Section, number " + (astrntSDK.getSectionIndex() + 1) +
+                                ", sectionId = " + sectionApiDao.getId()
+                )
+
+        );
+        astrntSDK.saveLastApiCall("(/section/stop)");
+
+        return mAstronautApi.getApiService().stopSection(token, map);
+    }
+
     public Observable<BaseApiDao> setTrySampleQuestion() {
         InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
         String token = interviewApiDao.getToken();

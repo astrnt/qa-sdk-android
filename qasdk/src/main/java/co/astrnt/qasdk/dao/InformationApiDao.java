@@ -61,7 +61,8 @@ public class InformationApiDao extends RealmObject {
     }
 
 
-    public InformationApiDao(int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
+    public InformationApiDao(int interviewIndex, int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
+        this.interviewIndex = interviewIndex;
         this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;
@@ -86,7 +87,9 @@ public class InformationApiDao extends RealmObject {
         }
     }
 
-    public InformationApiDao(int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoMcqApiDao... questionInfoMcqApiDaos) {
+    public InformationApiDao(int interviewIndex, int interviewSubIndex, int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoMcqApiDao... questionInfoMcqApiDaos) {
+        this.interviewIndex = interviewIndex;
+        this.interviewSubIndex = interviewSubIndex;
         this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;

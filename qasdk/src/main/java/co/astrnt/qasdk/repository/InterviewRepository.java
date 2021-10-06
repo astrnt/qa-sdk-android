@@ -47,7 +47,7 @@ public class InterviewRepository extends BaseRepository {
         HashMap<String, String> map = new HashMap<>();
         map.put("job_id", String.valueOf(param.getJob_id()));
         map.put("company_id", String.valueOf(param.getCompany_id()));
-        map.put("interview_code", param.getInterviewCode());
+        map.put("interview_code", param.getInterview_code());
         map.put("fullname", param.getFullname());
         map.put("preferred_name", param.getPreferred_name());
         map.put("email", param.getEmail());

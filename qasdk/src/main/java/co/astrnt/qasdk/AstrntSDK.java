@@ -161,7 +161,7 @@ public class AstrntSDK extends HawkUtils {
             realm.commitTransaction();
             GdprDao gdprDao = new GdprDao(resultApiDao.getGdpr_complied(), resultApiDao.getGdpr_text(), resultApiDao.getGdpr_aggrement_text(), resultApiDao.getCompliance());
             saveGdprDao(gdprDao);
-            if (resultApiDao.getWelcomeVideo() != null && !resultApiDao.getWelcomeVideo().getWelcomeVideoUrl().equals("")) {
+            if (resultApiDao.getWelcomeVideo() != null && !resultApiDao.getWelcomeVideo().getWelcome_video_url().equals("")) {
                 saveWelcomeVideoDao(resultApiDao.getWelcomeVideo());
             }
             if (interviewApiDao != null) {

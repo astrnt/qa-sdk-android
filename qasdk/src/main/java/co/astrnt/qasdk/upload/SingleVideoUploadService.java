@@ -304,7 +304,11 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     @Override
     public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-        astrntSDK.removeUploadId();
+        try {
+            astrntSDK.removeUploadId();
+        } catch (Exception e){
+
+        }
         Timber.e("Video Upload Error : ");
         String message = "";
         if (serverResponse != null && serverResponse.getBody() != null) {
@@ -322,14 +326,19 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         }
 
         Timber.e("Video Upload Error : %s", message);
-        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
-                new LogDao("Background Upload (Error)",
-                        "Error " + message
-                )
-        );
+        try {
 
-        astrntSDK.markAsCompressed(currentQuestion);
-        stopService();
+            LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                    new LogDao("Background Upload (Error)",
+                            "Error " + message
+                    )
+            );
+
+            astrntSDK.markAsCompressed(currentQuestion);
+            stopService();
+        }catch (Exception e){
+
+        }
     }
 
     @Override

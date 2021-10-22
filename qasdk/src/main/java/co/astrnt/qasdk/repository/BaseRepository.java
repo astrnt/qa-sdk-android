@@ -7,9 +7,6 @@ import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.utils.ServiceUtils;
 import co.astrnt.qasdk.utils.services.SendLogService;
 
-/**
- * Created by deni rohimat on 06/04/18.
- */
 public class BaseRepository {
 
     protected final AstronautApi mAstronautApi;

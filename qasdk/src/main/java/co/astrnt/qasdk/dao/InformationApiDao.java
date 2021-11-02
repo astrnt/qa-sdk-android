@@ -20,6 +20,7 @@ public class InformationApiDao extends RealmObject {
     private String status;
     private RealmList<PrevQuestionStateApiDao> prevQuestStates;
     private int section_index;
+    private int question_index;
     private int preparation_time;
     private int section_duration_left;
     private String section_info;
@@ -30,7 +31,8 @@ public class InformationApiDao extends RealmObject {
     public InformationApiDao() {
     }
 
-    public InformationApiDao(boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao... prevQuestStates) {
+    public InformationApiDao(int questionIndex, boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao... prevQuestStates) {
+        this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;
         this.interviewIndex = interviewIndex;
@@ -42,7 +44,8 @@ public class InformationApiDao extends RealmObject {
         }
     }
 
-    public InformationApiDao(boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao[] prevQuestStates, QuestionInfoMcqApiDao... questionInfoMcqApiDao) {
+    public InformationApiDao(int questionIndex,boolean finished, int interviewIndex, int interviewSubIndex, int interviewAttempt, String status, String message, PrevQuestionStateApiDao[] prevQuestStates, QuestionInfoMcqApiDao... questionInfoMcqApiDao) {
+        this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;
         this.interviewIndex = interviewIndex;
@@ -58,7 +61,9 @@ public class InformationApiDao extends RealmObject {
     }
 
 
-    public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
+    public InformationApiDao(int interviewIndex, int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message) {
+        this.interviewIndex = interviewIndex;
+        this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;
         this.section_index = section_index;
@@ -68,7 +73,8 @@ public class InformationApiDao extends RealmObject {
         this.message = message;
     }
 
-    public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoApiDao... questionInfos) {
+    public InformationApiDao(int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoApiDao... questionInfos) {
+        this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;
         this.section_index = section_index;
@@ -81,7 +87,10 @@ public class InformationApiDao extends RealmObject {
         }
     }
 
-    public InformationApiDao(boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoMcqApiDao... questionInfoMcqApiDaos) {
+    public InformationApiDao(int interviewIndex, int interviewSubIndex, int questionIndex, boolean finished, String status, int section_index, int preparation_time, int section_duration_left, String section_info, String message, QuestionInfoMcqApiDao... questionInfoMcqApiDaos) {
+        this.interviewIndex = interviewIndex;
+        this.interviewSubIndex = interviewSubIndex;
+        this.question_index = questionIndex;
         this.finished = finished;
         this.status = status;
         this.section_index = section_index;
@@ -204,6 +213,14 @@ public class InformationApiDao extends RealmObject {
 
     public void setQuestions_mcq_info(RealmList<QuestionInfoMcqApiDao> questions_mcq_info) {
         this.questions_mcq_info = questions_mcq_info;
+    }
+
+    public int getQuestion_index() {
+        return question_index;
+    }
+
+    public void setQuestion_index(int question_index) {
+        this.question_index = question_index;
     }
 
     public boolean isOnGoing() {

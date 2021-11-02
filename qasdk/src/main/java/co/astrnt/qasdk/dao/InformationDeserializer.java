@@ -19,6 +19,10 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
         if (json.getAsJsonObject().get("interviewIndex") != null) {
             interviewIndex = json.getAsJsonObject().get("interviewIndex").getAsInt();
         }
+        int questionIndex = 0;
+        if (json.getAsJsonObject().get("question_index") != null) {
+            questionIndex = json.getAsJsonObject().get("question_index").getAsInt();
+        }
         int interviewSubIndex = 0;
         if (json.getAsJsonObject().get("interviewSubIndex") != null) {
             interviewSubIndex = json.getAsJsonObject().get("interviewSubIndex").getAsInt();
@@ -62,16 +66,16 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
                 if (questionsInfo.isJsonArray()) {
                     //MCQ Type
                     QuestionInfoMcqApiDao[] questionInfoMcqApiDaos = context.deserialize(questionsInfo.getAsJsonArray(), QuestionInfoMcqApiDao[].class);
-                    return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message, questionInfoMcqApiDaos);
+                    return new InformationApiDao(interviewIndex, interviewSubIndex, questionIndex, finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message, questionInfoMcqApiDaos);
                 } else if (questionsInfo.isJsonObject()) {
                     //Video Type
                     QuestionInfoApiDao questionInfoApiDao = context.deserialize(questionsInfo.getAsJsonObject(), QuestionInfoApiDao.class);
-                    return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message, questionInfoApiDao);
+                    return new InformationApiDao(questionIndex, finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message, questionInfoApiDao);
                 } else {
-                    return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message);
+                    return new InformationApiDao(interviewIndex, interviewSubIndex, questionIndex, finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message);
                 }
             } else {
-                return new InformationApiDao(finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message);
+                return new InformationApiDao(interviewIndex, interviewSubIndex, questionIndex, finished, status, sectionIndex, preparationTime, sectionDurationLeft, sectionInfo, message);
             }
         } else {
             QuestionInfoMcqApiDao[] questionInfoMcqApiDaos = null;
@@ -92,9 +96,9 @@ public class InformationDeserializer implements JsonDeserializer<InformationApiD
             PrevQuestionStateApiDao[] prevQuestionStateApiDaos = context.deserialize(prevQuestionState.getAsJsonArray(), PrevQuestionStateApiDao[].class);
 
             if (questionInfoMcqApiDaos != null) {
-                return new InformationApiDao(finished, interviewIndex, interviewSubIndex, interviewAttempt, status, message, prevQuestionStateApiDaos, questionInfoMcqApiDaos);
+                return new InformationApiDao(questionIndex, finished, interviewIndex, interviewSubIndex, interviewAttempt, status, message, prevQuestionStateApiDaos, questionInfoMcqApiDaos);
             }  else {
-                return new InformationApiDao(finished, interviewIndex, interviewSubIndex, interviewAttempt, status, message, prevQuestionStateApiDaos);
+                return new InformationApiDao(questionIndex, finished, interviewIndex, interviewSubIndex, interviewAttempt, status, message, prevQuestionStateApiDaos);
             }
         }
     }

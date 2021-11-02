@@ -18,6 +18,7 @@ import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_LAST_QUESTION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_PROFILE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_RUNNING_COMPRESSING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_RUNNING_UPLOADING;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_SECTION_SUMMARY;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_SOURCING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_LAST_API_CALL;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_LAST_TIMER;
@@ -57,14 +58,6 @@ public class HawkUtils {
 
     public void setFinishSession(boolean finishSession) {
         Hawk.put(KEY_FINISH_SESSION, finishSession);
-    }
-
-    public boolean isStartSessionTimer() {
-        return Hawk.get(KEY_START_SESSION, false);
-    }
-
-    public void setStartSessionTimer(boolean finishSession) {
-        Hawk.put(KEY_START_SESSION, finishSession);
     }
 
     public boolean isFinishQuestionSession() {
@@ -264,6 +257,14 @@ public class HawkUtils {
 
     public void saveIsLastQuestion(boolean isLast) {
         Hawk.put(KEY_IS_LAST_QUESTION, isLast);
+    }
+
+    public boolean isSectionSummary() {
+        return Hawk.get(KEY_IS_SECTION_SUMMARY, false);
+    }
+
+    public void saveSectionSummary(boolean isLast) {
+        Hawk.put(KEY_IS_SECTION_SUMMARY, isLast);
     }
 
 

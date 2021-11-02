@@ -24,7 +24,9 @@ public class InterviewApiDao extends RealmObject {
     private CustomFieldResultApiDao custom_fields;
     private RealmList<SectionApiDao> sections;
     private RealmList<QuestionApiDao> questions;
+    private QuestionApiDao sample_question;
     private String lang;
+    private int try_sample_question;
     private boolean finished;
     private int self_pace;
     //this temporary for save code
@@ -226,5 +228,21 @@ public class InterviewApiDao extends RealmObject {
             }
         }
         return questionsAndSubs;
+    }
+
+    public QuestionApiDao getSample_question() {
+        return sample_question;
+    }
+
+    public void setSample_question(QuestionApiDao sample_question) {
+        this.sample_question = sample_question;
+    }
+
+    public int getTrySampleQuestion() {
+        return try_sample_question;
+    }
+
+    public void setTrySampleQuestion(int trySampleQuestion) {
+        this.try_sample_question = trySampleQuestion;
     }
 }

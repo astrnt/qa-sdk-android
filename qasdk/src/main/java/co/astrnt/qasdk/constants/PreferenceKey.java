@@ -34,4 +34,5 @@ public class PreferenceKey {
     public static final String KEY_IS_RUNNING_UPLOADING = "RunningUploading";
     public static final String KEY_IS_RUNNING_COMPRESSING = "RunningCOMPRESSING";
     public static final String KEY_IS_LAST_QUESTION = "LastQuestion";
+    public static final String KEY_IS_SECTION_SUMMARY = "SECTIONSUMMARY";
 }

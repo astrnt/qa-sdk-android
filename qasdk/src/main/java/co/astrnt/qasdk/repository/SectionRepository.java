@@ -8,6 +8,7 @@ import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.InterviewStartApiDao;
 import co.astrnt.qasdk.dao.LogDao;
+import co.astrnt.qasdk.dao.QuestionApiDao;
 import co.astrnt.qasdk.dao.SectionApiDao;
 import co.astrnt.qasdk.dao.SummarySectionApiDao;
 import co.astrnt.qasdk.type.ElapsedTime;
@@ -142,6 +143,25 @@ public class SectionRepository extends BaseRepository {
                         Timber.d(apiDao.getMessage());
                     }
                 });
+    }
+
+    public Observable<BaseApiDao> addLastSeen(int questionId) {
+        InterviewApiDao interviewApiDao = astrntSDK.getCurrentInterview();
+        String token = interviewApiDao.getToken();
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("interview_code", interviewApiDao.getInterviewCode());
+        map.put("question_id", String.valueOf(questionId));
+
+        LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
+                new LogDao("Hit API (/question/last_seen)",
+                        "Add Last Seen, number " + (astrntSDK.getQuestionIndex() + 1) +
+                                ", questionId = " + questionId
+                )
+        );
+        astrntSDK.saveLastApiCall("(/question/last_seen)");
+
+        return mAstronautApi.getApiService().addLastSeen(token, map);
     }
 
 }

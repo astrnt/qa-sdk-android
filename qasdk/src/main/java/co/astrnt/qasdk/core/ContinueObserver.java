@@ -7,6 +7,7 @@ import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.utils.LogUtil;
 
 import static co.astrnt.qasdk.type.InterviewType.ASTRONAUT_PROFILE;
+import static co.astrnt.qasdk.type.InterviewType.CLOSE_APTITUDE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_INTERVIEW_PROFILE;
 import static co.astrnt.qasdk.type.InterviewType.CLOSE_SECTION;
@@ -36,6 +37,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
             case CLOSE_INTERVIEW:
             case CLOSE_SECTION:
             case CLOSE_INTERVIEW_PROFILE:
+            case CLOSE_APTITUDE:
             case CLOSE_TEST:
                 LogUtil.addNewLog(interviewCode,
                         new LogDao("Response API",
@@ -47,6 +49,7 @@ public abstract class ContinueObserver extends MyObserver<InterviewResultApiDao>
 //                    astrntSDK.updateInterviewData(currentInterview, newInterview);
                     if (!astrntSDK.isSectionInterview()) {
                         astrntSDK.updateDurationLeft(currentInterview, newInterview.getDuration_left());
+                        astrntSDK.updateTrySampleQuestion(currentInterview, newInterview.getTrySampleQuestion());
                     }
                     currentInterview = astrntSDK.getCurrentInterview();
                     astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true);

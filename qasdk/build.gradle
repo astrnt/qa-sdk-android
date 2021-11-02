@@ -1,12 +1,16 @@
 apply plugin: 'com.android.library'
 apply plugin: 'realm-android'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-parcelize'
+//apply plugin: 'kotlin-kapt'
+//apply plugin: 'realm-android'
 
 group = 'com.github.astrnt'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '30.0.3'
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 30
@@ -30,7 +34,6 @@ android {
             buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
         }
     }
-
     packagingOptions{
         exclude "lib/mips/librealm-jni.so"
         exclude "lib/x86/librealm-jni.so"
@@ -53,23 +56,31 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+//    buildFeatures {
+//        viewBinding true
+//    }
     ndkVersion '21.3.6528147'
 }
 
 configurations.all {
     resolutionStrategy {
-        force 'com.squareup.okio:okio:2.7.0'
-        force 'com.squareup.okhttp3:okhttp:4.9.0'
+        force 'com.squareup.okio:okio:2.10.0'
+        force 'com.squareup.okhttp3:okhttp:4.9.1'
         force 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     }
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
     api fileTree(dir: 'libs', include: ['*.jar'])
 
-    api 'io.reactivex.rxjava2:rxjava:2.2.19'
+    api 'io.reactivex.rxjava2:rxjava:2.2.20'
     api 'androidx.core:core:1.3.2'
     api 'androidx.legacy:legacy-support-core-utils:1.0.0'
     api 'androidx.media:media:1.2.0'
@@ -78,10 +89,10 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     api "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     api "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    api 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+    api 'com.squareup.okhttp3:logging-interceptor:4.9.1'
     api 'com.jakewharton.timber:timber:4.7.1'
 
-    implementation 'com.itkacher.okhttpprofiler:okhttpprofiler:1.0.7'
+    implementation 'com.localebro:okhttpprofiler:1.0.8'
 
     def uploadServiceVersion = "3.5.2"
     api "net.gotev:uploadservice:$uploadServiceVersion"

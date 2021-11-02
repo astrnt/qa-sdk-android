@@ -18,11 +18,16 @@ public class SectionApiDao extends RealmObject {
     private String sub_type;
     private int duration;
     private int preparation_time;
+    private int preparation_time_api;
     private boolean randomize;
     private String image;
     private String parent_id;
     private RealmList<QuestionApiDao> section_questions;
     private RealmList<SupportMaterialDao> support_materials;
+
+    //for rating scale
+    private QuestionApiDao sample_question;
+    private int try_sample_question;
 
     private MediaDao media;
     private @MediaTypes String media_type;
@@ -95,6 +100,14 @@ public class SectionApiDao extends RealmObject {
 
     public void setPreparationTime(int preparation_time) {
         this.preparation_time = preparation_time;
+    }
+
+    public int getPreparationTimeApi() {
+        return preparation_time_api;
+    }
+
+    public void setPreparationTimeApi(int preparation_time_api) {
+        this.preparation_time_api = preparation_time_api;
     }
 
     public boolean isRandomize() {
@@ -199,5 +212,21 @@ public class SectionApiDao extends RealmObject {
 
     public void setShowReview(boolean showReview) {
         this.showReview = showReview;
+    }
+
+    public QuestionApiDao getSample_question() {
+        return sample_question;
+    }
+
+    public void setSample_question(QuestionApiDao sample_question) {
+        this.sample_question = sample_question;
+    }
+
+    public int getTry_sample_question() {
+        return try_sample_question;
+    }
+
+    public void setTry_sample_question(int try_sample_question) {
+        this.try_sample_question = try_sample_question;
     }
 }

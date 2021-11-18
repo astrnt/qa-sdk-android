@@ -14,13 +14,13 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 
 abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
+    override fun onApiResultOk(resultApiDao: InterviewResultApiDao?) {
         astrntSDK.clearDb()
         astrntSDK = AstrntSDK()
-        val data = resultApiDao.interview
-        val interviewCode = data.interviewCode
+        val data = resultApiDao?.interview
+        val interviewCode = data?.interviewCode
         astrntSDK.saveInterviewResult(resultApiDao, data, false)
-        when (data.type) {
+        when (data?.type) {
             CLOSE_INTERVIEW, CLOSE_INTERVIEW_PROFILE -> {
                 if (interviewCode != null) {
                     addNewLog(interviewCode,
@@ -80,11 +80,11 @@ abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
                 onAstronautProfileType(data)
             }
             else -> {
-                val message = resultApiDao.message
-                if (resultApiDao.title != null) {
-                    onApiResultError(resultApiDao.title, message, "error")
+                val message = resultApiDao?.message
+                if (resultApiDao?.title != null) {
+                    onApiResultError(resultApiDao.title.toString(), message.toString(), "error")
                 } else {
-                    onApiResultError("", message, "error")
+                    onApiResultError("", message.toString(), "error")
                 }
                 addNewLog(interviewCode,
                         LogDao("Register Response API",

@@ -14,8 +14,8 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
 
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
-        val data = resultApiDao.interview
+    override fun onApiResultOk(resultApiDao: InterviewResultApiDao?) {
+        val data = resultApiDao?.interview
         if (data == null) {
             onApiResultError("", "Code not found or interview already finished", "error")
         } else {
@@ -89,9 +89,9 @@ abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
                         }
                         else -> {
                             if (resultApiDao.title != null) {
-                                onApiResultError(resultApiDao.title, resultApiDao.message, "error")
+                                onApiResultError(resultApiDao.title.toString(), resultApiDao.message.toString(), "error")
                             } else {
-                                onApiResultError("", resultApiDao.message, "error")
+                                onApiResultError("", resultApiDao.message.toString(), "error")
                             }
                             if (interviewCode != null) {
                                 addNewLog(interviewCode,

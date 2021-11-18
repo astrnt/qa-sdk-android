@@ -11,6 +11,7 @@ import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
+
 abstract class MyObserver<T : BaseApiDao> : Observer<T> {
     @JvmField var astrntSDK = AstrntSDK()
     override fun onComplete() {
@@ -59,11 +60,19 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
             onApiResultError("", message.toString(), "exception")
         }
         val interviewCode = astrntSDK.interviewCode
-        addNewLog(interviewCode,
-                LogDao("Response API",
-                        "Response Error : $message"
-                )
-        )
+        if (message != null && message.toLowerCase().contains("unable to resolve host")) {
+            addNewLog(interviewCode,
+                    LogDao("Response API",
+                            "Failed, No Internet Connection"
+                    )
+            )
+        } else {
+            addNewLog(interviewCode,
+                    LogDao("Response API",
+                            "Response Error : $message"
+                    )
+            )
+        }
     }
 
     override fun onNext(t: T) {
@@ -83,7 +92,7 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
                 val data = t as InterviewResultApiDao
                 val interviewApiDao = astrntSDK.currentInterview
                 if (interviewApiDao != null) {
-                    if (data.token != null && !data.token.isEmpty()) {
+                    if (data.token != null && data.token!!.isNotEmpty()) {
                         addNewLog(interviewCode,
                                 LogDao("Token Changed",
                                         "New Token : " + data.token
@@ -141,5 +150,5 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
 
     abstract fun onApiResultCompleted()
     abstract fun onApiResultError(title: String?, message: String?, code: String?)
-    abstract fun onApiResultOk(t: T?)
+    abstract fun onApiResultOk(baseApiDao: T)
 }

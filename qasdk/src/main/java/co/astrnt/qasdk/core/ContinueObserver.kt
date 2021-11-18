@@ -13,11 +13,11 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 abstract class ContinueObserver : MyObserver<InterviewResultApiDao>() {
 
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao?) {
+    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
         var currentInterview = astrntSDK.currentInterview
         val interviewCode = astrntSDK.interviewCode
-        val newInterview = resultApiDao?.interview
-        val information = resultApiDao?.information
+        val newInterview = resultApiDao.interview
+        val information = resultApiDao.information
         if (information!!.isFinished) {
             astrntSDK.setInterviewFinished()
             astrntSDK.isFinishInterview = false
@@ -54,8 +54,8 @@ abstract class ContinueObserver : MyObserver<InterviewResultApiDao>() {
                 onAstronautProfileType(newInterview)
             }
             else -> {
-                val message = resultApiDao?.message
-                if (resultApiDao?.title != null) {
+                val message = resultApiDao.message
+                if (resultApiDao.title != null) {
                     onApiResultError(resultApiDao.title.toString(), message.toString(), "error")
                 } else {
                     onApiResultError("", message.toString(), "error")
@@ -70,5 +70,5 @@ abstract class ContinueObserver : MyObserver<InterviewResultApiDao>() {
     }
 
     abstract fun onContinueInterview()
-    abstract fun onAstronautProfileType(interview: InterviewApiDao?)
+    abstract fun onAstronautProfileType(interview: InterviewApiDao)
 }

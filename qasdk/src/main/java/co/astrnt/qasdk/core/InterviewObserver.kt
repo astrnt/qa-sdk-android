@@ -14,13 +14,13 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
 
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao?) {
-        val data = resultApiDao?.interview
+    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
+        val data = resultApiDao.interview
         if (data == null) {
             onApiResultError("", "Code not found or interview already finished", "error")
         } else {
             astrntSDK.saveInterviewResult(resultApiDao, data, false)
-            if (data.type.contains(OPEN)) {
+            if (data.type!!.contains(OPEN)) {
                 if (data.interviewCode != null) {
                     addNewLog(data.interviewCode,
                             LogDao("Response API",
@@ -107,10 +107,10 @@ abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
         }
     }
 
-    abstract fun onNeedToRegister(interview: InterviewApiDao?)
-    abstract fun onInterviewType(interview: InterviewApiDao?)
-    abstract fun onTestType(interview: InterviewApiDao?)
-    abstract fun onSectionType(interview: InterviewApiDao?)
-    abstract fun onAstronautProfileType(interview: InterviewApiDao?)
-    abstract fun onAptitudeType(interview: InterviewApiDao?)
+    abstract fun onNeedToRegister(interview: InterviewApiDao)
+    abstract fun onInterviewType(interview: InterviewApiDao)
+    abstract fun onTestType(interview: InterviewApiDao)
+    abstract fun onSectionType(interview: InterviewApiDao)
+    abstract fun onAstronautProfileType(interview: InterviewApiDao)
+    abstract fun onAptitudeType(interview: InterviewApiDao)
 }

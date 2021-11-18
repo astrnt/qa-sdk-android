@@ -1,6 +1,7 @@
 package co.astrnt.qasdk.constants
 
-object PreferenceKey {
+object
+PreferenceKey {
     const val KEY_FIRST_OPEN = "key_first_open"
     const val KEY_SHOW_RATING = "key_show_rating"
     const val KEY_NEED_REGISTER = "key_need_register"
@@ -34,4 +35,5 @@ object PreferenceKey {
     const val KEY_IS_RUNNING_COMPRESSING = "RunningCOMPRESSING"
     const val KEY_IS_LAST_QUESTION = "LastQuestion"
     const val KEY_IS_SECTION_SUMMARY = "SECTIONSUMMARY"
+    const val KEY_IS_COUNTDOWN = "COUNTDOWN"
 }

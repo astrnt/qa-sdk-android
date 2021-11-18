@@ -14,10 +14,11 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 
 abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao?) {
+
+    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
         astrntSDK.clearDb()
         astrntSDK = AstrntSDK()
-        val data = resultApiDao?.interview
+        val data = resultApiDao.interview
         val interviewCode = data?.interviewCode
         astrntSDK.saveInterviewResult(resultApiDao, data, false)
         when (data?.type) {
@@ -60,14 +61,6 @@ abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
                     )
                 }
                 onAptitudeType(data)
-                if (interviewCode != null) {
-                    addNewLog(interviewCode,
-                            LogDao("Response API",
-                                    "Success, will move to Astronaut Profile"
-                            )
-                    )
-                }
-                onAstronautProfileType(data)
             }
             ASTRONAUT_PROFILE -> {
                 if (interviewCode != null) {
@@ -80,11 +73,11 @@ abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
                 onAstronautProfileType(data)
             }
             else -> {
-                val message = resultApiDao?.message
-                if (resultApiDao?.title != null) {
-                    onApiResultError(resultApiDao.title.toString(), message.toString(), "error")
+                val message = resultApiDao.message
+                if (resultApiDao.title != null) {
+                    onApiResultError(resultApiDao.title, message, "error")
                 } else {
-                    onApiResultError("", message.toString(), "error")
+                    onApiResultError("", message, "error")
                 }
                 addNewLog(interviewCode,
                         LogDao("Register Response API",
@@ -95,9 +88,9 @@ abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
         }
     }
 
-    abstract fun onInterviewType(interview: InterviewApiDao?)
-    abstract fun onTestType(interview: InterviewApiDao?)
-    abstract fun onSectionType(interview: InterviewApiDao?)
-    abstract fun onAstronautProfileType(interview: InterviewApiDao?)
-    abstract fun onAptitudeType(interview: InterviewApiDao?)
+    abstract fun onInterviewType(interview: InterviewApiDao)
+    abstract fun onTestType(interview: InterviewApiDao)
+    abstract fun onSectionType(interview: InterviewApiDao)
+    abstract fun onAstronautProfileType(interview: InterviewApiDao)
+    abstract fun onAptitudeType(interview: InterviewApiDao)
 }

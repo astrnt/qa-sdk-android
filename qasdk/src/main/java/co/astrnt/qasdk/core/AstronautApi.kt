@@ -23,7 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 
-class AstronautApi(baseUrl: String?, isDebugable: Boolean) {
+class AstronautApi(baseUrl: String, isDebugable: Boolean) {
     val apiService: ApiService
 
     companion object {

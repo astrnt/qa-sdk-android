@@ -1,5 +1,6 @@
 package co.astrnt.qasdk;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
@@ -15,6 +16,7 @@ import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -482,6 +484,7 @@ public class AstrntSDK extends HawkUtils {
                                                 "Section duration using from info " + interviewResultApiDao.getInformation().getSectionDurationLeft()
                                         )
                                 );
+                                section.setOnGoing(true);
                                 section.setDuration(interviewResultApiDao.getInformation().getSectionDurationLeft());
                             }
                         }
@@ -2126,7 +2129,7 @@ public class AstrntSDK extends HawkUtils {
 
             LogUtil.addNewLog(getInterviewCode(),
                     new LogDao("Video Upload Info",
-                            String.format(Locale.getDefault(), "Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
+                            String.format(Locale.getDefault(), "Mark not answer for Question Id : %d", questionApiDao.getId())
                     )
             );
 
@@ -2361,6 +2364,33 @@ public class AstrntSDK extends HawkUtils {
         long requiredStorage = questionsStorage + uploadStorage;
         long availableStorage = getAvailableStorage();
         return availableStorage - requiredStorage;
+    }
+
+    public String getMemorySizeHumanized(long totalMemory, Context getContext) {
+        Context context = getContext;
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+        DecimalFormat twoDecimalForm = new DecimalFormat("#.##");
+        String finalValue = "";
+
+        double kb = totalMemory / 1024.0;
+        double mb = totalMemory / 1048576.0;
+        double gb = totalMemory / 1073741824.0;
+        double tb = totalMemory / 1099511627776.0;
+
+        if (tb > 1) {
+            finalValue = twoDecimalForm.format(tb).concat(" TB");
+        } else if (gb > 1) {
+            finalValue = twoDecimalForm.format(gb).concat(" GB");
+        } else if (mb > 1) {
+            finalValue = twoDecimalForm.format(mb).concat(" MB");
+        }else if(kb > 1){
+            finalValue = twoDecimalForm.format(mb).concat(" KB");
+        } else {
+            finalValue = twoDecimalForm.format(totalMemory).concat(" Bytes");
+        }
+        return finalValue;
     }
 
     public boolean isStorageEnough() {
@@ -2666,6 +2696,65 @@ public class AstrntSDK extends HawkUtils {
 
         if (!selectedAnswer.isEmpty()) {
             questionApiDao.setAnswered(true);
+        }
+    }
+
+
+    public void addAnswer2(QuestionApiDao questionApiDao, String answer) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setAnswer(answer);
+            if (answer.isEmpty()) {
+                questionApiDao.setAnswered(false);
+            } else {
+                questionApiDao.setAnswered(true);
+            }
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        } else {
+            addAnswer2(questionApiDao, answer);
+        }
+    }
+
+
+    public void addSelectedAnswer2(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
+        if (!realm.isInTransaction()) {
+
+            if (questionApiDao != null && questionApiDao.getMultiple_answers() != null) {
+                RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
+                realm.beginTransaction();
+
+                RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (questionApiDao.isMultipleChoice()) {
+                        item.setSelected(true);
+                    } else {
+                        if (item.getId() == answer.getId()) {
+                            questionApiDao.setAnswerId(item.getId());
+                            item.setSelected(true);
+                        } else {
+                            item.setSelected(true);
+                        }
+                    }
+                }
+
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (item.isSelected()) {
+                        selectedAnswer.add(item);
+                    }
+                }
+
+                questionApiDao.setSelectedAnswer(selectedAnswer);
+                questionApiDao.setMultiple_answers(multipleAnswer);
+
+                realm.copyToRealmOrUpdate(questionApiDao);
+                realm.commitTransaction();
+            }
+
+        } else {
+            addSelectedAnswer2(questionApiDao, answer);
         }
     }
 

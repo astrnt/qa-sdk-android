@@ -15,10 +15,10 @@ object FileUploadHelper {
     fun uploadVideo(context: Context?, interviewApiDao: InterviewApiDao, currentQuestion: QuestionApiDao, url: String?, source: String): MultipartUploadRequest {
         val token = interviewApiDao.token
         val interviewCode = interviewApiDao.interviewCode
-        val candidateId = interviewApiDao.candidate.id.toString() + ""
-        val companyId = interviewApiDao.company.id.toString() + ""
+        val candidateId = interviewApiDao.candidate?.id.toString() + ""
+        val companyId = interviewApiDao.company?.id.toString() + ""
         val questionId = currentQuestion.id.toString() + ""
-        val jobId = interviewApiDao.job.id.toString() + ""
+        val jobId = interviewApiDao.job?.id.toString() + ""
         val filePath = currentQuestion.videoPath
         LogUtil.addNewLog(interviewCode,
                 LogDao("Video Upload $questionId",

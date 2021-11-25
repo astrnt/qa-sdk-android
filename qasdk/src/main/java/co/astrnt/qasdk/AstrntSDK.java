@@ -482,6 +482,7 @@ public class AstrntSDK extends HawkUtils {
                                                 "Section duration using from info " + interviewResultApiDao.getInformation().getSectionDurationLeft()
                                         )
                                 );
+                                section.setOnGoing(true);
                                 section.setDuration(interviewResultApiDao.getInformation().getSectionDurationLeft());
                             }
                         }

@@ -1,5 +1,6 @@
 package co.astrnt.qasdk;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
@@ -15,6 +16,7 @@ import net.gotev.uploadservice.UploadService;
 import net.gotev.uploadservice.okhttp.OkHttpStack;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -2127,7 +2129,7 @@ public class AstrntSDK extends HawkUtils {
 
             LogUtil.addNewLog(getInterviewCode(),
                     new LogDao("Video Upload Info",
-                            String.format(Locale.getDefault(), "Upload file not found. Mark not answer for Question Id : %d", questionApiDao.getId())
+                            String.format(Locale.getDefault(), "Mark not answer for Question Id : %d", questionApiDao.getId())
                     )
             );
 
@@ -2363,6 +2365,34 @@ public class AstrntSDK extends HawkUtils {
         long availableStorage = getAvailableStorage();
         return availableStorage - requiredStorage;
     }
+
+    public String getMemorySizeHumanized(long totalMemory, Context getContext) {
+        Context context = getContext;
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+        DecimalFormat twoDecimalForm = new DecimalFormat("#.##");
+        String finalValue = "";
+
+        double kb = totalMemory / 1024.0;
+        double mb = totalMemory / 1048576.0;
+        double gb = totalMemory / 1073741824.0;
+        double tb = totalMemory / 1099511627776.0;
+
+        if (tb > 1) {
+            finalValue = twoDecimalForm.format(tb).concat(" TB");
+        } else if (gb > 1) {
+            finalValue = twoDecimalForm.format(gb).concat(" GB");
+        } else if (mb > 1) {
+            finalValue = twoDecimalForm.format(mb).concat(" MB");
+        }else if(kb > 1){
+            finalValue = twoDecimalForm.format(mb).concat(" KB");
+        } else {
+            finalValue = twoDecimalForm.format(totalMemory).concat(" Bytes");
+        }
+        return finalValue;
+    }
+
 
     public boolean isStorageEnough() {
         long questionsStorage = getTotalQuestionRawStorage();

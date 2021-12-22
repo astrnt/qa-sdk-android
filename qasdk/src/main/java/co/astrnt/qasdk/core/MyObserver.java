@@ -71,11 +71,20 @@ public abstract class MyObserver<T extends BaseApiDao> implements Observer<T> {
         }
 
         String interviewCode = astrntSDK.getInterviewCode();
-        LogUtil.addNewLog(interviewCode,
-                new LogDao("Response API",
-                        "Response Error : " + message
-                )
-        );
+        if (message != null && message.toLowerCase().contains("unable to resolve host")) {
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Response API",
+                            "Failed, No Internet Connection"
+                    )
+            );
+        } else {
+            LogUtil.addNewLog(interviewCode,
+                    new LogDao("Response API",
+                            "Response Error : " + message
+                    )
+            );
+        }
+
     }
 
     @Override

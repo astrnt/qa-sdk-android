@@ -2700,6 +2700,65 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void addAnswer2(QuestionApiDao questionApiDao, String answer) {
+        if (!realm.isInTransaction()) {
+            realm.beginTransaction();
+
+            questionApiDao.setAnswer(answer);
+            if (answer.isEmpty()) {
+                questionApiDao.setAnswered(false);
+            } else {
+                questionApiDao.setAnswered(true);
+            }
+
+            realm.copyToRealmOrUpdate(questionApiDao);
+            realm.commitTransaction();
+        } else {
+            addAnswer2(questionApiDao, answer);
+        }
+    }
+
+
+    public void addSelectedAnswer2(QuestionApiDao questionApiDao, MultipleAnswerApiDao answer) {
+        if (!realm.isInTransaction()) {
+
+            if (questionApiDao != null && questionApiDao.getMultiple_answers() != null) {
+                RealmList<MultipleAnswerApiDao> selectedAnswer = new RealmList<>();
+                realm.beginTransaction();
+
+                RealmList<MultipleAnswerApiDao> multipleAnswer = questionApiDao.getMultiple_answers();
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (questionApiDao.isMultipleChoice()) {
+                        item.setSelected(true);
+                    } else {
+                        if (item.getId() == answer.getId()) {
+                            questionApiDao.setAnswerId(item.getId());
+                            item.setSelected(true);
+                        } else {
+                            item.setSelected(true);
+                        }
+                    }
+                }
+
+                for (MultipleAnswerApiDao item : multipleAnswer) {
+                    if (item.isSelected()) {
+                        selectedAnswer.add(item);
+                    }
+                }
+
+                questionApiDao.setSelectedAnswer(selectedAnswer);
+                questionApiDao.setMultiple_answers(multipleAnswer);
+
+                realm.copyToRealmOrUpdate(questionApiDao);
+                realm.commitTransaction();
+            }
+
+        } else {
+            addSelectedAnswer2(questionApiDao, answer);
+        }
+    }
+
+
     public void addAnswer(QuestionApiDao questionApiDao, String answer) {
         if (!realm.isInTransaction()) {
             realm.beginTransaction();

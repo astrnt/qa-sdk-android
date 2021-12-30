@@ -252,11 +252,20 @@ public class InterviewRepository extends BaseRepository {
                     public void onApiResultError(String title, String message, String code) {
                         Timber.e(message);
 
-                        LogUtil.addNewLog(interviewCode,
-                                new LogDao("Hit API (Elapsed Time Section)",
-                                        "Error " + message
-                                )
-                        );
+                        if (message != null && message.toLowerCase().contains("unable to resolve host")) {
+                            LogUtil.addNewLog(interviewCode,
+                                    new LogDao("Hit API (Elapsed Time Section)",
+                                            "Failed, No Internet Connection"
+                                    )
+                            );
+                        } else {
+                            LogUtil.addNewLog(interviewCode,
+                                    new LogDao("Hit API (Elapsed Time Section)",
+                                            "Error " + message
+                                    )
+                            );
+                        }
+
 
                         astrntSDK.saveLastApiCall("(Elapsed Time Section)");
                     }

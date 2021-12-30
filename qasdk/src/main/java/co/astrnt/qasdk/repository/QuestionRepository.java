@@ -267,11 +267,21 @@ public class QuestionRepository extends BaseRepository {
                     public void onApiResultError(String title, String message, String code) {
                         Timber.e(message);
 
-                        LogUtil.addNewLog(interviewCode,
-                                new LogDao("Hit API (Elapsed Time)",
-                                        "Error " + message
-                                )
-                        );
+
+                        if (message != null && message.toLowerCase().contains("unable to resolve host")) {
+                            LogUtil.addNewLog(interviewCode,
+                                    new LogDao("Hit API (Elapsed Time)",
+                                            "Failed, No Internet Connection"
+                                    )
+                            );
+                        } else {
+                            LogUtil.addNewLog(interviewCode,
+                                    new LogDao("Hit API (Elapsed Time)",
+                                            "Error " + message
+                                    )
+                            );
+                        }
+
 
                         astrntSDK.saveLastApiCall("(Elapsed Time)");
                     }

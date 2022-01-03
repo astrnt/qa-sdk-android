@@ -1,10 +1,9 @@
 apply plugin: 'com.android.library'
-apply plugin: 'realm-android'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'kotlin-android'
 //apply plugin: 'kotlin-parcelize'
-//apply plugin: 'kotlin-kapt'
-//apply plugin: 'realm-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'realm-android'
 
 group = 'com.github.astrnt'
 

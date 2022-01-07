@@ -14,6 +14,7 @@ import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_SESSION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FIRST_OPEN;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_GDPR;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_INTERVIEW_CODE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_COUNTDOWN;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_LAST_QUESTION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_PROFILE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_IS_RUNNING_COMPRESSING;
@@ -42,6 +43,14 @@ public class HawkUtils {
 
     public void setContinueInterview(boolean isContinue) {
         Hawk.put(KEY_CONTINUE, isContinue);
+    }
+
+    public boolean isContDown() {
+        return Hawk.get(KEY_IS_COUNTDOWN, false);
+    }
+
+    public void setContDown(boolean isCountDown) {
+        Hawk.put(KEY_IS_COUNTDOWN, isCountDown);
     }
 
     public boolean isShowUpload() {

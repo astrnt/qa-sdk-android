@@ -157,6 +157,8 @@ public class VideoCompressService extends Service {
                     @Override
                     public void onStart() {
 
+                        astrntSDK.saveRunningCompressing(true);
+
                         astrntSDK.updateCompressing(currentQuestion);
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),
@@ -348,6 +350,8 @@ public class VideoCompressService extends Service {
 
     public void stopService() {
         astrntSDK.saveRunningCompressing(false);
+        LogUtil.addNewLog(astrntSDK.getInterviewCode(),
+                new LogDao("Stop Service", "Video Compress"));
         sendLog();
         mTimer.cancel();
         if (mNotifyManager != null) mNotifyManager.cancelAll();

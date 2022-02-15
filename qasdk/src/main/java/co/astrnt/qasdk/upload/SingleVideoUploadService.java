@@ -277,6 +277,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     public void stopService() {
         astrntSDK.saveRunningUploading(false);
+        LogUtil.addNewLog(astrntSDK.getInterviewCode(),
+                new LogDao("Stop Service", "Upload Video"));
         sendLog();
         if (mTimer != null) mTimer.cancel();
         if (mNotifyManager != null) mNotifyManager.cancelAll();

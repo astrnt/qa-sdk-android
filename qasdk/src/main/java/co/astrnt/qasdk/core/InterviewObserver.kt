@@ -14,12 +14,12 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
 
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
-        val data = resultApiDao.interview
+    override fun onApiResultOk(baseApiDao: InterviewResultApiDao) {
+        val data = baseApiDao.interview
         if (data == null) {
             onApiResultError("", "Code not found or interview already finished", "error")
         } else {
-            astrntSDK.saveInterviewResult(resultApiDao, data, false)
+            astrntSDK.saveInterviewResult(baseApiDao, data, false)
             if (data.type!!.contains(OPEN)) {
                 if (data.interviewCode != null) {
                     addNewLog(data.interviewCode,
@@ -30,8 +30,8 @@ abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
                 }
                 onNeedToRegister(data)
             } else {
-                astrntSDK.saveInterview(data, resultApiDao.token, data.interviewCode)
-                val information = resultApiDao.information
+                astrntSDK.saveInterview(data, baseApiDao.token, data.interviewCode)
+                val information = baseApiDao.information
                 if (information != null && information.isFinished) {
                     onApiResultError("", information.message, "error")
                 } else {
@@ -88,15 +88,15 @@ abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
                             onAptitudeType(data)
                         }
                         else -> {
-                            if (resultApiDao.title != null) {
-                                onApiResultError(resultApiDao.title.toString(), resultApiDao.message.toString(), "error")
+                            if (baseApiDao.title != null) {
+                                onApiResultError(baseApiDao.title.toString(), baseApiDao.message.toString(), "error")
                             } else {
-                                onApiResultError("", resultApiDao.message.toString(), "error")
+                                onApiResultError("", baseApiDao.message.toString(), "error")
                             }
                             if (interviewCode != null) {
                                 addNewLog(interviewCode,
                                         LogDao("Enter Code Response API",
-                                                "Error : " + resultApiDao.message
+                                                "Error : " + baseApiDao.message
                                         )
                                 )
                             }

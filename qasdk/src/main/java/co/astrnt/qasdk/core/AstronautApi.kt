@@ -28,9 +28,9 @@ class AstronautApi(baseUrl: String, isDebugable: Boolean) {
 
     companion object {
         private val screenWidth: Int
-            private get() = Resources.getSystem().displayMetrics.widthPixels
+            get() = Resources.getSystem().displayMetrics.widthPixels
         private val screenHeight: Int
-            private get() = Resources.getSystem().displayMetrics.heightPixels
+            get() = Resources.getSystem().displayMetrics.heightPixels
     }
 
     init {
@@ -44,27 +44,30 @@ class AstronautApi(baseUrl: String, isDebugable: Boolean) {
         httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS)
         httpClientBuilder.addInterceptor(Interceptor { chain: Interceptor.Chain ->
             val request = chain.request().newBuilder()
-                    .addHeader("device", device)
-                    .addHeader("os", os)
-                    .addHeader("browser", "")
-                    .addHeader("screenresolution", screenWidth.toString() + "x" + screenHeight)
-                    .build()
+                .addHeader("device", device)
+                .addHeader("os", os)
+                .addHeader("browser", "")
+                .addHeader("screenresolution", screenWidth.toString() + "x" + screenHeight)
+                .build()
             chain.proceed(request)
         })
         if (isDebugable) {
             httpClientBuilder.addInterceptor(OkHttpProfilerInterceptor())
         }
         val gson = GsonBuilder()
-                .registerTypeAdapter(InformationApiDao::class.java, InformationDeserializer())
-                .registerTypeAdapter(CustomFieldApiDao::class.java, CustomFieldDeserializer())
-                .registerTypeAdapter(SummaryQuestionApiDao::class.java, SummaryQuestionDeserializer())
-                .create()
+            .registerTypeAdapter(InformationApiDao::class.java, InformationDeserializer())
+            .registerTypeAdapter(CustomFieldApiDao::class.java, CustomFieldDeserializer())
+            .registerTypeAdapter(
+                SummaryQuestionApiDao::class.java,
+                SummaryQuestionDeserializer()
+            )
+            .create()
         val retrofit = Retrofit.Builder()
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClientBuilder.build())
-                .baseUrl(baseUrl)
-                .build()
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClientBuilder.build())
+            .baseUrl(baseUrl)
+            .build()
         apiService = retrofit.create(ApiService::class.java)
     }
 }

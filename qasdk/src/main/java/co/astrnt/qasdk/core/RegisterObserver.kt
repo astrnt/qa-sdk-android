@@ -15,12 +15,12 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
 
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
+    override fun onApiResultOk(baseApiDao: InterviewResultApiDao) {
         astrntSDK.clearDb()
         astrntSDK = AstrntSDK()
-        val data = resultApiDao.interview
+        val data = baseApiDao.interview
         val interviewCode = data?.interviewCode
-        astrntSDK.saveInterviewResult(resultApiDao, data, false)
+        astrntSDK.saveInterviewResult(baseApiDao, data, false)
         when (data?.type) {
             CLOSE_INTERVIEW, CLOSE_INTERVIEW_PROFILE -> {
                 if (interviewCode != null) {
@@ -73,9 +73,9 @@ abstract class RegisterObserver : MyObserver<InterviewResultApiDao>() {
                 onAstronautProfileType(data)
             }
             else -> {
-                val message = resultApiDao.message
-                if (resultApiDao.title != null) {
-                    onApiResultError(resultApiDao.title, message, "error")
+                val message = baseApiDao.message
+                if (baseApiDao.title != null) {
+                    onApiResultError(baseApiDao.title, message, "error")
                 } else {
                     onApiResultError("", message, "error")
                 }

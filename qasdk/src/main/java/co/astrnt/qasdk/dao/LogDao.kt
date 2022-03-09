@@ -7,14 +7,14 @@ class LogDao(event: String, message: String) {
     var event: String
     var log_time: String
     var message: String
-    override fun equals(o: Any?): Boolean {
-        return if (o == null) {
+    override fun equals(other: Any?): Boolean {
+        return if (other == null) {
             false
-        } else if (o !is LogDao) {
+        } else if (other !is LogDao) {
             false
         } else {
-            (o.event == event
-                    && o.message == message)
+            (other.event == event
+                    && other.message == message)
         }
     }
 

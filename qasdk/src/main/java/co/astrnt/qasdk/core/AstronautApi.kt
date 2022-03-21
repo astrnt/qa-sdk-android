@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.core
 
+import android.content.Context
 import android.content.res.Resources
 import android.os.Build
 
@@ -15,6 +16,7 @@ import co.astrnt.qasdk.dao.InformationApiDao
 import co.astrnt.qasdk.dao.InformationDeserializer
 import co.astrnt.qasdk.dao.SummaryQuestionApiDao
 import co.astrnt.qasdk.dao.SummaryQuestionDeserializer
+//import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -23,7 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 
-class AstronautApi(baseUrl: String, isDebugable: Boolean) {
+class AstronautApi(baseUrl: String, isDebugable: Boolean, context: Context) {
     val apiService: ApiService
 
     companion object {
@@ -53,6 +55,7 @@ class AstronautApi(baseUrl: String, isDebugable: Boolean) {
         })
         if (isDebugable) {
             httpClientBuilder.addInterceptor(OkHttpProfilerInterceptor())
+//            httpClientBuilder.addInterceptor(ChuckerInterceptor.Builder(context).build())
         }
         val gson = GsonBuilder()
             .registerTypeAdapter(InformationApiDao::class.java, InformationDeserializer())

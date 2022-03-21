@@ -76,11 +76,13 @@ public class AstrntSDK extends HawkUtils {
     private static String mApiUrl;
     private static boolean isPractice = false;
     private Realm realm;
+    private Context context;
     private boolean isDebuggable;
 
     public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
         mApiUrl = apiUrl;
         isDebuggable = debug;
+        this.context = context;
 
         if (debug) {
             Timber.plant(new Timber.DebugTree());
@@ -369,7 +371,7 @@ public class AstrntSDK extends HawkUtils {
         if (!isSectionInterview()) {
             updateQuestionInfo(interviewResultApiDao.getInformation().getInterviewIndex(), interviewResultApiDao.getInformation().getInterviewSubIndex(), interviewResultApiDao.getInformation().getInterviewAttempt());
         } else {
-            if (isSelfPace()) {
+            if (isSelfPace() || isRatingScale()) {
                 if (interviewResultApiDao.getInformation().getInterviewIndex() == -1) {
                     saveSectionSummary(true);
                     updateQuestionInfoSection(interviewResultApiDao.getInformation().getSectionIndex(),
@@ -1008,7 +1010,12 @@ public class AstrntSDK extends HawkUtils {
                     return (informationApiDao.getSectionDurationLeft() > 0) || isContinueInterview();
                 }
             } else {
-                return (informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty()) || isContinueInterview();
+                if (isRatingScale()) {
+                    return (informationApiDao.getInterviewIndex() > 0 || isContinueInterview());
+                } else {
+                    return (informationApiDao.getPrevQuestStates() != null && !informationApiDao.getPrevQuestStates().isEmpty()) || isContinueInterview();
+                }
+
             }
         }
     }
@@ -1565,7 +1572,11 @@ public class AstrntSDK extends HawkUtils {
             RealmList<QuestionApiDao> subQuestions = currentQuestion.getSub_questions();
             if (subQuestions != null && !subQuestions.isEmpty()) {
                 if (questionSubIndex < subQuestions.size()) {
-                    return subQuestions.get(questionSubIndex);
+                    if (questionSubIndex == -1) {
+                        return subQuestions.get(0);
+                    } else {
+                        return subQuestions.get(questionSubIndex);
+                    }
                 } else {
                     return subQuestions.last();
                 }
@@ -2385,7 +2396,7 @@ public class AstrntSDK extends HawkUtils {
             finalValue = twoDecimalForm.format(gb).concat(" GB");
         } else if (mb > 1) {
             finalValue = twoDecimalForm.format(mb).concat(" MB");
-        }else if(kb > 1){
+        } else if (kb > 1) {
             finalValue = twoDecimalForm.format(mb).concat(" KB");
         } else {
             finalValue = twoDecimalForm.format(totalMemory).concat(" Bytes");
@@ -2879,7 +2890,7 @@ public class AstrntSDK extends HawkUtils {
 
     public AstronautApi getApi() {
         if (mAstronautApi == null) {
-            mAstronautApi = new AstronautApi(mApiUrl, isDebuggable);
+            mAstronautApi = new AstronautApi(mApiUrl, isDebuggable, context);
         }
         return mAstronautApi;
     }

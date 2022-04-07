@@ -1,6 +1,5 @@
 package co.astrnt.qasdk.repository
 
-import android.R.id
 import co.astrnt.qasdk.core.AstronautApi
 import co.astrnt.qasdk.core.MyObserver
 import co.astrnt.qasdk.dao.BaseApiDao
@@ -215,8 +214,8 @@ class QuestionRepository(astronautApi: AstronautApi) : BaseRepository(astronautA
                         astrntSDK.saveLastApiCall("(Elapsed Time)")
                     }
 
-                    override fun onApiResultOk(t: BaseApiDao) {
-                        Timber.d(t.message)
+                    override fun onApiResultOk(baseApiDao: BaseApiDao) {
+                        Timber.d(baseApiDao.message)
                     }
                 })
     }

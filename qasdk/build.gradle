@@ -104,6 +104,7 @@ dependencies {
     api 'org.greenrobot:eventbus:3.2.0'
 
     api 'com.orhanobut:hawk:2.0.1'
+//    implementation "com.github.chuckerteam.chucker:library:3.5.0"
 }
 
 realm {

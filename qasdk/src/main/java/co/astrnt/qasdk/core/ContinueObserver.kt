@@ -13,11 +13,11 @@ import co.astrnt.qasdk.utils.LogUtil.addNewLog
 
 abstract class ContinueObserver : MyObserver<InterviewResultApiDao>() {
 
-    override fun onApiResultOk(resultApiDao: InterviewResultApiDao) {
+    override fun onApiResultOk(baseApiDao: InterviewResultApiDao) {
         var currentInterview = astrntSDK.currentInterview
         val interviewCode = astrntSDK.interviewCode
-        val newInterview = resultApiDao.interview
-        val information = resultApiDao.information
+        val newInterview = baseApiDao.interview
+        val information = baseApiDao.information
         if (information!!.isFinished) {
             astrntSDK.setInterviewFinished()
             astrntSDK.isFinishInterview = false
@@ -30,16 +30,16 @@ abstract class ContinueObserver : MyObserver<InterviewResultApiDao>() {
                                 "Success, will move to Info"
                         )
                 )
-                if (interviewCode == resultApiDao.interview_code) {
+                if (interviewCode == baseApiDao.interview_code) {
 //                    astrntSDK.updateInterviewData(currentInterview, newInterview);
                     if (!astrntSDK.isSectionInterview) {
                         astrntSDK.updateDurationLeft(currentInterview, newInterview.duration_left)
                         astrntSDK.updateTrySampleQuestion(currentInterview, newInterview.trySampleQuestion)
                     }
                     currentInterview = astrntSDK.currentInterview
-                    astrntSDK.saveInterviewResult(resultApiDao, currentInterview, true)
+                    astrntSDK.saveInterviewResult(baseApiDao, currentInterview, true)
                 } else {
-                    astrntSDK.saveInterviewResult(resultApiDao, newInterview, true)
+                    astrntSDK.saveInterviewResult(baseApiDao, newInterview, true)
                 }
                 onContinueInterview()
             }
@@ -54,9 +54,9 @@ abstract class ContinueObserver : MyObserver<InterviewResultApiDao>() {
                 onAstronautProfileType(newInterview)
             }
             else -> {
-                val message = resultApiDao.message
-                if (resultApiDao.title != null) {
-                    onApiResultError(resultApiDao.title.toString(), message.toString(), "error")
+                val message = baseApiDao.message
+                if (baseApiDao.title != null) {
+                    onApiResultError(baseApiDao.title.toString(), message.toString(), "error")
                 } else {
                     onApiResultError("", message.toString(), "error")
                 }

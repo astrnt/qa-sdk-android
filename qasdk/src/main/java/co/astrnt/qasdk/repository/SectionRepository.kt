@@ -95,8 +95,8 @@ class SectionRepository(astronautApi: AstronautApi) : BaseRepository(astronautAp
                         astrntSDK.saveLastApiCall("(Elapsed Time Section)")
                     }
 
-                    override fun onApiResultOk(t: BaseApiDao) {
-                        Timber.d(t.message)
+                    override fun onApiResultOk(baseApiDao: BaseApiDao) {
+                        Timber.d(baseApiDao.message)
                     }
                 })
     }

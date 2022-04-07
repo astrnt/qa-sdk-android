@@ -1,5 +1,6 @@
 package co.astrnt.qasdk.core
 
+import android.content.Context
 import android.content.res.Resources
 import android.os.Build
 
@@ -15,6 +16,7 @@ import co.astrnt.qasdk.dao.InformationApiDao
 import co.astrnt.qasdk.dao.InformationDeserializer
 import co.astrnt.qasdk.dao.SummaryQuestionApiDao
 import co.astrnt.qasdk.dao.SummaryQuestionDeserializer
+//import com.chuckerteam.chucker.api.ChuckerInterceptor
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -23,14 +25,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 
-class AstronautApi(baseUrl: String, isDebugable: Boolean) {
+class AstronautApi(baseUrl: String, isDebugable: Boolean, context: Context) {
     val apiService: ApiService
 
     companion object {
         private val screenWidth: Int
-            private get() = Resources.getSystem().displayMetrics.widthPixels
+            get() = Resources.getSystem().displayMetrics.widthPixels
         private val screenHeight: Int
-            private get() = Resources.getSystem().displayMetrics.heightPixels
+            get() = Resources.getSystem().displayMetrics.heightPixels
     }
 
     init {
@@ -44,27 +46,31 @@ class AstronautApi(baseUrl: String, isDebugable: Boolean) {
         httpClientBuilder.connectTimeout(60, TimeUnit.SECONDS)
         httpClientBuilder.addInterceptor(Interceptor { chain: Interceptor.Chain ->
             val request = chain.request().newBuilder()
-                    .addHeader("device", device)
-                    .addHeader("os", os)
-                    .addHeader("browser", "")
-                    .addHeader("screenresolution", screenWidth.toString() + "x" + screenHeight)
-                    .build()
+                .addHeader("device", device)
+                .addHeader("os", os)
+                .addHeader("browser", "")
+                .addHeader("screenresolution", screenWidth.toString() + "x" + screenHeight)
+                .build()
             chain.proceed(request)
         })
         if (isDebugable) {
             httpClientBuilder.addInterceptor(OkHttpProfilerInterceptor())
+//            httpClientBuilder.addInterceptor(ChuckerInterceptor.Builder(context).build())
         }
         val gson = GsonBuilder()
-                .registerTypeAdapter(InformationApiDao::class.java, InformationDeserializer())
-                .registerTypeAdapter(CustomFieldApiDao::class.java, CustomFieldDeserializer())
-                .registerTypeAdapter(SummaryQuestionApiDao::class.java, SummaryQuestionDeserializer())
-                .create()
+            .registerTypeAdapter(InformationApiDao::class.java, InformationDeserializer())
+            .registerTypeAdapter(CustomFieldApiDao::class.java, CustomFieldDeserializer())
+            .registerTypeAdapter(
+                SummaryQuestionApiDao::class.java,
+                SummaryQuestionDeserializer()
+            )
+            .create()
         val retrofit = Retrofit.Builder()
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(httpClientBuilder.build())
-                .baseUrl(baseUrl)
-                .build()
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(httpClientBuilder.build())
+            .baseUrl(baseUrl)
+            .build()
         apiService = retrofit.create(ApiService::class.java)
     }
 }

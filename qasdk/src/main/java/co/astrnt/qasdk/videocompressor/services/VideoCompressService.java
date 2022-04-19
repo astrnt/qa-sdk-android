@@ -278,7 +278,6 @@ public class VideoCompressService extends Service {
 
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
 
-                        Timber.e("Video Compress %s %s %s", inputPath, outputPath, "FAILED");
                         Timber.e(errorMsg);
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),

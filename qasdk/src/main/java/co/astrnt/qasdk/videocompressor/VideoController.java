@@ -382,11 +382,11 @@ public class VideoController {
                                     } else if (codecName.equals("OMX.TI.DUCATI1.VIDEO.H264E")) {
                                         processorType = PROCESSOR_TYPE_TI;
                                     }
-                                    Timber.e("codec = " + codecInfo.getName() + " manufacturer = " + manufacturer + "device = " + Build.MODEL);
+                                    Timber.d("codec = " + codecInfo.getName() + " manufacturer = " + manufacturer + "device = " + Build.MODEL);
                                 } else {
                                     colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
                                 }
-                                Timber.e("colorFormat = " + colorFormat);
+                                Timber.d("colorFormat = " + colorFormat);
 
                                 int resultHeightAligned = resultHeight;
                                 int padding = 0;
@@ -574,7 +574,7 @@ public class VideoController {
 
                                             } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                                                 MediaFormat newFormat = decoder.getOutputFormat();
-                                                Timber.e("newFormat = " + newFormat);
+                                                Timber.d("newFormat = " + newFormat);
                                             } else if (decoderStatus < 0) {
                                                 throw new RuntimeException("unexpected result from decoder.dequeueOutputBuffer: " + decoderStatus);
                                             } else {
@@ -593,7 +593,7 @@ public class VideoController {
                                                 if (startTime > 0 && videoTime == -1) {
                                                     if (info.presentationTimeUs < startTime) {
                                                         doRender = false;
-                                                        Timber.e("drop frame startTime = " + startTime + " present time = " + info.presentationTimeUs);
+                                                        Timber.d("drop frame startTime = " + startTime + " present time = " + info.presentationTimeUs);
                                                     } else {
                                                         videoTime = info.presentationTimeUs;
                                                     }
@@ -627,14 +627,14 @@ public class VideoController {
                                                                 convertVideoFrame(rgbBuf, yuvBuf, colorFormat, resultWidth, resultHeight, padding, swapUV);
                                                                 encoder.queueInputBuffer(inputBufIndex, 0, bufferSize, info.presentationTimeUs, 0);
                                                             } else {
-                                                                Timber.e("input buffer not available");
+                                                                Timber.d("input buffer not available");
                                                             }
                                                         }
                                                     }
                                                 }
                                                 if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
                                                     decoderOutputAvailable = false;
-                                                    Timber.e("decoder stream end");
+                                                    Timber.d("decoder stream end");
                                                     if (Build.VERSION.SDK_INT >= 18) {
                                                         encoder.signalEndOfInputStream();
                                                     } else {
@@ -696,7 +696,7 @@ public class VideoController {
                             Timber.e(e.getMessage());
                         }
                     }
-                    Timber.e("time = " + (System.currentTimeMillis() - time));
+                    Timber.d("time = " + (System.currentTimeMillis() - time));
                 }
             } else {
                 didWriteData(true, true);
@@ -716,9 +716,6 @@ public class VideoController {
         }*/
 
             //inputFile.delete();
-            Timber.e("Video Compress Path : " + path + "");
-            Timber.e("Video Compress Path : " + cacheFile.getPath() + "");
-            Timber.e("Video Compress Path : " + inputFile.getPath() + "");
 
 
        /* Timber.e("ViratPath",path+"");

@@ -25,7 +25,6 @@ object FileUtils {
     fun makeAndGetSubDirectoryDownload(appName: String?, subFolderName: String, jobNameFolder: String, interviewCode: String?): File {
         val appNameDirectory = File(Environment.getExternalStorageDirectory(), appName)
         if (!appNameDirectory.exists()) {
-            Timber.e("Create app folder in root")
             appNameDirectory.mkdirs()
             LogUtil.addNewLog(interviewCode,
                     LogDao("CheatSheet Info",
@@ -35,7 +34,6 @@ object FileUtils {
         }
         val subDirectory = File(appNameDirectory.absolutePath, subFolderName)
         if (!subDirectory.exists()) {
-            Timber.e("Create sub folder in AstronautQ&A")
             subDirectory.mkdirs()
             LogUtil.addNewLog(interviewCode,
                     LogDao("CheatSheet Info",
@@ -45,7 +43,6 @@ object FileUtils {
         }
         val jobName = File(subDirectory.absolutePath, jobNameFolder)
         if (!jobName.exists()) {
-            Timber.e("Create sub folder in job name")
             jobName.mkdirs()
             LogUtil.addNewLog(interviewCode,
                     LogDao("CheatSheet Info",

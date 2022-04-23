@@ -462,7 +462,6 @@ public class AstrntSDK extends HawkUtils {
                                 section.setPreparationTime(interviewResultApiDao.getInformation().getPreparationTime());
                             }
 
-                            Timber.e("Section Device duration %s", section.getDuration());
                             LogUtil.addNewLog(getInterviewCode(),
                                     new LogDao("Resume Information",
                                             "Section Device duration " + section.getDuration()
@@ -480,7 +479,6 @@ public class AstrntSDK extends HawkUtils {
                             );
 
                             if (section.getDuration() >= interviewResultApiDao.getInformation().getSectionDurationLeft()) {
-                                Timber.e("Section duration using from info %s", interviewResultApiDao.getInformation().getSectionDurationLeft());
                                 LogUtil.addNewLog(getInterviewCode(),
                                         new LogDao("Resume Information",
                                                 "Section duration using from info " + interviewResultApiDao.getInformation().getSectionDurationLeft()
@@ -581,8 +579,6 @@ public class AstrntSDK extends HawkUtils {
 
             if (isSectionInterview()) {
 
-                Timber.e("Section duration Info %s", informationApiDao.toString());
-
                 RealmList<SectionApiDao> sectionList = new RealmList<>();
 
                 for (int i = 0; i < interview.getSections().size(); i++) {
@@ -601,7 +597,6 @@ public class AstrntSDK extends HawkUtils {
                                 Timber.i("PREP TIME IS %d", informationApiDao.getPreparationTime());
                             }
 
-                            Timber.e("Section Device duration %s", section.getDuration());
                             LogUtil.addNewLog(getInterviewCode(),
                                     new LogDao("Resume Information",
                                             "Section Device duration " + section.getDuration()
@@ -619,7 +614,7 @@ public class AstrntSDK extends HawkUtils {
                             );
 
                             if (section.getDuration() >= informationApiDao.getSectionDurationLeft()) {
-                                Timber.e("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
+                                Timber.d("Section duration using from info %s", informationApiDao.getSectionDurationLeft());
                                 LogUtil.addNewLog(getInterviewCode(),
                                         new LogDao("Resume Information",
                                                 "Section duration using from info " + informationApiDao.getSectionDurationLeft()
@@ -628,7 +623,7 @@ public class AstrntSDK extends HawkUtils {
                                 section.setDuration(informationApiDao.getSectionDurationLeft());
                             }
                             if (section.getDuration() >= getLastTimer()) {
-                                Timber.e("Section duration using from background timer %s", getLastTimer());
+                                Timber.d("Section duration using from background timer %s", getLastTimer());
                                 LogUtil.addNewLog(getInterviewCode(),
                                         new LogDao("Resume Information",
                                                 "Section duration using from background timer " + getLastTimer()
@@ -2124,7 +2119,7 @@ public class AstrntSDK extends HawkUtils {
             Timber.d("Video with Question Id %s is now uploading", questionApiDao.getId());
         } else {
             markUploading(questionApiDao);
-            Timber.e("Video with Question Id %s is failed to marked uploading", questionApiDao.getId());
+            Timber.d("Video with Question Id %s is failed to marked uploading", questionApiDao.getId());
         }
     }
 
@@ -2163,7 +2158,7 @@ public class AstrntSDK extends HawkUtils {
             Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
         } else {
             markUploaded(questionApiDao);
-            Timber.e("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
+            Timber.d("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
         }
     }
 
@@ -2811,7 +2806,7 @@ public class AstrntSDK extends HawkUtils {
             Timber.d("Video with Question Id %s has been uploaded", questionApiDao.getId());
         } else {
             markAnswered(questionApiDao);
-            Timber.e("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
+            Timber.d("Video with Question Id %s is failed to marked uploaded", questionApiDao.getId());
         }
     }
 

@@ -240,9 +240,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                                 new LogDao("Uploading Info",
                                         "Failed FileNotFoundException " + exc.getMessage())
                         );
-                        Timber.e("File not exception");
                     } catch (IllegalArgumentException exc) {
-                        Timber.e("IllegalArgumentException exception");
+                        Timber.d("IllegalArgumentException exception");
                         LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                                 new LogDao("Uploading Info",
                                         "Failed IllegalArgumentException " + exc.getMessage())
@@ -252,7 +251,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                                 new LogDao("Uploading Info",
                                         "Failed MalformedURLException " + exc.getMessage())
                         );
-                        Timber.e("MalformedURLException exception");
+                        Timber.d("MalformedURLException exception");
                     }
 
                 }
@@ -311,7 +310,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         } catch (Exception e){
 
         }
-        Timber.e("Video Upload Error : ");
         String message = "";
         if (serverResponse != null && serverResponse.getBody() != null) {
             try {
@@ -327,7 +325,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
             }
         }
 
-        Timber.e("Video Upload Error : %s", message);
         try {
 
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),

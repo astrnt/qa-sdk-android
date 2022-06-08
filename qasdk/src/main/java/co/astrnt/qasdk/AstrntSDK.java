@@ -380,9 +380,11 @@ public class AstrntSDK extends HawkUtils {
                             interviewResultApiDao.getInformation().getInterviewAttempt());
                 } else {
                     saveSectionSummary(false);
-                    updateQuestionInfo(interviewResultApiDao.getInformation().getInterviewIndex(),
-                            interviewResultApiDao.getInformation().getInterviewSubIndex(),
-                            interviewResultApiDao.getInformation().getInterviewAttempt());
+                    if (!getCurrentSection().getType().equals(InterviewType.INTERVIEW)) {
+                        updateQuestionInfo(interviewResultApiDao.getInformation().getInterviewIndex(),
+                                interviewResultApiDao.getInformation().getInterviewSubIndex(),
+                                interviewResultApiDao.getInformation().getInterviewAttempt());
+                    }
                 }
             }
 

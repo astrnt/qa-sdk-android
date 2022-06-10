@@ -2891,6 +2891,15 @@ public class AstrntSDK extends HawkUtils {
         }
         return mAstronautApi;
     }
+    public AstronautApi getApiService(Context contextService) {
+        if (mAstronautApi == null) {
+            if (this.context == null) {
+                this.context = contextService;
+            }
+            mAstronautApi = new AstronautApi(mApiUrl, isDebuggable, context);
+        }
+        return mAstronautApi;
+    }
 
     public boolean haveMediaToDownload() {
         boolean haveMediaToDownload = false;

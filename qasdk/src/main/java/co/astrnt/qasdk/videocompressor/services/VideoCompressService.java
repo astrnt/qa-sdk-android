@@ -278,7 +278,7 @@ public class VideoCompressService extends Service {
 
                         mNotifyManager.notify(mNotificationId, mBuilder.build());
 
-                        Timber.e(errorMsg);
+                        Timber.d(errorMsg);
 
                         LogUtil.addNewLog(currentInterview.getInterviewCode(),
                                 new LogDao("Video Compress (Fail) " + currentQuestion.getId(),

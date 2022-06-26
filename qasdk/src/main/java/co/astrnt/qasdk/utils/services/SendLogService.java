@@ -63,7 +63,7 @@ public class SendLogService extends Service {
         super.onCreate();
         context = this;
         astrntSDK = new AstrntSDK();
-        astronautApi = astrntSDK.getApi();
+        astronautApi = astrntSDK.getApiService(context);
 
         createNotification();
 

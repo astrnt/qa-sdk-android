@@ -51,14 +51,14 @@ public class InterviewRepository extends BaseRepository {
                 RegisterPost.CustomFieldsPost fieldsPost = param.getCustom_fields().get(i);
 
                 map.put("custom_fields[" + i + "][id]", String.valueOf(fieldsPost.getId()));
-                if (fieldsPost.getInputType().equals(CustomFiledType.CHECK_BOX)) {
-                    for (int j = 0; j < fieldsPost.getValues().size(); j++) {
-                        String item = fieldsPost.getValues().get(j);
-                        map.put("custom_fields[" + i + "][value][" + j + "]", item);
-                    }
-                } else {
+//                if (fieldsPost.getInputType().equals(CustomFiledType.CHECK_BOX)) {
+//                    for (int j = 0; j < fieldsPost.getValues().size(); j++) {
+//                        String item = fieldsPost.getValues().get(j);
+//                        map.put("custom_fields[" + i + "][value][" + j + "]", item);
+//                    }
+//                } else {
                     map.put("custom_fields[" + i + "][value]", fieldsPost.getValue());
-                }
+//                }
             }
         }
 

@@ -221,6 +221,11 @@ public class RegisterActivity extends BaseActivity {
                     public void onSectionType(InterviewApiDao interview) {
                         Toast.makeText(context, "Section can't use for now", Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void onAstronautProfileType(InterviewApiDao interview) {
+
+                    }
                 });
     }
 

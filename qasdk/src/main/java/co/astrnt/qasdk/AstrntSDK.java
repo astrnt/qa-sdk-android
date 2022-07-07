@@ -68,6 +68,7 @@ public class AstrntSDK extends HawkUtils {
     private static boolean isPractice = false;
     private Realm realm;
     private boolean isDebuggable;
+    private static final int DB_VERSION = 21;
 
     public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
         mApiUrl = apiUrl;
@@ -100,7 +101,7 @@ public class AstrntSDK extends HawkUtils {
     public static RealmConfiguration getRealmConfig() {
         return new RealmConfiguration.Builder()
                 .name("astrntdb")
-                .schemaVersion(BuildConfig.VERSION_CODE)
+                .schemaVersion(DB_VERSION)
                 .deleteRealmIfMigrationNeeded()
                 .build();
     }

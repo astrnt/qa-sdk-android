@@ -193,7 +193,7 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
                     override fun onApiResultCompleted() {}
                     override fun onApiResultError(title: String?, message: String?, code: String?) {
                         Timber.e(message)
-                        if (message != null && message.toLowerCase().contains("unable to resolve host")) {
+                        if (message != null && message.lowercase().contains("unable to resolve host")) {
                             addNewLog(interviewCode,
                                     LogDao("Hit API (Elapsed Time Section)",
                                             "Failed, No Internet Connection"

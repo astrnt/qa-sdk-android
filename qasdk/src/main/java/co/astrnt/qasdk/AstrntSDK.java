@@ -1972,6 +1972,19 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
+    public void setReadyAnswer(QuestionApiDao question) {
+
+        if (!realm.isInTransaction() && question != null) {
+            realm.beginTransaction();
+
+            question.setIsAnswer(true);
+            realm.copyToRealmOrUpdate(question);
+            realm.commitTransaction();
+        } else {
+            setReadyAnswer(question);
+        }
+    }
+
     public boolean isLastAttempt() {
         return getQuestionAttempt() <= 0;
     }

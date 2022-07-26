@@ -116,4 +116,19 @@ class SectionRepository(astronautApi: AstronautApi) : BaseRepository(astronautAp
         astrntSDK.saveLastApiCall("(/question/last_seen)")
         return mAstronautApi.apiService.addLastSeen((token)!!, map)
     }
+
+    fun readyAnswer(questionId: Long?): Observable<BaseApiDao> {
+        val interviewApiDao = astrntSDK.currentInterview
+        val token = interviewApiDao.token
+        val map = HashMap<String, String?>()
+        map["interview_code"] = interviewApiDao.interviewCode
+        map["question_id"] = questionId.toString()
+        addNewLog(interviewApiDao.interviewCode,
+            LogDao("Hit API (/v2/media/ready-answer)",
+                ("Ready answer, questionId = $questionId")
+            )
+        )
+        astrntSDK.saveLastApiCall("(/media/ready-answer)")
+        return mAstronautApi.apiService.readyAnswer((token)!!, map)
+    }
 }

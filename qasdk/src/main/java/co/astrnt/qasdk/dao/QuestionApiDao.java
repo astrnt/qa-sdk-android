@@ -54,6 +54,7 @@ public class QuestionApiDao extends RealmObject {
     private int media_id;
     private int media_attempt;
     private int media_attempt_left;
+    private boolean ready_answer;
 
     private RealmList<QuestionApiDao> sub_questions;
 
@@ -101,6 +102,14 @@ public class QuestionApiDao extends RealmObject {
 
     public int getPrepTime() {
         return prepTime;
+    }
+
+    public boolean isAnswer() {
+        return ready_answer;
+    }
+
+    public void setIsAnswer(boolean is_answer) {
+        this.ready_answer = is_answer;
     }
 
     public void setPrepTime(int prepTime) {

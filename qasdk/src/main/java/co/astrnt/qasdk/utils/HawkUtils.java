@@ -5,6 +5,7 @@ import com.orhanobut.hawk.Hawk;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CLOSE_APPS;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CONTINUE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CV_START_CALLED;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_DOWNLOAD_ID;
@@ -276,6 +277,14 @@ public class HawkUtils {
         Hawk.put(KEY_IS_SECTION_SUMMARY, isLast);
     }
 
+    public int isCountCloseApps() {
+        return Hawk.get(KEY_CLOSE_APPS, 0);
+    }
+
+    public void setCloseApps(int isLast) {
+        Hawk.put(KEY_CLOSE_APPS, isLast);
+    }
+
 
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
@@ -298,6 +307,7 @@ public class HawkUtils {
         Hawk.delete(KEY_FINISH_QUESTION);
         Hawk.delete(KEY_START_SESSION);
         Hawk.delete(KEY_IS_LAST_QUESTION);
+        Hawk.delete(KEY_CLOSE_APPS);
         removeDownloadId();
         removeUploadId();
     }

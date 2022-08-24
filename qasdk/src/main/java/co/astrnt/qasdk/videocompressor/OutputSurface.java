@@ -13,6 +13,8 @@ import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 
+import timber.log.Timber;
+
 public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final int EGL_OPENGL_ES2_BIT = 4;
@@ -148,7 +150,7 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
                 try {
                     mFrameSyncObject.wait(TIMEOUT_MS);
                     if (!mFrameAvailable) {
-                        throw new RuntimeException("Surface frame wait timed out");
+                        Timber.i("urface frame wait timed out");
                     }
                 } catch (InterruptedException ie) {
                     throw new RuntimeException(ie);

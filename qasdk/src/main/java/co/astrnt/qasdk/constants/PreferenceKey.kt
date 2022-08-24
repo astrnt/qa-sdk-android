@@ -36,4 +36,5 @@ PreferenceKey {
     const val KEY_IS_LAST_QUESTION = "LastQuestion"
     const val KEY_IS_SECTION_SUMMARY = "SECTIONSUMMARY"
     const val KEY_IS_COUNTDOWN = "COUNTDOWN"
+    const val KEY_CLOSE_APPS = "CLOSEAPPS"
 }

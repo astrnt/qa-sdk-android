@@ -64,7 +64,15 @@ public class VideoCompressService extends Service {
             Intent intent = new Intent(context, VideoCompressService.class)
                     .putExtra(EXT_PATH, inputPath)
                     .putExtra(EXT_QUESTION_ID, questionId);
-            ContextCompat.startForegroundService(context, intent);
+            if (context != null && intent != null && inputPath != null) {
+                ContextCompat.startForegroundService(context, intent);
+            } else {
+                LogUtil.addNewLog(interviewCode,
+                        new LogDao("Failed to start compress",
+                                "Null parsing data"
+                        )
+                );
+            }
         } catch (Exception e){
             LogUtil.addNewLog(interviewCode,
                     new LogDao("Failed to start compress",
@@ -85,7 +93,7 @@ public class VideoCompressService extends Service {
             currentInterview = astrntSDK.getCurrentInterview();
             currentQuestion = astrntSDK.searchQuestionById(questionId);
         }
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override

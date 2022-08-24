@@ -150,7 +150,7 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
                 try {
                     mFrameSyncObject.wait(TIMEOUT_MS);
                     if (!mFrameAvailable) {
-                        Timber.i("urface frame wait timed out");
+                        Timber.i("Surface frame wait timed out");
                     }
                 } catch (InterruptedException ie) {
                     throw new RuntimeException(ie);

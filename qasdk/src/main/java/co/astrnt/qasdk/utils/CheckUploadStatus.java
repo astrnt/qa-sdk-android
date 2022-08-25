@@ -11,7 +11,7 @@ import co.astrnt.qasdk.type.UploadStatusType;
 
 public class CheckUploadStatus {
 
-    public static boolean checkAvailability(AstrntSDK astrntSDK, Context context) {
+    public static boolean checkAvailability(AstrntSDK astrntSDK) {
         boolean isAvailable = false;
         List<QuestionApiDao> pendingVideo = astrntSDK.getPending(UploadStatusType.PENDING);
         List<QuestionApiDao> compressedVideo = astrntSDK.getPending(UploadStatusType.COMPRESSED);

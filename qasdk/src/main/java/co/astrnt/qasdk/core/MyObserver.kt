@@ -60,7 +60,7 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
             onApiResultError("", message.toString(), "exception")
         }
         val interviewCode = astrntSDK.interviewCode
-        if (message != null && message.toLowerCase().contains("unable to resolve host")) {
+        if (message != null && message.lowercase().contains("unable to resolve host")) {
             addNewLog(interviewCode,
                     LogDao("Response API",
                             "Failed, No Internet Connection"

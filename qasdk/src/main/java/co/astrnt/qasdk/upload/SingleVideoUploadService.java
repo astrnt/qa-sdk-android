@@ -259,7 +259,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
         } catch (Exception exc) {
             LogUtil.addNewLog(interviewApiDao.getInterviewCode(),
                     new LogDao("Background Upload (Exc)",
-                            exc.getMessage())
+                            exc.getMessage() + " (Exc)")
             );
             stopService();
         }

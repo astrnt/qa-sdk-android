@@ -103,4 +103,9 @@ interface ApiService {
     @POST("v2/question/last_seen")
     fun addLastSeen(@Header("token") token: String,
                     @FieldMap data: HashMap<String, String?>): Observable<BaseApiDao>
+
+    @FormUrlEncoded
+    @POST("v2/media/ready-answer")
+    fun readyAnswer(@Header("token") token: String,
+                    @FieldMap data: HashMap<String, String?>): Observable<BaseApiDao>
 }

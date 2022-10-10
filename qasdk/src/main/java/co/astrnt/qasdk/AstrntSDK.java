@@ -202,11 +202,11 @@ public class AstrntSDK extends HawkUtils {
 
                 InterviewApiDao currentInterview1 = getCurrentInterview();
                 if (resultApiDao.getInformation().getQuestionsMcqInfo() != null && !resultApiDao.getInformation().getQuestionsMcqInfo().isEmpty()) {
-                    updateInterviewSelectedAnswer(currentInterview1, resultApiDao);
+                    updateInterviewSelectedAnswer(currentInterview1, resultApiDao, isContinue);
                 }
                 final Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> {
-                    updateInterviewSelectedAnswer(currentInterview1, resultApiDao);
+                    updateInterviewSelectedAnswer(currentInterview1, resultApiDao, isContinue);
                 }, 2000);
 
                 if (currentInterview.getCompany() != null) {
@@ -367,7 +367,7 @@ public class AstrntSDK extends HawkUtils {
         }
     }
 
-    private void updateInterviewSelectedAnswer(InterviewApiDao interview, InterviewResultApiDao interviewResultApiDao) {
+    private void updateInterviewSelectedAnswer(InterviewApiDao interview, InterviewResultApiDao interviewResultApiDao, Boolean isContinue) {
         if (!isSectionInterview()) {
             updateQuestionInfo(interviewResultApiDao.getInformation().getInterviewIndex(), interviewResultApiDao.getInformation().getInterviewSubIndex(), interviewResultApiDao.getInformation().getInterviewAttempt());
         } else {
@@ -453,6 +453,9 @@ public class AstrntSDK extends HawkUtils {
                             clearSelectedAnswer(section.getSample_question());
                         }
 
+                        if (!isContinue) {
+                            section.setDurationSection(section.getDuration());
+                        }
                         if (i == interviewResultApiDao.getInformation().getSectionIndex() && interviewResultApiDao.getInformation().getSectionInfo().equals("start")) {
                             if (section.getPreparationTime() >= interviewResultApiDao.getInformation().getPreparationTime() && interviewResultApiDao.getInformation().getPreparationTime() > 0) {
                                 section.setPreparationTime(interviewResultApiDao.getInformation().getPreparationTime());
@@ -553,7 +556,7 @@ public class AstrntSDK extends HawkUtils {
             realm.copyToRealmOrUpdate(interview);
             realm.commitTransaction();
         } else {
-            updateInterviewSelectedAnswer(interview, interviewResultApiDao);
+            updateInterviewSelectedAnswer(interview, interviewResultApiDao, isContinue);
         }
     }
 

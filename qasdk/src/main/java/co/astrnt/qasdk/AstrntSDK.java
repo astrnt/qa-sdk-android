@@ -78,6 +78,7 @@ public class AstrntSDK extends HawkUtils {
     private Realm realm;
     private Context context;
     private boolean isDebuggable;
+    private static final int DB_VERSION = 21;
 
     public AstrntSDK(Context context, String apiUrl, boolean debug, String appId) {
         mApiUrl = apiUrl;

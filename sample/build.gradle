@@ -17,14 +17,14 @@ android {
             applicationIdSuffix ".beta"
             buildConfigField "boolean", "BETA", "true"
             buildConfigField("String", "API_URL", '"https://beta.astrnt.co/api/"')
-            buildConfigField("int", "SDK_VERSION", "145")
+            buildConfigField("int", "SDK_VERSION", "216")
             resValue "string", "app_name", "BETA Q&A SDK Sample"
         }
         live {
             dimension "mode"
             buildConfigField "boolean", "BETA", "false"
             buildConfigField("String", "API_URL", '"https://app.astrnt.co/api/"')
-            buildConfigField("int", "SDK_VERSION", "145")
+            buildConfigField("int", "SDK_VERSION", "216")
             resValue "string", "app_name", "Q&A SDK Sample"
         }
     }

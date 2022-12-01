@@ -5,10 +5,21 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import net.gotev.uploadservice.Placeholders
-import net.gotev.uploadservice.UploadNotificationConfig
+import android.os.Build
+import co.astrnt.qasdk.uploadservice.Placeholders
+import co.astrnt.qasdk.uploadservice.UploadNotificationConfig
 
 object UploadNotifConfig {
+
+    fun flagsCompat(flags: Int): Int {
+        if (Build.VERSION.SDK_INT > 30) {
+            return flags or PendingIntent.FLAG_IMMUTABLE
+        }
+
+        return flags
+    }
+
+
     @JvmStatic
     fun getNotificationConfig(context: Context?, activity: Activity?, uploadCounter: String?): UploadNotificationConfig {
         val config = UploadNotificationConfig()
@@ -18,7 +29,7 @@ object UploadNotifConfig {
                 .setClearOnActionForAllStatuses(true)
         if (activity != null) {
             val clickIntent = PendingIntent.getActivity(
-                    context, 1, Intent(context, activity.javaClass), PendingIntent.FLAG_UPDATE_CURRENT)
+                    context, 1, Intent(context, activity.javaClass), flagsCompat(PendingIntent.FLAG_UPDATE_CURRENT))
             config.setClickIntentForAllStatuses(clickIntent)
         }
         config.progress.message = "Uploaded " + Placeholders.UPLOAD_RATE + " - " + Placeholders.PROGRESS

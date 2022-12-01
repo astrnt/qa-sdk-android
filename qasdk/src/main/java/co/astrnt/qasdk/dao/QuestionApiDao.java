@@ -1,5 +1,8 @@
 package co.astrnt.qasdk.dao;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import co.astrnt.qasdk.constants.Constants;
 import co.astrnt.qasdk.type.MediaTypes;
 import co.astrnt.qasdk.type.TestType;
@@ -8,6 +11,7 @@ import co.astrnt.qasdk.type.UploadStatusType;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import timber.log.Timber;
 
 /**
  * Created by deni rohimat on 19/04/18.
@@ -30,6 +34,7 @@ public class QuestionApiDao extends RealmObject {
     private String image_url;
     private String type_child;
     private RealmList<MultipleAnswerApiDao> multiple_answers;
+    private RealmList<MultipleAnswerApiDao> answers;
     private String type_parent;
 
     //this field below is additional field for Video Interview
@@ -47,6 +52,10 @@ public class QuestionApiDao extends RealmObject {
     private long answerId;
     private Boolean isAnswered;
     private RealmList<MultipleAnswerApiDao> selectedAnswer;
+    private RealmList<Long> answer_ids;
+    @Expose
+    @SerializedName("offline_path")
+    private String offlinePath;
 
     //media file
     private MediaDao media;
@@ -55,10 +64,13 @@ public class QuestionApiDao extends RealmObject {
     private int media_attempt;
     private int media_attempt_left;
     private boolean ready_answer;
+    private String aptitude_option_type;
+    private String display_answer;
 
     private RealmList<QuestionApiDao> sub_questions;
 
     private boolean isRetake;
+    private boolean show_title = true;
 
     public long getId() {
         return id;
@@ -114,6 +126,22 @@ public class QuestionApiDao extends RealmObject {
 
     public void setPrepTime(int prepTime) {
         this.prepTime = prepTime;
+    }
+
+    public RealmList<Long> getAnswer_ids() {
+        return answer_ids;
+    }
+
+    public void setAnswer_ids(RealmList<Long> answer_ids) {
+        this.answer_ids = answer_ids;
+    }
+
+    public boolean isShow_title() {
+        return show_title;
+    }
+
+    public void setShow_title(boolean show_title) {
+        this.show_title = show_title;
     }
 
     public int getMaxTime() {
@@ -203,6 +231,16 @@ public class QuestionApiDao extends RealmObject {
     public void setMultiple_answers(RealmList<MultipleAnswerApiDao> multiple_answers) {
         this.multiple_answers = multiple_answers;
     }
+
+    public RealmList<MultipleAnswerApiDao> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(RealmList<MultipleAnswerApiDao> answers) {
+        this.answers = answers;
+    }
+
+
 
     public String getType_parent() {
         return type_parent;
@@ -346,6 +384,22 @@ public class QuestionApiDao extends RealmObject {
         this.media_id = media_id;
     }
 
+    public String getAptitude_option_type() {
+        return aptitude_option_type;
+    }
+
+    public void setAptitude_option_type(String aptitude_option_type) {
+        this.aptitude_option_type = aptitude_option_type;
+    }
+
+    public String getDisplay_answer() {
+        return display_answer;
+    }
+
+    public void setDisplay_answer(String display_answer) {
+        this.display_answer = display_answer;
+    }
+
     public int getMediaAttempt() {
         return media_attempt;
     }
@@ -360,6 +414,14 @@ public class QuestionApiDao extends RealmObject {
 
     public void setMediaAttemptLeft(int media_attempt_left) {
         this.media_attempt_left = media_attempt_left;
+    }
+
+    public String getOfflinePath() {
+        return offlinePath;
+    }
+
+    public void setOfflinePath(String offlinePath) {
+        this.offlinePath = offlinePath;
     }
 
     public void resetMediaAttempt() {

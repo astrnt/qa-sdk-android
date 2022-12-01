@@ -7,6 +7,7 @@ import co.astrnt.qasdk.dao.post.RegisterPost
 import co.astrnt.qasdk.type.CustomFiledType
 import co.astrnt.qasdk.type.ElapsedTime
 import co.astrnt.qasdk.type.ElapsedTimeType
+import co.astrnt.qasdk.type.TestType
 import co.astrnt.qasdk.utils.LogUtil.addNewLog
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
@@ -60,10 +61,12 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         val map = HashMap<String, String?>()
         map["interview_code"] = interviewApiDao.interviewCode
         val token = interviewApiDao.token
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/interview/start)",
-                        "Start Interview"
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/interview/start)",
+                "Start Interview"
+            )
         )
         astrntSDK.saveLastApiCall("(/interview/start)")
         if (astrntSDK.isSectionInterview) {
@@ -86,11 +89,13 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         if (!astrntSDK.isSelfPace) {
             updateElapsedTime(ElapsedTimeType.PREPARATION, sectionApiDao.id)
         }
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/section/start)",
-                        "Start Section, number" + (astrntSDK.sectionIndex + 1) +
-                                ", sectionId = " + sectionApiDao.id
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/section/start)",
+                "Start Section, number" + (astrntSDK.sectionIndex + 1) +
+                        ", sectionId = " + sectionApiDao.id
+            )
         )
         astrntSDK.saveLastApiCall("(/section/start)")
         astrntSDK.updateSectionOnGoing(sectionApiDao, true)
@@ -108,11 +113,13 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         if (!astrntSDK.isSelfPace) {
             updateElapsedTime(ElapsedTimeType.SECTION, sectionApiDao.id)
         }
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/section/stop)",
-                        ("Finish Section, number " + (astrntSDK.sectionIndex + 1) +
-                                ", sectionId = " + sectionApiDao.id)
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/section/stop)",
+                ("Finish Section, number " + (astrntSDK.sectionIndex + 1) +
+                        ", sectionId = " + sectionApiDao.id)
+            )
         )
         astrntSDK.saveLastApiCall("(/section/stop)")
         return mAstronautApi.apiService.stopSection((token)!!, map)
@@ -129,13 +136,78 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
             map["section_id"] = currentSection.id.toString()
             astrntSDK.updateSectionSampleQuestion(currentSection, 1)
         }
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/set/try-sample-question)",
-                        "Sample Question"
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/set/try-sample-question)",
+                "Sample Question"
+            )
         )
         astrntSDK.saveLastApiCall("(/set/try-sample-question)")
         return mAstronautApi.apiService.setTrySampleQuestion((token)!!, map)
+    }
+
+    fun answerQuestion(question: QuestionApiDao): Observable<BaseApiDao> {
+        val interviewApiDao = astrntSDK.currentInterview
+        val token = interviewApiDao.token
+        val map = HashMap<String, String?>()
+        map["interview_code"] = interviewApiDao.interviewCode
+        map["candidate_id"] = interviewApiDao.candidate!!.id.toString()
+        map["invite_id"] = interviewApiDao.invite_id.toString()
+
+        map["question_id"] = question.id.toString()
+        if ((question.type_child == TestType.FREE_TEXT)) {
+            map["type"] = "1"
+            var currentAnswer = question.answer
+            if (currentAnswer == null) {
+                currentAnswer = ""
+            }
+            map["text_answer"] = currentAnswer
+        } else {
+            map["type"] = "0"
+            val selectedAnswer = question.selectedAnswer
+            if (selectedAnswer != null) {
+                for (i in selectedAnswer.indices) {
+                    val answerItem = selectedAnswer[i]
+                    assert(answerItem != null)
+                    map["answer_ids[$i]"] = answerItem!!.id.toString()
+                }
+            }
+        }
+        if (question.sub_questions != null && !question.sub_questions!!.isEmpty()) {
+            map["group_question"] = "true"
+        } else {
+            map["group_question"] = "false"
+        }
+        if (astrntSDK.isSectionInterview) {
+            map["interview_type"] = "section"
+        } else {
+            map["interview_type"] = "test"
+        }
+        if (astrntSDK.isSectionInterview) {
+            addNewLog(
+                interviewApiDao.interviewCode,
+                LogDao(
+                    "Hit API (/question/answer)",
+                    ("Answer Question " + (astrntSDK.questionIndex + 1) +
+                            ", questionId = " + question.id +
+                            ", sectionId = " + astrntSDK.currentSection.id +
+                            " duration left = " + astrntSDK.currentSection.duration +
+                            " seconds")
+                )
+            )
+        } else {
+            addNewLog(
+                interviewApiDao.interviewCode,
+                LogDao(
+                    "Hit API (/question/answer)",
+                    ("Answer Question " + (astrntSDK.questionIndex + 1) +
+                            ", questionId = " + question.id)
+                )
+            )
+        }
+        astrntSDK.saveLastApiCall("(/question/answer)")
+        return mAstronautApi.apiService.answerQuestion((token)!!, map)
     }
 
     fun finishSession(question: QuestionApiDao): Observable<BaseApiDao> {
@@ -144,11 +216,13 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         val map = HashMap<String, String?>()
         map["interview_code"] = interviewApiDao.interviewCode
         map["candidate_id"] = interviewApiDao.candidate!!.id.toString()
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/question/finish)",
-                        ("Finish Question, number " + (astrntSDK.questionIndex + 1) +
-                                ", questionId = " + question.id)
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/question/finish)",
+                ("Finish Question, number " + (astrntSDK.questionIndex + 1) +
+                        ", questionId = " + question.id)
+            )
         )
         astrntSDK.saveLastApiCall("(/question/finish)")
         return mAstronautApi.apiService.finishQuestion((token)!!, map)
@@ -159,10 +233,12 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         val map = HashMap<String, String?>()
         map["interview_code"] = interviewApiDao.interviewCode
         val token = interviewApiDao.token
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/interview/finish)",
-                        "Finish Interview"
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/interview/finish)",
+                "Finish Interview"
+            )
         )
         astrntSDK.saveLastApiCall("(/interview/finish)")
         astrntSDK.isFinishInterview = true
@@ -177,42 +253,48 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         map["type"] = type
         map["ref_id"] = refId.toString()
         val token = interviewApiDao.token
-        addNewLog(interviewCode,
-                LogDao("Hit API (/interview/update/elapsedTime)",
-                        ("Update Elapsed Time Section, type = " + type +
-                                ", number " + (astrntSDK.sectionIndex + 1)
-                                + ", refId = " + refId)
-                )
+        addNewLog(
+            interviewCode,
+            LogDao(
+                "Hit API (/interview/update/elapsedTime)",
+                ("Update Elapsed Time Section, type = " + type +
+                        ", number " + (astrntSDK.sectionIndex + 1)
+                        + ", refId = " + refId)
+            )
         )
         astrntSDK.saveLastApiCall("(/interview/update/elapsedTime)")
         mAstronautApi.apiService.updateElapsedTime((token)!!, map)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(object : MyObserver<BaseApiDao>() {
-                    override fun onSubscribe(d: Disposable) {}
-                    override fun onApiResultCompleted() {}
-                    override fun onApiResultError(title: String?, message: String?, code: String?) {
-                        Timber.e(message)
-                        if (message != null && message.lowercase().contains("unable to resolve host")) {
-                            addNewLog(interviewCode,
-                                    LogDao("Hit API (Elapsed Time Section)",
-                                            "Failed, No Internet Connection"
-                                    )
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .subscribe(object : MyObserver<BaseApiDao>() {
+                override fun onSubscribe(d: Disposable) {}
+                override fun onApiResultCompleted() {}
+                override fun onApiResultError(title: String?, message: String?, code: String?) {
+                    Timber.e(message)
+                    if (message != null && message.lowercase().contains("unable to resolve host")) {
+                        addNewLog(
+                            interviewCode,
+                            LogDao(
+                                "Hit API (Elapsed Time Section)",
+                                "Failed, No Internet Connection"
                             )
-                        } else {
-                            addNewLog(interviewCode,
-                                    LogDao("Hit API (Elapsed Time Section)",
-                                            "Error : $message"
-                                    )
+                        )
+                    } else {
+                        addNewLog(
+                            interviewCode,
+                            LogDao(
+                                "Hit API (Elapsed Time Section)",
+                                "Error : $message"
                             )
-                        }
-                        astrntSDK.saveLastApiCall("(Elapsed Time Section)")
+                        )
                     }
+                    astrntSDK.saveLastApiCall("(Elapsed Time Section)")
+                }
 
-                    override fun onApiResultOk(baseApiDao: BaseApiDao) {
-                        Timber.d(baseApiDao.message)
-                    }
-                })
+                override fun onApiResultOk(baseApiDao: BaseApiDao) {
+                    Timber.d(baseApiDao.message)
+                }
+            })
     }
 
     fun cvStatus(): Observable<BaseApiDao> {
@@ -223,10 +305,12 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         map["candidate_id"] = interviewApiDao.candidate!!.id.toString()
         map["interview_code"] = interviewApiDao.interviewCode
         val token = interviewApiDao.token
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/cv/status)",
-                        "CV Status"
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/cv/status)",
+                "CV Status"
+            )
         )
         astrntSDK.saveLastApiCall("(/cv/status)")
         return mAstronautApi.apiService.cvStatus((token)!!, map)
@@ -240,10 +324,12 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
         map["candidate_id"] = interviewApiDao.candidate!!.id.toString()
         map["interview_code"] = interviewApiDao.interviewCode
         val token = interviewApiDao.token
-        addNewLog(interviewApiDao.interviewCode,
-                LogDao("Hit API (/cv/start)",
-                        "CV Start"
-                )
+        addNewLog(
+            interviewApiDao.interviewCode,
+            LogDao(
+                "Hit API (/cv/start)",
+                "CV Start"
+            )
         )
         astrntSDK.saveLastApiCall("(/cv/start)")
         astrntSDK.saveCvStartCalled(true)
@@ -265,10 +351,12 @@ class InterviewRepository(astronautApi: AstronautApi) : BaseRepository(astronaut
     fun gdprComplied(interviewCode: String): Observable<BaseApiDao> {
         val map = HashMap<String, String?>()
         map["interview_code"] = interviewCode
-        addNewLog(interviewCode,
-                LogDao("Hit API (/user/gdpr_complied)",
-                        "GDPR Complied"
-                )
+        addNewLog(
+            interviewCode,
+            LogDao(
+                "Hit API (/user/gdpr_complied)",
+                "GDPR Complied"
+            )
         )
         astrntSDK.saveLastApiCall("(/user/gdpr_complied)")
         return mAstronautApi.apiService.gdprComplied("", map)

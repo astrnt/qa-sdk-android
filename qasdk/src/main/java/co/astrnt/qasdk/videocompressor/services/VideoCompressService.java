@@ -21,6 +21,11 @@ import java.util.TimerTask;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.InterviewApiDao;
@@ -32,7 +37,7 @@ import co.astrnt.qasdk.upload.SingleVideoUploadService;
 import co.astrnt.qasdk.utils.FileUtils;
 import co.astrnt.qasdk.utils.LogUtil;
 import co.astrnt.qasdk.utils.ServiceUtils;
-import co.astrnt.qasdk.utils.services.SendLogService;
+import co.astrnt.qasdk.utils.services.SendLogWorkerJava;
 import co.astrnt.qasdk.videocompressor.VideoCompress;
 import io.reactivex.annotations.Nullable;
 import timber.log.Timber;
@@ -163,7 +168,7 @@ public class VideoCompressService extends Service {
 
                 VideoCompress.compressVideo(inputPath, outputPath, new VideoCompress.CompressListener() {
                     @Override
-                    public void onStart() {
+                    public void onStartCompress() {
 
                         astrntSDK.saveRunningCompressing(true);
 
@@ -348,11 +353,16 @@ public class VideoCompressService extends Service {
     }
 
     private void sendLog() {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            if (!ServiceUtils.isMyServiceRunning(context, SendLogService.class)) {
-                SendLogService.start(context);
-            }
-        });
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(SendLogWorkerJava.class)
+                .setConstraints(constraints)
+                .addTag("sendlog")
+                .build();
+
+        WorkManager.getInstance(this).enqueue(request);
     }
 
     public void stopService() {

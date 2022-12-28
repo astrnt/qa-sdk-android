@@ -12,6 +12,8 @@ PreferenceKey {
     const val KEY_WELCOME_VIDEO_URI = "WelcomeVideoUri"
     const val KEY_GDPR = "GdprDao"
     const val KEY_CONTINUE = "ContinueInterview"
+    const val KEY_CONTINUETDL = "ContinueInterviewTDL"
+    const val KEY_SHOW_INSTRUCTION = "KeyShowInstruction"
     const val KEY_SHOW_UPLOAD = "ShowUpload"
     const val KEY_FINISH_SESSION = "finishSession"
     const val KEY_START_SESSION = "startSession"
@@ -37,4 +39,5 @@ PreferenceKey {
     const val KEY_IS_SECTION_SUMMARY = "SECTIONSUMMARY"
     const val KEY_IS_COUNTDOWN = "COUNTDOWN"
     const val KEY_CLOSE_APPS = "CLOSEAPPS"
+    const val IS_TDL = "TDL"
 }

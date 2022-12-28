@@ -43,7 +43,7 @@ public class VideoCompress {
     }
 
     public interface CompressListener {
-        void onStart();
+        void onStartCompress();
 
         void onSuccess();
 
@@ -65,7 +65,7 @@ public class VideoCompress {
         protected void onPreExecute() {
             super.onPreExecute();
             if (mListener != null) {
-                mListener.onStart();
+                mListener.onStartCompress();
             }
         }
 

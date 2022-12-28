@@ -5,8 +5,10 @@ import com.orhanobut.hawk.Hawk;
 import co.astrnt.qasdk.dao.GdprDao;
 import co.astrnt.qasdk.dao.WelcomeVideoDao;
 
+import static co.astrnt.qasdk.constants.PreferenceKey.IS_TDL;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CLOSE_APPS;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CONTINUE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CONTINUETDL;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_CV_START_CALLED;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_DOWNLOAD_ID;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_FINISH_INTERVIEW;
@@ -27,6 +29,7 @@ import static co.astrnt.qasdk.constants.PreferenceKey.KEY_LAST_TIMER;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_NEED_REGISTER;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_PRACTICE_RETAKE;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SELF_PACE;
+import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_INSTRUCTION;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_RATING;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_SHOW_UPLOAD;
 import static co.astrnt.qasdk.constants.PreferenceKey.KEY_START_SESSION;
@@ -44,6 +47,22 @@ public class HawkUtils {
 
     public void setContinueInterview(boolean isContinue) {
         Hawk.put(KEY_CONTINUE, isContinue);
+    }
+
+    public boolean isContinueInterviewTDL() {
+        return Hawk.get(KEY_CONTINUETDL, false);
+    }
+
+    public void setContinueInterviewTDL(boolean isContinue) {
+        Hawk.put(KEY_CONTINUETDL, isContinue);
+    }
+
+    public void setShowInstruction(boolean isContinue) {
+        Hawk.put(KEY_SHOW_INSTRUCTION, isContinue);
+    }
+
+    public boolean isShowInstruction() {
+        return Hawk.get(KEY_SHOW_INSTRUCTION, false);
     }
 
     public boolean isContDown() {
@@ -285,6 +304,14 @@ public class HawkUtils {
         Hawk.put(KEY_CLOSE_APPS, isLast);
     }
 
+    public boolean getTDLStatus() {
+        return Hawk.get(IS_TDL, false);
+    }
+
+    public void setTDL(boolean isLast) {
+        Hawk.put(IS_TDL, isLast);
+    }
+
 
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
@@ -308,6 +335,9 @@ public class HawkUtils {
         Hawk.delete(KEY_START_SESSION);
         Hawk.delete(KEY_IS_LAST_QUESTION);
         Hawk.delete(KEY_CLOSE_APPS);
+        Hawk.delete(KEY_CONTINUETDL);
+        Hawk.delete(KEY_SHOW_INSTRUCTION);
+        Hawk.delete(IS_TDL);
         removeDownloadId();
         removeUploadId();
     }

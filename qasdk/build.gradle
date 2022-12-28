@@ -8,12 +8,12 @@ apply plugin: 'realm-android'
 group = 'com.github.astrnt'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion '30.0.3'
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 216
+        targetSdkVersion 31
+        versionCode 21
         versionName "2.1"
 
         vectorDrawables.useSupportLibrary = true
@@ -92,10 +92,7 @@ dependencies {
     api 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.localebro:okhttpprofiler:1.0.8'
-
-    def uploadServiceVersion = "3.5.2"
-    api "net.gotev:uploadservice:$uploadServiceVersion"
-    api "net.gotev:uploadservice-okhttp:$uploadServiceVersion"
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
 //    Download Manager
     api 'com.mindorks.android:prdownloader:0.6.0'

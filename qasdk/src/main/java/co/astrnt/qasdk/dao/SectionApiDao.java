@@ -1,5 +1,8 @@
 package co.astrnt.qasdk.dao;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import co.astrnt.qasdk.type.MediaTypes;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -27,9 +30,12 @@ public class SectionApiDao extends RealmObject {
     private RealmList<SupportMaterialDao> support_materials;
 
     //for rating scale
-    private QuestionApiDao sample_question;
+    private RealmList<QuestionApiDao> sample_question;
+    private boolean show_title;
     private int try_sample_question;
-
+    private int instruction_time;
+    private int sample_question_time;
+    private String assessment_type ;
     private MediaDao media;
     private @MediaTypes String media_type;
     private int media_id;
@@ -54,6 +60,29 @@ public class SectionApiDao extends RealmObject {
         this.support_materials = support_materials;
     }
 
+    public int getInstruction_time() {
+        return instruction_time;
+    }
+
+    public void setInstruction_time(int instruction_time) {
+        this.instruction_time = instruction_time;
+    }
+
+    public int getSample_question_time() {
+        return sample_question_time;
+    }
+
+    public void setSample_question_time(int sample_question_time) {
+        this.sample_question_time = sample_question_time;
+    }
+
+    public boolean isShow_title() {
+        return show_title;
+    }
+
+    public void setShow_title(boolean show_title) {
+        this.show_title = show_title;
+    }
 
     public String getTitle() {
         return title;
@@ -109,6 +138,14 @@ public class SectionApiDao extends RealmObject {
 
     public void setPreparationTime(int preparation_time) {
         this.preparation_time = preparation_time;
+    }
+
+    public String getAssessment_type() {
+        return assessment_type;
+    }
+
+    public void setAssessment_type(String assessment_type) {
+        this.assessment_type = assessment_type;
     }
 
     public int getPreparationTimeApi() {
@@ -223,11 +260,11 @@ public class SectionApiDao extends RealmObject {
         this.showReview = showReview;
     }
 
-    public QuestionApiDao getSample_question() {
+    public RealmList<QuestionApiDao> getSample_question() {
         return sample_question;
     }
 
-    public void setSample_question(QuestionApiDao sample_question) {
+    public void setSample_question(RealmList<QuestionApiDao> sample_question) {
         this.sample_question = sample_question;
     }
 
@@ -238,4 +275,6 @@ public class SectionApiDao extends RealmObject {
     public void setTry_sample_question(int try_sample_question) {
         this.try_sample_question = try_sample_question;
     }
+
+
 }

@@ -3,15 +3,26 @@ package co.astrnt.qasdk.upload;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
+
 import com.google.gson.Gson;
+
 import org.greenrobot.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
@@ -19,21 +30,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
 import co.astrnt.qasdk.dao.QuestionApiDao;
-import co.astrnt.qasdk.event.Compress;
 import co.astrnt.qasdk.event.UploadComplete;
 import co.astrnt.qasdk.event.UploadEvent;
 import co.astrnt.qasdk.type.UploadStatusType;
@@ -50,9 +52,10 @@ import co.astrnt.qasdk.utils.services.SendLogWorkerJava;
 import co.astrnt.qasdk.videocompressor.services.VideoCompressService;
 import timber.log.Timber;
 
-public class SingleVideoUploadService extends Service implements UploadStatusDelegate {
+public class SingleVideoUploadWorker extends Worker implements UploadStatusDelegate {
 
-    public static final String EXT_QUESTION_ID = "SingleVideoUploadService.QuestionId";
+    public static final String EXT_QUESTION_ID = "SingleVideoUploadWorker.QuestionId";
+    public static final String EXT_INTERVIEW_CODE = "SingleVideoUploadWorker.InterViewCode";
 
     public static final long NOTIFY_INTERVAL = 2 * 60 * 1000;
 
@@ -68,47 +71,48 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     private NotificationManager mNotifyManager;
 
-    public static void start(Context context, long questionId, String interviewCode) {
-        try {
-            Intent intent = new Intent(context, SingleVideoUploadService.class)
-                    .putExtra(EXT_QUESTION_ID, questionId);
-            ContextCompat.startForegroundService(context, intent);
-        }catch (Exception e) {
-            LogUtil.addNewLog(interviewCode,
-                    new LogDao("Failed to start upload",
-                            "Because "+e.getMessage()
-                    )
-            );
-        }
+    public SingleVideoUploadWorker(@NonNull @NotNull Context context, @NonNull @NotNull WorkerParameters workerParams) {
+        super(context, workerParams);
     }
 
+    @NonNull
+    @NotNull
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getExtras() != null) {
-            questionId = intent.getLongExtra(EXT_QUESTION_ID, 0);
-
-            currentQuestion = astrntSDK.searchQuestionById(questionId);
-
-            createNotification();
-
-            if (mTimer != null) {
-                mTimer.cancel();
-                mTimer = null;
-                mTimer = new Timer();
-            } else {
-                mTimer = new Timer();
-            }
-            mTimer.scheduleAtFixedRate(new SingleVideoUploadService.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
-        }
-        return START_STICKY;
+    public Result doWork() {
+        onCreateExecution();
+        return Result.success();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        context = this;
+    private void onCreateExecution() {
+        context = getApplicationContext();
         astrntSDK = new AstrntSDK();
 
+        questionId = getInputData().getLong(EXT_QUESTION_ID, 0);
+
+        currentQuestion = astrntSDK.searchQuestionById(questionId);
+
+        createNotification();
+
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer = null;
+            mTimer = new Timer();
+        } else {
+            mTimer = new Timer();
+        }
+        mTimer.scheduleAtFixedRate(new SingleVideoUploadWorker.TimeDisplayTimerTask(), 5000, NOTIFY_INTERVAL);
+    }
+
+    private void sendLog() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(SendLogWorkerJava.class)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(context).enqueue(request);
     }
 
     private void createNotification() {
@@ -141,19 +145,12 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 mNotifyManager.createNotificationChannel(channel);
             }
 
-            startForeground(mNotificationId, mBuilder.build());
+//            startForeground(mNotificationId, mBuilder.build());
         } else {
-            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         }
 
         mNotifyManager.notify(mNotificationId, mBuilder.build());
-    }
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     public void doUploadVideo() {
@@ -186,10 +183,11 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
                     if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
                         if (!astrntSDK.isRunningCompressing()) {
-                            LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
-                            EventBus.getDefault()
-                                    .post(new Compress(currentQuestion.getVideoPath(),
-                                            currentQuestion.getId()));
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                Timber.i("Start compress from do Upload Video");
+                                LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress", "From Upload Video " + currentQuestion.getId()));
+                                VideoCompressService.start(context, currentQuestion.getVideoPath(), currentQuestion.getId(), astrntSDK.getInterviewCode());
+                            });
                         }
                     }
 
@@ -266,29 +264,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
     }
 
-    private void sendLog() {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(SendLogWorkerJava.class)
-                .setConstraints(constraints)
-                .addTag("sendlog")
-                .build();
-
-        WorkManager.getInstance(this).enqueue(request);
-    }
-
-    public void stopService() {
-        astrntSDK.saveRunningUploading(false);
-        LogUtil.addNewLog(astrntSDK.getInterviewCode(),
-                new LogDao("Stop Service", "Upload Video"));
-        sendLog();
-        if (mTimer != null) mTimer.cancel();
-        if (mNotifyManager != null) mNotifyManager.cancelAll();
-        stopSelf();
-    }
-
     @Override
     public void onProgress(Context context, UploadInfo uploadInfo) {
 
@@ -297,7 +272,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 astrntSDK.updateProgress(currentQuestion, uploadInfo.getProgressPercent());
             } catch (Exception e) {
                 Timber.e("Error %s", e.getMessage());
-                if (e.getMessage().contains(getString(R.string.error_deleted_thread))) {
+                if (e.getMessage().contains(context.getString(R.string.error_deleted_thread))) {
                     stopService();
                 }
             }
@@ -348,7 +323,6 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     @Override
     public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
         try {
-
             astrntSDK.removeUploadId();
             astrntSDK.markUploaded(currentQuestion);
             EventBus.getDefault().post(new UploadComplete());
@@ -370,7 +344,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                         if (!astrntSDK.isRunningCompressing()) {
                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Start compress",
                                     "From pending status " + item.getId()));
-                            EventBus.getDefault().post(new Compress(item.getVideoPath(), item.getId()));
+                            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
                             isDoingCompress = false;
                         }
                     }
@@ -379,15 +354,13 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
 
             for (QuestionApiDao item : compressedVideo) {
                 if (isDoingCompress) {
-                    if (!ServiceUtils.isMyServiceRunning(context, SingleVideoUploadService.class)) {
                         if (!astrntSDK.isRunningUploading()) {
                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Current status",
                                     "Uploading from compressed " + item.getId()));
-
-                            SingleVideoUploadService.start(context, item.getId(), interviewApiDao.getInterviewCode());
+                            sendUploadVideo(item.getId(), interviewApiDao.getInterviewCode());
                             isDoingCompress = false;
                         }
-                    }
+//                    }
                 }
             }
 
@@ -399,7 +372,7 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                             astrntSDK.markAsPending(item, item.getVideoPath());
                             Timber.i("current status compress is compressing");
                             LogUtil.addNewLog(astrntSDK.getInterviewCode(), new LogDao("Status compressing", "From current compressing " + item.getId()));
-                            EventBus.getDefault().post(new Compress(item.getVideoPath(), item.getId()));
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> VideoCompressService.start(context, item.getVideoPath(), item.getId(), astrntSDK.getInterviewCode()), 1000);
                             isDoingCompress = false;
                         }
                     } else {
@@ -435,6 +408,10 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
     }
 
 
+    public void stopService() {
+        sendLog();
+    }
+
     class TimeDisplayTimerTask extends TimerTask {
 
         @Override
@@ -454,5 +431,22 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
             });
         }
     }
-}
 
+    private void sendUploadVideo(Long id, String interviewCode) {
+
+        Data.Builder builder = new Data.Builder();
+        builder.putLong(SingleVideoUploadWorker.EXT_QUESTION_ID, id);
+        builder.putString(SingleVideoUploadWorker.EXT_INTERVIEW_CODE, interviewCode);
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(SingleVideoUploadWorker.class)
+                .setConstraints(constraints)
+                .setInputData(builder.build())
+                .build();
+
+        WorkManager.getInstance(context).enqueue(request);
+    }
+}

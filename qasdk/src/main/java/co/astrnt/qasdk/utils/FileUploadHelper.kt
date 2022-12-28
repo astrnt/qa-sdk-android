@@ -5,7 +5,7 @@ import android.os.Build
 import co.astrnt.qasdk.dao.InterviewApiDao
 import co.astrnt.qasdk.dao.LogDao
 import co.astrnt.qasdk.dao.QuestionApiDao
-import net.gotev.uploadservice.MultipartUploadRequest
+import co.astrnt.qasdk.uploadservice.MultipartUploadRequest
 import java.io.FileNotFoundException
 import java.net.MalformedURLException
 

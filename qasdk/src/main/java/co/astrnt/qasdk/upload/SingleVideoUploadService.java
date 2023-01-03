@@ -29,6 +29,7 @@ import androidx.work.WorkManager;
 
 import co.astrnt.qasdk.AstrntSDK;
 import co.astrnt.qasdk.R;
+import co.astrnt.qasdk.constants.Constants;
 import co.astrnt.qasdk.dao.BaseApiDao;
 import co.astrnt.qasdk.dao.InterviewApiDao;
 import co.astrnt.qasdk.dao.LogDao;
@@ -175,8 +176,8 @@ public class SingleVideoUploadService extends Service implements UploadStatusDel
                 astrntSDK.getVideoFile(context, interviewApiDao.getInterviewCode(), currentQuestion.getId());
                 stopService();
             } else {
-
-                if (currentQuestion.getVideoPath().contains("_raw.mp4")) {
+                double fileSizeInKb = (double) (file.length() / 1024);
+                if (currentQuestion.getVideoPath().contains("_raw.mp4") && fileSizeInKb > Constants.MIN_SIZE_VIDEO) {
                     astrntSDK.markAsPending(currentQuestion, currentQuestion.getVideoPath());
 
                     LogUtil.addNewLog(interviewApiDao.getInterviewCode(),

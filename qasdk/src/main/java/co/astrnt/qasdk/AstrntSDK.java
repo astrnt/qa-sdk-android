@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 import org.greenrobot.eventbus.EventBus;
 
+import co.astrnt.qasdk.constants.Constants;
 import co.astrnt.qasdk.constants.PreferenceKey;
 import co.astrnt.qasdk.core.AstronautApi;
 import co.astrnt.qasdk.dao.CandidateApiDao;
@@ -2301,7 +2302,8 @@ public class AstrntSDK extends HawkUtils {
         QuestionApiDao questionApiDao = getQuestionById(questionId);
 
         File rawFile = new File(directory, questionId + "_raw.mp4");
-        if (rawFile.exists()) {
+        double fileSizeInKb = (double) (rawFile.length() / 1024);
+        if (rawFile.exists() && fileSizeInKb > Constants.MIN_SIZE_VIDEO) {
             markAsPending(questionApiDao, rawFile.getAbsolutePath());
             if (!ServiceUtils.isMyServiceRunning(context, VideoCompressService.class)) {
                 if (!isRunningCompressing()) {

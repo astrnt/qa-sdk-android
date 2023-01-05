@@ -53,7 +53,7 @@ public class VideoInfoActivity extends BaseActivity {
         txtTotalQuestion.setText(String.valueOf(interviewApiDao.getQuestions().size()));
         txtTitleInfo.setText(context.getResources().getQuantityString(R.plurals.video_question,
                 interviewApiDao.getTotalQuestion()));
-        txtTotalMinutes.setText(String.valueOf(interviewApiDao.getEstimatedTime()));
+        txtTotalMinutes.setText(String.valueOf(interviewApiDao.getEstimation_time()));
         txtTotalUpload.setText(String.valueOf(interviewApiDao.getTotalUpload()));
     }
 

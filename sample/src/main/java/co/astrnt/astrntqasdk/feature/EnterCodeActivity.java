@@ -190,6 +190,11 @@ public class EnterCodeActivity extends BaseActivity {
                     public void onSectionType(InterviewApiDao interview) {
                         Toast.makeText(context, "Section", Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void onAstronautProfileType(InterviewApiDao interview) {
+
+                    }
                 });
     }
 }

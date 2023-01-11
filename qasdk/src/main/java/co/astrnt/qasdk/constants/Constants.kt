@@ -11,4 +11,5 @@ object Constants {
     const val RAW_ESTIMATION_60S = 150
     const val RAW_ESTIMATION_120S = 287
     const val RAW_ESTIMATION_BIG = 500
+    const val MIN_SIZE_VIDEO = 13000.0
 }

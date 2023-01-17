@@ -71,6 +71,7 @@ public class QuestionApiDao extends RealmObject {
 
     private boolean isRetake;
     private boolean show_title = true;
+    private int disable_copy_paste = 0;
 
     public long getId() {
         return id;
@@ -138,6 +139,14 @@ public class QuestionApiDao extends RealmObject {
 
     public boolean isShow_title() {
         return show_title;
+    }
+
+    public int getDisableCopyPaste() {
+        return disable_copy_paste;
+    }
+
+    public void setDisable_copy_paste(int disable_copy_paste) {
+        this.disable_copy_paste = disable_copy_paste;
     }
 
     public void setShow_title(boolean show_title) {

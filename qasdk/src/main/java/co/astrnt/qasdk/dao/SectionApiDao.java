@@ -32,6 +32,7 @@ public class SectionApiDao extends RealmObject {
     //for rating scale
     private RealmList<QuestionApiDao> sample_question;
     private boolean show_title;
+    private int disable_copy_paste = 0;
     private int try_sample_question;
     private int instruction_time;
     private int sample_question_time;
@@ -82,6 +83,14 @@ public class SectionApiDao extends RealmObject {
 
     public void setShow_title(boolean show_title) {
         this.show_title = show_title;
+    }
+
+    public int getDisable_copy_paste() {
+        return disable_copy_paste;
+    }
+
+    public void setDisable_copy_paste(int disable_copy_paste) {
+        this.disable_copy_paste = disable_copy_paste;
     }
 
     public String getTitle() {

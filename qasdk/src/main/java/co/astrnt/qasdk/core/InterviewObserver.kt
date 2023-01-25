@@ -96,7 +96,7 @@ abstract class InterviewObserver : MyObserver<InterviewResultApiDao>() {
                             if (interviewCode != null) {
                                 addNewLog(interviewCode,
                                         LogDao("Enter Code Response API",
-                                                "Error : " + baseApiDao.message
+                                                "Error : " + baseApiDao.message + " code " + interviewCode
                                         )
                                 )
                             }

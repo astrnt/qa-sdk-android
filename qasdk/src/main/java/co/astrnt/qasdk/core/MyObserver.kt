@@ -69,7 +69,7 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
         } else {
             addNewLog(interviewCode,
                     LogDao("Response API",
-                            "Response Error : $message"
+                            "Response Error : $message $interviewCode"
                     )
             )
         }
@@ -107,7 +107,7 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
                         }
                         addNewLog(interviewCode,
                                 LogDao("Response API",
-                                        "Error : $message"
+                                        "Error : $message $interviewCode"
                                 )
                         )
                     }
@@ -128,7 +128,7 @@ abstract class MyObserver<T : BaseApiDao> : Observer<T> {
                 }
                 addNewLog(interviewCode,
                         LogDao("Response API",
-                                "Error : $message"
+                                "Error : $message $interviewCode"
                         )
                 )
             }

@@ -312,7 +312,6 @@ public class HawkUtils {
         Hawk.put(IS_TDL, isLast);
     }
 
-
     protected void removeHawkSaved() {
         Hawk.delete(KEY_WATCH_WELCOME_VIDEO);
         Hawk.delete(KEY_WELCOME_VIDEO);
